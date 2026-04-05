@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiOefeningen2.ViewModels"
+             x:Class="MauiOefeningen2.Views.FactuurPage"
+             xmlns:models="clr-namespace:MauiOefeningen2.Models"
+             x:DataType="viewmodel:FactuurViewModel"
+             Title="{Binding Title}">
+    <VerticalStackLayout>
+
+        <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="*,*">
+
+            <!-- Column Names -->
+
+            <Label Grid.Column="0" Grid.Row="0" Text="Productnaam:"/>
+            <Entry Grid.Column="0" Grid.Row="1" Text="{Binding Product.Naam}" WidthRequest="500"/>
+            <Label Grid.Column="1" Grid.Row="0" Text="Prijs:"/>
+            <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Product.Prijs}" WidthRequest="150" Keyboard="Numeric"/>
+            <Label Grid.Column="2" Grid.Row="0" Text="Aantal:"/>
+            <Entry Grid.Column="2" Grid.Row="1" Text="{Binding Product.Aantal}" WidthRequest="150"/>
+
+            <Button Text="Product Toevoegen" Command="{Binding ProductToevoegenCommand}" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
+        </Grid>
+
+        <Label Text="{Binding Title}"/>
+
+        <CollectionView ItemsSource="{Binding Producten}" SelectedItem="{Binding Product}">
+            <CollectionView.Header>
+                <Grid ColumnDefinitions="*,*,*,*">
+                    <Label Text="Productnaam" Grid.Column="0"/>
+                    <Label Text="Prijs" Grid.Column="1"/>
+                    <Label Text="Aantal" Grid.Column="2"/>
+                    <Label Text="Totaal" Grid.Column="3"/>
+                </Grid>
+            </CollectionView.Header>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Product">
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="{Binding Naam}" WidthRequest="50" Grid.Column="0"/>
+                        <Label Text="{Binding Prijs}" WidthRequest="100" Grid.Column="1"/>
+                        <Label Text="{Binding Aantal}" WidthRequest="100" Grid.Column="2"/>
+                        <Label Text="{Binding Totaal, StringFormat='€{0:F2}'}" WidthRequest="100" Grid.Column="3"/>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="nl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leer .NET MAUI: Cursus voor Beginners</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Stijl voor actieve navigatielink */
+        .sidebar-link.active {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+        }
+        /* Basis syntax highlighting stijlen */
+        pre[class*="language-"] {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #9ca3af; }
+        .token.punctuation { color: #a1a1aa; }
+        .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: #f472b6; }
+        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #a5b4fc; }
+        .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: #93c5fd; }
+        .token.atrule, .token.attr-value, .token.keyword { color: #c084fc; }
+        .token.function, .token.class-name { color: #facc15; }
+        .token.regex, .token.important, .token.variable { color: #fb923c; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-full md:w-64 lg:w-72 bg-white md:border-r border-gray-200 p-6 md:fixed md:h-full md:overflow-y-auto transition-transform -translate-x-full md:translate-x-0 z-20">
+            <h2 class="text-xl font-bold text-gray-900 mb-6">Inhoudsopgave</h2>
+            <nav id="table-of-contents" class="space-y-2">
+                <a href="#framework" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Wat is een Framework?</a>
+                <a href="#inleiding" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Wat is .NET MAUI?</a>
+                <a href="#installatie" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Vereisten en Installatie</a>
+                <a href="#project-aanmaken" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Project Aanmaken</a>
+                <a href="#project-config" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Inhoud Projectbestand</a>
+                <a href="#project-structuur" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Projectstructuur</a>
+                <a href="#paginas-toevoegen" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Pagina's Toevoegen</a>
+                <a href="#navigatie" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Navigatie Tussen Pagina's</a>
+                <a href="#controls" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Controls</a>
+                <a href="#layouts" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Layouts</a>
+                <a href="#mvvm" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">MVVM in .NET MAUI</a>
+                <a href="#collectionviews" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">CollectionViews & Models</a>
+                <a href="#repositories" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Repositories en Interfaces</a>
+                <a href="#mvvm-voorbeelden" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Praktijkvoorbeelden: MVVM</a>
+                <a href="#events" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Events en Code-behind</a>
+                <a href="#styling" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Styling en Thema's</a>
+                <a href="#oefeningen" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Oefeningen</a>
+                <a href="#bronnen" class="sidebar-link block px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-200">Bronnen</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-64 lg:ml-72 p-6 md:p-10">
+            <div class="max-w-4xl mx-auto">
+                <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-30 p-2 bg-white rounded-full shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                
+                <header class="mb-12 text-center">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">Uitgebreide Handleiding .NET MAUI</h1>
+                    <p class="mt-4 text-lg text-gray-600">Een complete cursus voor de beginnende student.</p>
+                </header>
+
+                <!-- Wat is een Framework? -->
+                <section id="framework" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Wat is een Framework?</h2>
+                    <p class="mb-4">Een framework is een verzameling tools, bibliotheken en regels waarmee je de structuur bepaalt van een applicatie of een deel van een applicatie. Een applicatie met het .NET MAUI framework is anders opgebouwd dan een applicatie met het MVC framework.</p>
+                    <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <h4 class="font-semibold text-gray-800">Framework vs. Library</h4>
+                        <p class="text-gray-700 mt-2">Een framework is niet hetzelfde als een library (bibliotheek). Een library is ook herbruikbare code, maar bepaalt niet de structuur van je applicatie. Bij een framework volg je de regels en structuur van het framework. Een library voegt specifieke functionaliteit toe.</p>
+                        <p class="text-gray-600 mt-2 text-sm italic">Vergelijk het met een huis: het framework is het bouwplan van de architect. Een library is als een exclusieve designfauteuil die je toevoegt.</p>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Voorbeelden van Frameworks</h3>
+                    <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li><strong>Web:</strong> Django (Python), Laravel (PHP), Blazor (.NET)</li>
+                        <li><strong>JavaScript:</strong> Angular, Vue.js</li>
+                        <li><strong>Mobile:</strong> Flutter, React Native, .NET MAUI</li>
+                        <li><strong>Backend:</strong> Express.js (Node.js), Spring (Java)</li>
+                    </ul>
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Voorbeelden van Libraries</h3>
+                     <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li><strong>JavaScript:</strong> JQuery, Bootstrap</li>
+                        <li><strong>Python:</strong> Numpy, Matplotlib</li>
+                        <li><strong>.NET:</strong> Newtonsoft.Json, NUnit</li>
+                    </ul>
+                </section>
+
+                <!-- Wat is .NET MAUI? -->
+                <section id="inleiding" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Wat is .NET MAUI?</h2>
+                    <p class="mb-4">.NET MAUI staat voor ".NET Multi-platform App User Interface". Het is een open-source framework voor het ontwikkelen van mobiele en desktopapplicaties die kunnen draaien op meerdere platformen zoals Android, Windows, iOS en meer. Met behulp van .NET en C# bouw je één enkele codebase die kan worden gedeeld tussen de verschillende platformen. Op die manier bespaar je ontwikkeltijd en onderhoud.</p>
+                    <div class="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                        <h4 class="font-semibold text-indigo-800">Waarom .NET MAUI?</h4>
+                        <p class="text-indigo-700 mt-2">Het doel van .NET MAUI is om multi-platform ontwikkeling eenvoudiger te maken. In plaats van dat je vier verschillende UI-frameworks en programmeertalen moet leren, biedt .NET MAUI één uniform framework om zowel mobiele als desktopapps te maken.</p>
+                    </div>
+                </section>
+
+                <!-- Vereisten en Installatie -->
+                <section id="installatie" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Vereisten en Installatie</h2>
+                    <p class="mb-6">Om met .NET MAUI te beginnen, heb je Visual Studio 2022 nodig met de juiste componenten.</p>
+                    <ol class="list-decimal list-inside space-y-4">
+                        <li><strong>Installeer Visual Studio 2022:</strong> Download en installeer <a href="https://visualstudio.microsoft.com/" target="_blank" class="text-indigo-600 hover:underline font-medium">Visual Studio 2022</a>.</li>
+                        <li><strong>Selecteer de juiste Workload:</strong> Start de "Visual Studio Installer". Zorg ervoor dat de workload <strong>".NET Multi-platform App UI development"</strong> is aangevinkt. Dit installeert automatisch de .NET 8.0 SDK en alle andere benodigdheden.</li>
+                        <li><strong>Verifieer de installatie:</strong> Na installatie kun je in Visual Studio een nieuw project aanmaken en controleren of de ".NET MAUI App" template beschikbaar is.</li>
+                    </ol>
+                </section>
+
+                <!-- Project Aanmaken -->
+                <section id="project-aanmaken" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Een Project Aanmaken</h2>
+                    <p class="mb-4">Maak in Visual Studio een nieuw project aan van het type ".NET MAUI App" en geef het de naam 'MauiIntroductie'.</p>
+                     <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <h4 class="font-semibold text-yellow-800">Belangrijk!</h4>
+                        <p class="text-yellow-700 mt-2">Gebruik nooit een underscore (_) in een projectnaam van .NET MAUI. Dit kan problemen veroorzaken bij het deployen van de applicatie.</p>
+                    </div>
+                </section>
+                
+                <!-- Inhoud Projectbestand -->
+                <section id="project-config" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Inhoud van het Projectbestand (.csproj)</h2>
+                    <p class="mb-4">Wanneer je dubbelklikt op je project in Visual Studio, open je het `.csproj` bestand. Dit bevat de configuratie van je project.</p>
+                    <pre class="language-xml"><code>&lt;PropertyGroup&gt;
+    &lt;!-- ... --&gt;
+    &lt;TargetFrameworks&gt;net8.0-android;net8.0-ios;net8.0-maccatalyst&lt;/TargetFrameworks&gt;
+    &lt;TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))"&gt;$(TargetFrameworks);net8.0-windows10.0.19041.0&lt;/TargetFrameworks&gt;
+    
+    &lt;ApplicationTitle&gt;MauiIntroductie&lt;/ApplicationTitle&gt;
+    &lt;ApplicationId&gt;com.companyname.mauiintroductie&lt;/ApplicationId&gt;
+    &lt;ApplicationDisplayVersion&gt;1.0&lt;/ApplicationDisplayVersion&gt;
+    &lt;ApplicationVersion&gt;1&lt;/ApplicationVersion&gt;
+    &lt;!-- ... --&gt;
+&lt;/PropertyGroup&gt;</code></pre>
+                    <ul class="list-disc list-inside space-y-2 mt-4">
+                        <li><strong>TargetFrameworks:</strong> De platformen waarvoor je app wordt gebouwd (Windows, Android, iOS, etc.).</li>
+                        <li><strong>ApplicationTitle:</strong> De naam van je applicatie.</li>
+                        <li><strong>ApplicationId:</strong> Een unieke identifier voor je applicatie.</li>
+                        <li><strong>ApplicationDisplayVersion / ApplicationVersion:</strong> Versienummers.</li>
+                    </ul>
+                </section>
+                
+                <!-- Project Structuur -->
+                <section id="project-structuur" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Projectstructuur en Configuratie</h2>
+                    <h3 class="text-2xl font-semibold mb-3 mt-6">Mappenstructuur</h3>
+                    <ul class="space-y-4">
+                        <li><strong class="font-semibold">Platforms:</strong> Bevat platformspecifieke code en configuratie.</li>
+                        <li><strong class="font-semibold">Resources:</strong> Bevat gedeelde assets zoals fonts, afbeeldingen (die automatisch worden geresized) en stijlen.</li>
+                    </ul>
+                     <h3 class="text-2xl font-semibold mb-3 mt-8">.NET MAUI Startup (MauiProgram.cs)</h3>
+                     <p>Dit bestand configureert en start je applicatie. Hier registreer je bijvoorbeeld fonts, services en logging.</p>
+                    <pre class="language-csharp"><code>public static MauiApp CreateMauiApp()
+{
+    var builder = MauiApp.CreateBuilder();
+    builder
+        .UseMauiApp&lt;App&gt;()
+        .ConfigureFonts(fonts =>
+        {
+            fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+        });
+
+#if DEBUG
+    builder.Logging.AddDebug();
+#endif
+
+    return builder.Build();
+}</code></pre>
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Shell (AppShell.xaml)</h3>
+                    <p>De Shell definieert de hoofdstructuur en navigatie van de app. De extensie `.xaml` staat voor eXtensible Application Markup Language, een opmaaktaal om de UI te ontwerpen.</p>
+                    <pre class="language-xml"><code>&lt;Shell
+    x:Class="MauiApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:MauiIntroductie"
+    Shell.FlyoutBehavior="Disabled"&gt;
+
+    &lt;ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" /&gt;
+&lt;/Shell&gt;</code></pre>
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Pagina's (.xaml en .xaml.cs)</h3>
+                    <p>Een pagina bestaat uit een `.xaml`-bestand voor de layout en een `.xaml.cs`-bestand (code-behind) voor de logica. De code-behind is een `partial class`, wat betekent dat de klassedefinitie is opgesplitst over meerdere bestanden.</p>
+                </section>
+                
+                <!-- Pagina's Toevoegen -->
+                <section id="paginas-toevoegen" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Pagina's Toevoegen</h2>
+                    <p class="mb-4">Pagina's (ook wel 'Views' genoemd) zijn de schermen van je applicatie. Het is een goede gewoonte om deze in een `Views`-map te plaatsen.</p>
+                    <p class="mb-4">Om een nieuwe pagina toe te voegen, klik je met de rechtermuisknop op de `Views`-map en kies je `Add > New Item...`. Selecteer dan een `.NET MAUI ContentPage (XAML)`.</p>
+                    <h4 class="text-xl font-medium mt-6">Naamgevingsconventies</h4>
+                     <ul class="list-disc list-inside space-y-2 mt-2">
+                        <li><strong>Model:</strong> Enkelvoud, PascalCase (bv. `Klant.cs`)</li>
+                        <li><strong>View:</strong> Eindigt op `Page` (bv. `KlantIngevenPage.xaml`)</li>
+                        <li><strong>ViewModel:</strong> Eindigt op `ViewModel` (bv. `KlantViewModel.cs`)</li>
+                    </ul>
+                </section>
+                
+                <!-- Navigatie -->
+                <section id="navigatie" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Navigatie Tussen Pagina's</h2>
+                    <p class="mb-4">Nadat je de standaard `MainPage` hebt verwijderd en een nieuwe `HomePage` hebt toegevoegd, moet je de `AppShell.xaml` aanpassen om de nieuwe pagina als startpunt te gebruiken en navigatie mogelijk te maken.</p>
+                    <ol class="list-decimal list-inside space-y-2 mb-4">
+                        <li>Voeg een XML-namespace toe voor je `Views`-map.</li>
+                        <li>Stel `Shell.FlyoutBehavior` in op `Flyout` om een hamburgermenu te creëren.</li>
+                        <li>Pas de `ShellContent` aan om naar je nieuwe `HomePage` te verwijzen.</li>
+                    </ol>
+                    <pre class="language-xml"><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;Shell
+    x:Class="MauiIntroductie.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:MauiIntroductie.Views"
+    Shell.FlyoutBehavior="Flyout"
+    Title="MauiIntroductie"&gt;
+    
+    &lt;ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate views:HomePage}"
+        Route="HomePage" /&gt;
+    
+    &lt;!-- Voeg hier nieuwe pagina's toe voor het menu --&gt;
+    
+&lt;/Shell&gt;</code></pre>
+                </section>
+
+                <!-- Controls -->
+                 <section id="controls" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Controls</h2>
+                    <p class="mb-4">Een Control is een visueel element op een pagina waarmee de gebruiker kan interacteren. Je bouwt je UI op door controls in XAML te definiëren. Enkele basiscontrols zijn:</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Label:</strong> Toont tekst.</li>
+                        <li><strong>Entry:</strong> Een invoerveld voor tekst.</li>
+                        <li><strong>Button:</strong> Een klikbare knop.</li>
+                        <li><strong>Image:</strong> Toont een afbeelding.</li>
+                        <li><strong>Slider:</strong> Een schuifbalk.</li>
+                        <li><strong>Picker:</strong> Een dropdown-keuzevak.</li>
+                    </ul>
+                </section>
+                
+                <!-- Layouts -->
+                <section id="layouts" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Layouts</h2>
+                    <p class="mb-4">Een `ContentPage` kan maar één kind-element bevatten. Om meerdere controls te plaatsen, gebruik je een layout. Een layout kan op zijn beurt meerdere controls (inclusief andere layouts) bevatten.</p>
+                     <h3 class="text-2xl font-semibold mb-3 mt-6">Verticale StackLayout</h3>
+                     <p>Plaatst controls onder elkaar.</p>
+                    <pre class="language-xml"><code>&lt;StackLayout&gt;
+    &lt;Label Text="Item 1" /&gt;
+    &lt;Label Text="Item 2" /&gt;
+&lt;/StackLayout&gt;</code></pre>
+                     <h3 class="text-2xl font-semibold mb-3 mt-8">HorizontalStackLayout</h3>
+                     <p>Plaatst controls naast elkaar.</p>
+                     <pre class="language-xml"><code>&lt;HorizontalStackLayout&gt;
+    &lt;Label Text="Links" /&gt;
+    &lt;Label Text="Rechts" /&gt;
+&lt;/HorizontalStackLayout&gt;</code></pre>
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Grid (Raster)</h3>
+                    <p>Positioneert controls in rijen en kolommen. Je definieert de `RowDefinitions` en `ColumnDefinitions` en plaatst elke control in een specifieke cel met `Grid.Row` en `Grid.Column`.</p>
+                    <pre class="language-xml"><code>&lt;Grid RowDefinitions="*,*" ColumnDefinitions="*,*"&gt;
+    &lt;Label Text="A" Grid.Row="0" Grid.Column="0" /&gt;
+    &lt;Label Text="B" Grid.Row="0" Grid.Column="1" /&gt;
+    &lt;Label Text="C" Grid.Row="1" Grid.Column="0" /&gt;
+    &lt;Label Text="D" Grid.Row="1" Grid.Column="1" /&gt;
+&lt;/Grid&gt;</code></pre>
+                </section>
+
+                <!-- MVVM in .NET MAUI -->
+                <section id="mvvm" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">MVVM in .NET MAUI</h2>
+                    <p class="mb-4">Bij het ontwikkelen van .NET MAUI-applicaties wordt de gebruikersinterface vaak in XAML opgebouwd. Naarmate een app groeit, kan de code-behind aanpak leiden tot onderhoudsproblemen. Het <strong>Model-View-ViewModel (MVVM)</strong>-patroon biedt een oplossing door de logica van de toepassing strikt te scheiden van de presentatie-laag. Dit maakt de code gemakkelijker te onderhouden, uit te breiden en te testen.</p>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Wat is MVVM?</h3>
+                    <p class="mb-4">MVVM is een architectuurpatroon dat een app opsplitst in drie componenten:</p>
+                    <ul class="list-disc list-inside space-y-3">
+                        <li><strong>Model:</strong> De data- en businesslogica-laag. Dit zijn niet-visuele klassen die de gegevens van de applicatie bevatten (bv. een `Product` class). Het model weet niets van de ViewModel of de View.</li>
+                        <li><strong>View:</strong> De presentatie-laag, verantwoordelijk voor de UI die de gebruiker ziet (meestal in XAML). De View bevat idealiter geen bedrijfslogica en is gekoppeld aan een ViewModel via databinding.</li>
+                        <li><strong>ViewModel:</strong> De tussenschakel die de staat en interactielogica van de UI bevat. Het exposeert properties en commands waarop de View kan binden, en haalt data op uit het Model (of repositories). Het ViewModel heeft geen directe kennis van UI-elementen.</li>
+                    </ul>
+                    <p class="mt-4">Deze scheiding maakt de app beter onderhoudbaar, testbaar en maakt parallelle ontwikkeling door designers en ontwikkelaars makkelijker.</p>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Data binding in .NET MAUI</h3>
+                    <p class="mb-4">Databinding is het mechanisme dat de View en ViewModel met elkaar verbindt. Elk UI-element heeft een `BindingContext` die je instelt op een ViewModel-instantie. UI-elementen kunnen dan binden aan de properties van dat ViewModel met de `{Binding ...}` syntax.</p>
+                    <pre class="language-xml"><code>&lt;!-- De BindingContext wordt ingesteld op het MainViewModel --&gt;
+&lt;ContentPage.BindingContext&gt;
+    &lt;vm:MainViewModel /&gt;
+&lt;/ContentPage.BindingContext&gt;
+
+&lt;!-- De Text-eigenschap van de Entry is nu gebonden aan de UserName-property in het ViewModel --&gt;
+&lt;Entry Text="{Binding UserName}" Placeholder="Typ je naam" /&gt;
+&lt;Label Text="{Binding UserName, StringFormat='Hallo {0}!'}" /&gt;</code></pre>
+                    <p class="mt-2">Bindingen kunnen `OneWay` (van ViewModel naar View) of `TwoWay` (beide richtingen) zijn. Voor invoervelden zoals `Entry` is `TwoWay` de standaard.</p>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">ViewModel-eigenschappen en INotifyPropertyChanged</h3>
+                    <p class="mb-4">Om de UI automatisch te laten updaten, implementeren ViewModels de `INotifyPropertyChanged` interface. Wanneer een property-waarde verandert, wordt een `PropertyChanged` event getriggerd, wat de UI vertelt om zichzelf bij te werken.</p>
+                    <p class="mb-4">De <strong>.NET Community Toolkit MVVM</strong> vereenvoudigt dit enorm. Door je ViewModel te laten erven van `ObservableObject` en properties te markeren met `[ObservableProperty]`, wordt alle benodigde code automatisch gegenereerd.</p>
+                    <pre class="language-csharp"><code>public partial class MyViewModel : ObservableObject
+{
+    [ObservableProperty]
+    private string name; // Genereert een 'Name' property voor databinding
+}</code></pre>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Commands en acties (ICommand)</h3>
+                    <p class="mb-4">In plaats van event handlers in de code-behind, gebruiken we in MVVM <strong>Commands</strong>. Een command is een actie in het ViewModel die wordt aangeroepen door de View. Een `Button` heeft bijvoorbeeld een `Command`-eigenschap die je kunt binden aan een `ICommand` in je ViewModel.</p>
+                    <p class="mb-4">De Community Toolkit biedt het `[RelayCommand]` attribuut om eenvoudig commands te genereren vanuit methodes.</p>
+                    <pre class="language-csharp"><code>public partial class MyViewModel : ObservableObject
+{
+    [RelayCommand]
+    private void SaveData()
+    {
+        // Logica om data op te slaan...
+    }
+}</code></pre>
+                    <pre class="language-xml"><code>&lt;!-- Dit roept de SaveData-methode in het ViewModel aan --&gt;
+&lt;Button Text="Opslaan" Command="{Binding SaveDataCommand}" /&gt;</code></pre>
+                    <p class="mt-2">De toolkit genereert automatisch een `SaveDataCommand` property.</p>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">ObservableCollection en lijsten</h3>
+                    <p class="mb-4">Om een lijst van data te tonen die automatisch wordt bijgewerkt in de UI, gebruik je een `ObservableCollection<T>`. Wanneer je items toevoegt aan of verwijdert uit deze collectie in het ViewModel, wordt de gebonden `CollectionView` in de UI direct bijgewerkt.</p>
+                    <pre class="language-csharp"><code>public partial class MyViewModel : ObservableObject
+{
+    public ObservableCollection&lt;string&gt; Tasks { get; } = new();
+
+    [RelayCommand]
+    private void AddTask(string task)
+    {
+        Tasks.Add(task);
+    }
+}</code></pre>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Dependency Injection en Services</h3>
+                    <p class="mb-4">.NET MAUI heeft ingebouwde ondersteuning voor <strong>Dependency Injection (DI)</strong>. Dit patroon stelt je in staat om afhankelijkheden (zoals data services of repositories) aan je ViewModels te "injecteren" via de constructor. Dit ontkoppelt je ViewModel van concrete implementaties en maakt je code beter testbaar.</p>
+                    <p class="mb-4">Je registreert je services en ViewModels in `MauiProgram.cs`:</p>
+                    <pre class="language-csharp"><code>// In MauiProgram.cs
+builder.Services.AddSingleton&lt;INoteRepository, FileNoteRepository&gt;();
+builder.Services.AddTransient&lt;NotesViewModel&gt;();</code></pre>
+                    <p class="mt-2">En injecteert ze in de constructor van je ViewModel:</p>
+                    <pre class="language-csharp"><code>public class NotesViewModel : ObservableObject
+{
+    private readonly INoteRepository _repo;
+    public NotesViewModel(INoteRepository repo)
+    {
+        _repo = repo;
+    }
+}</code></pre>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Voorbeeld: MVVM in de Praktijk</h3>
+                    <p class="mb-4">Laten we een eenvoudige takenlijst-app bouwen.</p>
+                    <h4 class="text-xl font-medium mt-4">TodoViewModel.cs</h4>
+                    <pre class="language-csharp"><code>public partial class TodoViewModel : ObservableObject
+{
+    [ObservableProperty]
+    private string newTaskText;
+
+    public ObservableCollection&lt;string&gt; Tasks { get; } = new();
+
+    [RelayCommand]
+    private void AddTask()
+    {
+        if (!string.IsNullOrWhiteSpace(NewTaskText))
+        {
+            Tasks.Add(NewTaskText);
+            NewTaskText = string.Empty; // Maakt het invoerveld leeg via databinding
+        }
+    }
+}</code></pre>
+                    <h4 class="text-xl font-medium mt-4">TodoPage.xaml</h4>
+                    <pre class="language-xml"><code>&lt;ContentPage ... x:DataType="viewmodels:TodoViewModel"&gt;
+    &lt;ContentPage.BindingContext&gt;
+        &lt;viewmodels:TodoViewModel /&gt;
+    &lt;/ContentPage.BindingContext&gt;
+
+    &lt;VerticalStackLayout Padding="20" Spacing="10"&gt;
+        &lt;Entry Text="{Binding NewTaskText}" Placeholder="Nieuwe taak..." /&gt;
+        &lt;Button Text="Toevoegen" Command="{Binding AddTaskCommand}" /&gt;
+        &lt;CollectionView ItemsSource="{Binding Tasks}"&gt;
+            &lt;CollectionView.ItemTemplate&gt;
+                &lt;DataTemplate&gt;
+                    &lt;Label Text="{Binding .}" Padding="5" FontSize="18" /&gt;
+                &lt;/DataTemplate&gt;
+            &lt;/CollectionView.ItemTemplate&gt;
+        &lt;/CollectionView&gt;
+    &lt;/VerticalStackLayout&gt;
+&lt;/ContentPage&gt;</code></pre>
+                    <p class="mt-4">Dit voorbeeld combineert een `ObservableProperty` voor het invoerveld, een `RelayCommand` voor de knop en een `ObservableCollection` voor de lijst, wat resulteert in een volledig functionele MVVM-implementatie zonder code-behind.</p>
+                </section>
+
+
+                <!-- CollectionViews, Models -->
+                <section id="collectionviews" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">CollectionViews & Models</h2>
+                    <p class="mb-4">Het laatste deel van MVVM zijn <strong>Models</strong>. Dit zijn de klassen die de structuur van je data bepalen. Om een lijst van models te tonen, gebruiken we een `CollectionView`.</p>
+                    
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">BaseViewModel</h3>
+                    <p class="mb-4">Het is een goede gewoonte om een `BaseViewModel` aan te maken. Andere ViewModels erven hiervan, zodat je herbruikbare code (zoals een titel-property of een 'Ga Terug'-commando) op één plek kunt centraliseren.</p>
+                    <pre class="language-csharp"><code>public partial class BaseViewModel: ObservableObject
+{
+    [ObservableProperty]
+    string title;
+
+    [RelayCommand]
+    public static async Task GoBackAsync()
+    {
+        await Shell.Current.GoToAsync("..");
+    }
+}</code></pre>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">ObservableCollections</h3>
+                    <p class="mb-4">Om een lijst te binden aan een `CollectionView`, gebruik je een `ObservableCollection<T>`. Dit is een speciale collectie die de UI automatisch op de hoogte stelt wanneer items worden toegevoegd of verwijderd, zonder dat je de hele lijst opnieuw hoeft te laden.</p>
+                    
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">De CollectionView Control</h3>
+                    <p class="mb-4">De `CollectionView` heeft enkele belangrijke eigenschappen:</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>ItemsSource:</strong> Bind je aan de `ObservableCollection` in je ViewModel.</li>
+                        <li><strong>ItemTemplate:</strong> Een sjabloon (`DataTemplate`) dat bepaalt hoe elk afzonderlijk item in de lijst eruitziet.</li>
+                        <li><strong>SelectedItem:</strong> Het item dat de gebruiker selecteert. Dit kun je binden aan een property in je ViewModel.</li>
+                        <li><strong>Header / Footer:</strong> Statische content boven of onder de lijst.</li>
+                        <li><strong>EmptyView:</strong> Tekst of een layout die wordt getoond als de lijst leeg is.</li>
+                    </ul>
+                </section>
+                
+                <!-- Repositories en Interfaces -->
+                <section id="repositories" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Repositories en Interfaces</h2>
+                    <p class="mb-4">De interactie met een externe databron (zoals een database) wordt verzorgd door een <strong>Repository</strong>. Dit is een laag tussen het ViewModel en de data. Door een <strong>Interface</strong> te gebruiken, definiëren we wat de repository moet doen, zonder te specificeren hoe. Dit ontkoppelt het ViewModel van de concrete data-implementatie, wat de code flexibeler en beter testbaar maakt.</p>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Interfaces</h3>
+                    <p class="mb-4">Een interface is een contract. We maken een `Data` map aan met daarin `IRepositories` en `Repositories` submappen. Eerst definiëren we de interface.</p>
+                    <h4 class="text-xl font-medium mt-4">IWerknemerRepository.cs</h4>
+                    <pre class="language-csharp"><code>namespace MauiIntroductie.Data.IRepositories
+{
+    public interface IWerknemerRepository
+    {
+        public List&lt;Werknemer&gt; GetWerknemers();
+    }
+}</code></pre>
+                    
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Repositories</h3>
+                    <p class="mb-4">De repository implementeert de interface en bevat de logica om de data daadwerkelijk op te halen (in dit voorbeeld, een hard-coded lijst).</p>
+                    <h4 class="text-xl font-medium mt-4">WerknemerRepository.cs</h4>
+                    <pre class="language-csharp"><code>namespace MauiIntroductie.Data.Repositories
+{
+    public class WerknemerRepository: IWerknemerRepository
+    {
+        public List&lt;Werknemer&gt; Werknemers = new()
+        {
+            new Werknemer() { Id = 1, Voornaam = "John", Achternaam = "Doe", ... },
+            // ... meer werknemers ...
+        };
+
+        public List&lt;Werknemer&gt; GetWerknemers()
+        {
+            return Werknemers;
+        }
+    }
+}</code></pre>
+
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Dependency Injection</h3>
+                    <p class="mb-4">In `MauiProgram.cs` registreren we de <strong>interface</strong> met haar concrete implementatie. Dit zorgt voor een losse koppeling.</p>
+                    <pre class="language-csharp"><code>builder.Services.AddSingleton&lt;IWerknemerRepository, WerknemerRepository&gt;();</code></pre>
+                    <p class="mt-4">Vervolgens injecteren we de interface in de constructor van het ViewModel. Het ViewModel weet nu alleen van de interface, niet van de concrete `WerknemerRepository`.</p>
+                    <h4 class="text-xl font-medium mt-4">WerknemerViewModel.cs (Constructor)</h4>
+                    <pre class="language-csharp"><code>private readonly IWerknemerRepository _werknemerRepository;
+
+public WerknemerViewModel(IWerknemerRepository werknemerRepository)
+{
+    Title = "Werknemers";
+    _werknemerRepository = werknemerRepository;
+    Werknemers = new ObservableCollection&lt;Werknemer&gt;(_werknemerRepository.GetWerknemers());
+    Werknemer = new();
+}</code></pre>
+                </section>
+
+                <!-- Praktijkvoorbeelden: MVVM -->
+                <section id="mvvm-voorbeelden" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Praktijkvoorbeelden: MVVM</h2>
+                    <p class="mb-4">Hier passen we alle concepten toe in de `WerknemerPage`.</p>
+                    
+                    <h3 class="text-2xl font-semibold mb-3 mt-8">Picker binden aan een Repository</h3>
+                    <p class="mb-4">In plaats van de items voor een `Picker` hard in XAML te coderen, halen we ze uit een `FunctieRepository`.</p>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Maak een `Functie` model, `IFunctieRepository` en `FunctieRepository`.</li>
+                        <li>Registreer de service in `MauiProgram.cs`.</li>
+                        <li>Injecteer `IFunctieRepository` in `WerknemerViewModel` en vul een `ObservableCollection<Functie>`.</li>
+                        <li>Pas het `Werknemer` model aan zodat `Functie` van het type `Functie` is.</li>
+                        <li>Bind de `Picker` in XAML aan de nieuwe collectie.</li>
+                    </ol>
+
+                    <h4 class="text-xl font-medium mt-4">WerknemerPage.xaml (Picker)</h4>
+                    <pre class="language-xml"><code>&lt;Picker Title="Selecteer een functie"
+        ItemsSource="{Binding Functies}" 
+        ItemDisplayBinding="{Binding Naam}" 
+        SelectedItem="{Binding Werknemer.Functie}" /&gt;</code></pre>
+                    <p class="mt-2">`ItemDisplayBinding` vertelt de `Picker` welke property van het `Functie` object getoond moet worden.</p>
+                    
+                    <h4 class="text-xl font-medium mt-6">Het "Equals" Probleem</h4>
+                    <p class="mb-2">Als je een werknemer uit de lijst selecteert, zal de `Picker` niet correct worden ingesteld. Dit komt omdat .NET niet weet hoe het twee `Functie`-objecten moet vergelijken. De oplossing is om de `Equals`-methode in het `Functie`-model te overschrijven.</p>
+                    <pre class="language-csharp"><code>// In Functie.cs
+public override bool Equals(object? obj)
+{
+    return obj is Functie functie &amp;&amp; functie.Naam == Naam;
+}</code></pre>
+                    <p class="mt-2">Nu werkt de `Picker` correct bij het selecteren van een bestaande werknemer. [Afbeelding van een .NET MAUI-app die werknemers uit een repository laadt]</p>
+                </section>
+                
+                <!-- Events -->
+                <section id="events" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Events en Code-behind Logica</h2>
+                    <p class="mb-4">Hoewel MVVM met `Commands` de voorkeur heeft, kun je nog steeds traditionele events gebruiken in de code-behind voor simpele UI-logica of wanneer MVVM overkill is.</p>
+                    <h4 class="text-xl font-medium mt-4">XAML:</h4>
+                    <pre class="language-xml"><code>&lt;Button Text="Klik mij!" Clicked="OnButtonClicked" /&gt;
+&lt;Label x:Name="resultLabel" Text="Resultaat verschijnt hier" /&gt;</code></pre>
+
+                    <h4 class="text-xl font-medium mt-4">C# Code-behind:</h4>
+                    <pre class="language-csharp"><code>private void OnButtonClicked(object sender, EventArgs e)
+{
+    resultLabel.Text = "De knop is aangeklikt!";
+}</code></pre>
+                </section>
+
+                <!-- Styling -->
+                <section id="styling" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Styling en Thema's</h2>
+                    <p class="mb-4">Om een consistente look & feel te garanderen, kun je `Styles` gebruiken. Een stijl is een verzameling van property-waarden die je kunt hergebruiken. Stijlen worden meestal gedefinieerd in een `ResourceDictionary`.</p>
+                    <h4 class="text-xl font-medium mt-4">Impliciete Stijl (geldt voor alle Buttons):</h4>
+                    <pre class="language-xml"><code>&lt;ContentPage.Resources&gt;
+    &lt;Style TargetType="Button"&gt;
+        &lt;Setter Property="CornerRadius" Value="10" /&gt;
+        &lt;Setter Property="BackgroundColor" Value="#3498db" /&gt;
+        &lt;Setter Property="TextColor" Value="White" /&gt;
+    &lt;/Style&gt;
+&lt;/ContentPage.Resources&gt;</code></pre>
+                    
+                    <h4 class="text-xl font-medium mt-8">Expliciete Stijl (handmatig toepassen):</h4>
+                    <pre class="language-xml"><code>&lt;ContentPage.Resources&gt;
+    &lt;Style x:Key="TitleLabelStyle" TargetType="Label"&gt;
+        &lt;Setter Property="FontSize" Value="24" /&gt;
+        &lt;Setter Property="FontAttributes" Value="Bold" /&gt;
+    &lt;/Style&gt;
+&lt;/ContentPage.Resources&gt;
+
+&lt;!-- Toepassen van de stijl --&gt;
+&lt;Label Text="Welkom" Style="{StaticResource TitleLabelStyle}" /&gt;</code></pre>
+                </section>
+                
+                <!-- Oefeningen -->
+                <section id="oefeningen" class="mb-12 bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Oefeningen</h2>
+                    <p class="mb-6">Test je kennis met de volgende opdrachten:</p>
+                    <div class="space-y-6">
+                        <details class="bg-gray-50 p-4 rounded-lg cursor-pointer">
+                            <summary class="font-semibold text-lg">1. Repository voor Producten</summary>
+                            <div class="mt-4 text-gray-700">
+                                <p>Maak een `Product`-model (`Naam`, `Prijs`), een `IProductRepository` en een `ProductRepository` met een hard-coded lijst producten. Maak een `ProductViewModel` dat de producten ophaalt via de repository en weergeeft in een `CollectionView` op een nieuwe `ProductPage`.</p>
+                            </div>
+                        </details>
+                         <details class="bg-gray-50 p-4 rounded-lg cursor-pointer">
+                            <summary class="font-semibold text-lg">2. Item Verwijderen</summary>
+                            <div class="mt-4 text-gray-700">
+                                <p>Voeg een `VerwijderProductCommand` toe aan je `ProductViewModel`. Dit commando moet een product als parameter accepteren. Voeg in de `ItemTemplate` van je `CollectionView` een knop toe die dit commando aanroept, en geef het huidige item mee met `{Binding .}`.</p>
+                                <pre class="language-xml mt-2"><code>&lt;Button Text="Verwijder" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ProductViewModel}}, Path=VerwijderProductCommand}" CommandParameter="{Binding .}" /&gt;</code></pre>
+                            </div>
+                        </details>
+                         <details class="bg-gray-50 p-4 rounded-lg cursor-pointer">
+                            <summary class="font-semibold text-lg">3. Geselecteerd Item Tonen</summary>
+                            <div class="mt-4 text-gray-700">
+                                <p>Zorg ervoor dat wanneer je een product selecteert in de `CollectionView`, de details (naam en prijs) in aparte `Label`-controls elders op de pagina worden getoond. Gebruik hiervoor de `SelectedItem` binding van de `CollectionView`.</p>
+                            </div>
+                        </details>
+                    </div>
+                </section>
+                
+                <!-- Bronnen -->
+                <section id="bronnen" class="bg-white p-8 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-indigo-500 pb-2">Bronnen en Referenties</h2>
+                    <p class="mb-4">Voor meer diepgaande informatie kun je de volgende bronnen raadplegen:</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><a href="https://learn.microsoft.com/dotnet/maui/" target="_blank" class="text-indigo-600 hover:underline font-medium">Microsoft Learn - .NET MAUI Docs</a></li>
+                        <li><a href="https://codemag.com/" target="_blank" class="text-indigo-600 hover:underline font-medium">CODE Magazine</a> voor praktische artikelen.</li>
+                        <li><a href="https://stackoverflow.com/questions/tagged/.net-maui" target="_blank" class="text-indigo-600 hover:underline font-medium">Stack Overflow</a> voor specifieke vragen.</li>
+                        <li>De .NET MAUI Community via blogs, GitHub en YouTube.</li>
+                    </ul>
+                    <p class="mt-8 text-center text-lg font-semibold text-gray-700">Veel programmeerplezier met .NET MAUI! 🚀</p>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Terug naar boven knop -->
+    <button id="back-to-top" class="hidden fixed bottom-6 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-opacity duration-300">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobiel menu
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            // Sluit sidebar bij klikken op een link (voor mobiel)
+            const sidebarLinks = document.querySelectorAll('#sidebar a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                });
+            });
+
+            // Actieve sectie in sidebar highlighten
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('#table-of-contents a');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-30% 0px -70% 0px' }); // Activeert wanneer sectie in het midden is
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Terug naar boven knop
+            const backToTopButton = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('hidden');
+                } else {
+                    backToTopButton.classList.add('hidden');
+                }
+            });
+
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
+

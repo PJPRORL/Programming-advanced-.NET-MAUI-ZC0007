@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiIntroductie.ViewModels"
+             x:Class="MauiIntroductie.Views.DetailsPage"
+             xmlns:model="clr-namespace:MauiIntroductie.Models"
+             x:DataType="viewmodel:DetailsViewModel"
+             Title="DetailsPage">
+    <VerticalStackLayout>
+        <VerticalStackLayout Padding="20" Spacing="10">
+            <Label Text="ID:" FontSize="Medium" FontAttributes="Bold"/>
+            <Label Text="{Binding Werknemer.Id}" FontSize="Body"/>
+
+            <Label Text="Volledige Naam:" FontSize="Medium" FontAttributes="Bold"/>
+            <Label Text="{Binding Werknemer.VolledigeNaam}" FontSize="Body"/>
+
+            <Label Text="Functie:" FontSize="Medium" FontAttributes="Bold"/>
+            <Label Text="{Binding Werknemer.Functie.Naam}" FontSize="Body"/>
+
+            <Label Text="Geboortedatum:" FontSize="Medium" FontAttributes="Bold"/>
+            <Label Text="{Binding Werknemer.Geboortedatum, StringFormat='{0:dd-MM-yyyy}'}" FontSize="Body"/>
+
+            <Label Text="In dienst sinds:" FontSize="Medium" FontAttributes="Bold"/>
+            <Label Text="{Binding Werknemer.InDienst, StringFormat='{0:dd-MM-yyyy}'}" FontSize="Body"/>
+
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Publishers.Views.NavigationPropertiesPage"
+             xmlns:viewmodels="clr-namespace:Publishers.ViewModels"
+             xmlns:models="clr-namespace:Publishers.Models"
+             x:DataType="viewmodels:NavigationPropertiesViewModel"
+             Title="NavigationPropertiesPage">
+    <Grid RowDefinitions="auto, *"
+          ColumnDefinitions="*, *">
+        <VerticalStackLayout Spacing="10"
+                             Padding="10"
+                             Grid.Row="0"
+                             Grid.Column="0"
+                             Grid.RowSpan="2">
+            <Entry Placeholder="Uitgever"
+                   Text="{Binding UitgeverZoekterm}" />
+            <Entry Placeholder="Boek"
+                   Text="{Binding BoekZoekterm}" />
+            <Button Text="Werknemers ophalen"
+                    Command="{Binding WerknemersOphalenCommand}" />
+            <Button Text="Uitgevers ophalen"
+                    Command="{Binding UitgeversOphalenCommand}" />
+            <Button Text="Boeken ophalen"
+                    Command="{Binding BoekenOphalenCommand}" />
+            <Button Text="Sales tonen voor boek"
+                    Command="{Binding SalesTonenPerBoekCommand}" />
+            <Button Text="Sales tonen voor uitgever"
+                    Command="{Binding SalesTonenPerUitgeverCommand}" />
+        </VerticalStackLayout>
+        <Label Text="{Binding Title}"
+               FontSize="Large"
+               Grid.Column="1"
+               Grid.Row="0" />
+        <CollectionView Grid.Column="1"
+                        Grid.Row="1"
+                        SelectionMode="Single"
+                        ItemsSource="{Binding Items}"
+                        SelectedItem="{Binding SelectedItem}"
+                        VerticalOptions="FillAndExpand"
+                        EmptyView="No items to display">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Padding="10">
+                        <Label Text="{Binding .}"
+                               FontSize="16" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,22 @@
+  Docenten:  
+
+	private List<Docent> Docenten = new()
+    {
+        new Docent() { Voornaam = "Jan", Achternaam = "de Vries" },
+        new Docent() { Voornaam = "Sophie", Achternaam = "Jansen" },
+        new Docent() { Voornaam = "Mark", Achternaam = "van Dijk"},
+     };
+
+
+ Studenten:
+
+        private List<Student> Studenten = new()
+    {
+        new Student() { Voornaam = "Lisa", Achternaam = "Bakker", Docent = new Docent(){ Voornaam = "Jan", Achternaam = "de Vries" } },
+        new Student() { Voornaam = "Tom", Achternaam = "Verhoeven", Docent = new Docent(){ Voornaam = "Jan", Achternaam = "de Vries" }  },
+        new Student() { Voornaam = "Emma", Achternaam = "Smit", Docent = new Docent(){ Voornaam = "Jan", Achternaam = "de Vries" }  },
+        new Student() { Voornaam = "Daan", Achternaam = "Willems", Docent = new Docent(){ Voornaam = "Sophie", Achternaam = "Jansen" } },
+        new Student() { Voornaam = "Julia", Achternaam = "de Groot", Docent = new Docent(){ Voornaam = "Sophie", Achternaam = "Jansen" } },
+        new Student() {  Voornaam = "Max", Achternaam = "Peters", Docent = new Docent(){ Voornaam = "Mark", Achternaam = "van Dijk"} },
+        new Student() { Voornaam = "Sanne", Achternaam = "Mulder", Docent = new Docent(){ Voornaam = "Mark", Achternaam = "van Dijk"} },
+     };

@@ -1,0 +1,500 @@
+@page "/playground"
+@using MauiLearningPlatform.Services
+@using MauiLearningPlatform.Shared
+@inject ProjectState ProjectState
+@inject SimulationEngine SimulationEngine
+@inject IJSRuntime JSRuntime
+
+<div class="playground-container">
+    <!-- 1. File Explorer -->
+    <div class="explorer-pane">
+        <FileExplorer />
+    </div>
+
+    <!-- 2. Code Editor -->
+    <div class="editor-pane">
+        <div class="editor-header">
+            <span>@(ProjectState.ActiveFile?.Name ?? "No File Selected")</span>
+            <div class="editor-actions">
+                <button class="save-btn" @onclick="SaveFile" disabled="@(ProjectState.ActiveFile == null)">
+                    💾 Save
+                </button>
+                <button class="run-btn" @onclick="RunCode" disabled="@IsRunning">
+                    @(IsRunning ? "⏳ Running..." : "▶ Run Project")
+                </button>
+            </div>
+        </div>
+        <div class="editor-wrapper">
+            @if (ProjectState.ActiveFile != null)
+            {
+                <CodeEditor @key="ProjectState.ActiveFile.Path" 
+                           Id="main-editor" 
+                           Language="@ProjectState.ActiveFile.Type" 
+                           InitialCode="@ProjectState.ActiveFile.Content" 
+                           @ref="mainEditor" />
+            }
+            else
+            {
+                <div class="empty-state">Select a file to edit</div>
+            }
+        </div>
+    </div>
+
+    <!-- 3. Preview -->
+    <div class="preview-pane">
+        <div class="preview-header">
+            <span>Preview</span>
+            @if (IsSaved)
+            {
+                <span class="save-indicator">✅ Saved!</span>
+            }
+        </div>
+        <div class="preview-content">
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="error-message">@ErrorMessage</div>
+            }
+            
+            @if (RenderedUI != null)
+            {
+                @RenderedUI
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .playground-container { display: flex; height: calc(100vh - 60px); }
+    .explorer-pane { width: 20%; border-right: 1px solid #3e3e42; background: #252526; }
+    .editor-pane { width: 40%; display: flex; flex-direction: column; border-right: 1px solid #3e3e42; background: #1e1e1e; }
+    .preview-pane { width: 40%; display: flex; flex-direction: column; background: white; color: black; }
+    
+    .editor-wrapper { flex: 1; position: relative; }
+    .editor-header { display: flex; justify-content: space-between; align-items: center; color: #ccc; padding: 5px 10px; background: #2d2d30; font-weight: bold; }
+    .editor-actions { display: flex; gap: 10px; }
+    
+    .run-btn { background: #4CAF50; color: white; border: none; padding: 5px 15px; cursor: pointer; border-radius: 3px; }
+    .run-btn:disabled { background: #555; cursor: not-allowed; }
+    
+    .save-btn { background: #007acc; color: white; border: none; padding: 5px 15px; cursor: pointer; border-radius: 3px; }
+    .save-btn:disabled { background: #555; cursor: not-allowed; }
+
+    .empty-state { color: #666; display: flex; align-items: center; justify-content: center; height: 100%; }
+    .preview-header { background: #f0f0f0; padding: 10px; border-bottom: 1px solid #ccc; font-weight: bold; display: flex; justify-content: space-between; }
+    .save-indicator { color: green; font-size: 0.9em; animation: fadeOut 2s forwards; }
+    
+    @@keyframes fadeOut {
+        0% { opacity: 1; }
+        70% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    .preview-content { padding: 20px; flex: 1; overflow: auto; }
+    .error-message { color: red; background: #ffe6e6; padding: 10px; border: 1px solid red; margin-bottom: 10px; white-space: pre-wrap; }
+
+    /* Simulated MAUI Controls */
+    .maui-stack-vertical { display: flex; flex-direction: column; }
+    .maui-stack-horizontal { display: flex; flex-direction: row; }
+    .maui-label { margin: 5px; }
+    .maui-entry { margin: 5px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .maui-button { margin: 5px; padding: 10px 20px; background-color: #512bd4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .maui-image { max-width: 100%; object-fit: contain; margin: 5px; }
+</style>
+
+@code {
+    private CodeEditor mainEditor;
+    private string ErrorMessage;
+    private RenderFragment RenderedUI;
+    private bool IsRunning = false;
+    private bool IsSaved = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectState.OnChange += StateHasChanged;
+        await ProjectState.LoadProjectAsync();
+    }
+
+    private async Task SaveFile()
+    {
+        if (ProjectState.ActiveFile != null && mainEditor != null)
+        {
+            var currentCode = await mainEditor.GetValue();
+            ProjectState.UpdateFileContent(ProjectState.ActiveFile.Path, currentCode);
+            IsSaved = true;
+            StateHasChanged();
+            await Task.Delay(2000);
+            IsSaved = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RunCode()
+    {
+        if (IsRunning) return;
+        IsRunning = true;
+        StateHasChanged();
+        await Task.Delay(50); // UI Refresh
+
+        ErrorMessage = "";
+        RenderedUI = null;
+
+        try
+        {
+            // 1. Save current file content
+            await SaveFile();
+
+            // 2. Compile Project
+            SimulationEngine.Compile(ProjectState.Files);
+
+            // 3. Determine Page to Run
+            VirtualFile pageFile = null;
+
+            // Strategy: 
+            // A. If Active File is XAML, run that.
+            // B. If Active File is C#, try to find matching XAML (e.g. MainViewModel -> MainPage.xaml)
+            // C. Fallback to MainPage.xaml
+
+            if (ProjectState.ActiveFile != null && ProjectState.ActiveFile.Type == "xml") // XAML
+            {
+                pageFile = ProjectState.ActiveFile;
+            }
+            else if (ProjectState.ActiveFile != null && ProjectState.ActiveFile.Type == "csharp")
+            {
+                // Try to guess View from ViewModel (MainViewModel -> MainPage.xaml)
+                var name = ProjectState.ActiveFile.Name.Replace(".cs", "");
+                if (name.EndsWith("ViewModel"))
+                {
+                    var viewName = name.Replace("ViewModel", "Page") + ".xaml";
+                    pageFile = ProjectState.Files.FirstOrDefault(f => f.Name == viewName);
+                }
+            }
+
+            // Fallback
+            if (pageFile == null)
+            {
+                pageFile = ProjectState.Files.FirstOrDefault(f => f.Name == "MainPage.xaml");
+            }
+
+            if (pageFile == null) throw new Exception("No View found to run. Please create a .xaml page.");
+
+            // 4. Determine ViewModel
+            // Parse x:Class to get class name, then guess ViewModel
+            var xaml = pageFile.Content;
+            var doc = System.Xml.Linq.XDocument.Parse(xaml);
+            var xNamespace = System.Xml.Linq.XNamespace.Get("http://schemas.microsoft.com/winfx/2009/xaml");
+            var xClass = doc.Root.Attribute(xNamespace + "Class")?.Value; 
+            
+            object viewModel = null;
+
+            if (!string.IsNullOrEmpty(xClass))
+            {
+                // MauiLearningPlatform.MainPage -> MainViewModel
+                var className = xClass.Split('.').Last();
+                var vmName = className.Replace("Page", "") + "ViewModel";
+                viewModel = SimulationEngine.GetViewModel(vmName);
+            }
+
+            // Fallback ViewModel
+            if (viewModel == null)
+            {
+                viewModel = SimulationEngine.GetViewModel("MainViewModel");
+            }
+
+            if (viewModel == null)
+            {
+                 // Create a dummy object if no VM found, so we can still render static XAML
+                 viewModel = new SimulatedObject("EmptyViewModel");
+            }
+
+            // 5. Render
+            RenderedUI = ParseXaml(pageFile.Content, viewModel);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message + "\n" + ex.StackTrace;
+        }
+        finally
+        {
+            IsRunning = false;
+            StateHasChanged();
+        }
+    }
+
+    private RenderFragment ParseXaml(string xaml, object viewModel)
+    {
+        try
+        {
+            var doc = System.Xml.Linq.XDocument.Parse(xaml);
+            return builder =>
+            {
+                int seq = 0;
+                RenderNode(builder, doc.Root, (SimulatedObject)viewModel, ref seq);
+            };
+        }
+        catch (Exception ex)
+        {
+            return builder => builder.AddMarkupContent(0, $"<div style='color:red'>XAML Parsing Error: {ex.Message}</div>");
+        }
+    }
+
+    private void RenderNode(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, System.Xml.Linq.XElement node, SimulatedObject viewModel, ref int seq)
+    {
+        var tagName = node.Name.LocalName;
+
+        // Skip non-visual elements (like ContentPage.BindingContext)
+        if (tagName.Contains("."))
+        {
+            foreach (var child in node.Elements()) RenderNode(builder, child, viewModel, ref seq);
+            return;
+        }
+
+        switch (tagName)
+        {
+            case "ContentPage":
+            case "VerticalStackLayout":
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", tagName == "ContentPage" ? "maui-page" : "maui-stack-vertical");
+                ApplyCommonAttributes(builder, node, ref seq);
+                foreach (var child in node.Elements()) RenderNode(builder, child, viewModel, ref seq);
+                builder.CloseElement();
+                break;
+
+            case "HorizontalStackLayout":
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", "maui-stack-horizontal");
+                ApplyCommonAttributes(builder, node, ref seq);
+                foreach (var child in node.Elements()) RenderNode(builder, child, viewModel, ref seq);
+                builder.CloseElement();
+                break;
+
+            case "Label":
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", "maui-label");
+                ApplyCommonAttributes(builder, node, ref seq);
+                
+                var textAttr = node.Attribute("Text");
+                if (textAttr != null)
+                {
+                    var value = ResolveBinding(textAttr.Value, viewModel);
+                    builder.AddContent(seq++, value);
+                }
+                builder.CloseElement();
+                break;
+
+            case "Button":
+                builder.OpenElement(seq++, "button");
+                builder.AddAttribute(seq++, "class", "maui-button");
+                ApplyCommonAttributes(builder, node, ref seq);
+                
+                var cmdAttr = node.Attribute("Command");
+                if (cmdAttr != null && IsBinding(cmdAttr.Value))
+                {
+                    var cmdName = GetBindingPath(cmdAttr.Value);
+                    builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, () => 
+                    {
+                        viewModel.ExecuteCommand(cmdName);
+                        StateHasChanged();
+                    }));
+                }
+
+                var btnTextAttr = node.Attribute("Text");
+                if (btnTextAttr != null) builder.AddContent(seq++, ResolveBinding(btnTextAttr.Value, viewModel));
+                
+                builder.CloseElement();
+                break;
+
+            case "Entry":
+                builder.OpenElement(seq++, "input");
+                builder.AddAttribute(seq++, "class", "maui-entry");
+                ApplyCommonAttributes(builder, node, ref seq);
+                
+                var placeholder = node.Attribute("Placeholder");
+                if (placeholder != null) builder.AddAttribute(seq++, "placeholder", placeholder.Value);
+
+                var textEntryAttr = node.Attribute("Text");
+                if (textEntryAttr != null && IsBinding(textEntryAttr.Value))
+                {
+                    var propName = GetBindingPath(textEntryAttr.Value);
+                    var val = viewModel.Get(propName)?.ToString();
+                    builder.AddAttribute(seq++, "value", val);
+                    builder.AddAttribute(seq++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, (e) => 
+                    {
+                        viewModel.Set(propName, e.Value.ToString());
+                        StateHasChanged();
+                    }));
+                }
+                builder.CloseElement();
+                break;
+                
+            case "CollectionView":
+                // Very basic CollectionView simulation
+                var itemsSourceAttr = node.Attribute("ItemsSource");
+                if (itemsSourceAttr != null && IsBinding(itemsSourceAttr.Value))
+                {
+                    var propName = GetBindingPath(itemsSourceAttr.Value);
+                    var items = viewModel.Get(propName) as System.Collections.IEnumerable;
+                    
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "class", "maui-collection-view");
+                    
+                    if (items != null)
+                    {
+                        foreach (var item in items)
+                        {
+                            builder.OpenElement(seq++, "div");
+                            builder.AddAttribute(seq++, "class", "maui-collection-item");
+                            builder.AddContent(seq++, item.ToString()); // Simplified: just ToString()
+                            builder.CloseElement();
+                        }
+                    }
+                    builder.CloseElement();
+                }
+                break;
+
+            case "Image":
+                builder.OpenElement(seq++, "img");
+                builder.AddAttribute(seq++, "class", "maui-image");
+                ApplyCommonAttributes(builder, node, ref seq);
+
+                var sourceAttr = node.Attribute("Source");
+                if (sourceAttr != null)
+                {
+                    string src = sourceAttr.Value;
+                    if (IsBinding(src))
+                    {
+                        src = ResolveBinding(src, viewModel);
+                    }
+                    
+                    // Resolve file path if it's not a URL
+                    if (!string.IsNullOrEmpty(src) && !src.StartsWith("http") && !src.StartsWith("data:"))
+                    {
+                        // 1. Try exact path match (e.g. "Resources/Images/myimage.png")
+                        var imageFile = ProjectState.Files.FirstOrDefault(f => f.Path == src);
+                        
+                        // 2. Try looking in Resources/Images if not found
+                        if (imageFile == null)
+                        {
+                            imageFile = ProjectState.Files.FirstOrDefault(f => f.Path == $"Resources/Images/{src}");
+                        }
+
+                        // 3. Try by filename only (fallback)
+                        if (imageFile == null)
+                        {
+                            imageFile = ProjectState.Files.FirstOrDefault(f => f.Name == src);
+                        }
+
+                        if (imageFile != null)
+                        {
+                            src = imageFile.Content;
+                        }
+                    }
+                    
+                    builder.AddAttribute(seq++, "src", src);
+                }
+                
+                var heightRequest = node.Attribute("HeightRequest");
+                if (heightRequest != null) builder.AddAttribute(seq++, "height", heightRequest.Value);
+                
+                var widthRequest = node.Attribute("WidthRequest");
+                if (widthRequest != null) builder.AddAttribute(seq++, "width", widthRequest.Value);
+
+                builder.CloseElement();
+                break;
+
+            case "Slider":
+                builder.OpenElement(seq++, "input");
+                builder.AddAttribute(seq++, "type", "range");
+                builder.AddAttribute(seq++, "class", "maui-slider");
+                ApplyCommonAttributes(builder, node, ref seq);
+                
+                var min = node.Attribute("Minimum")?.Value ?? "0";
+                var max = node.Attribute("Maximum")?.Value ?? "1";
+                builder.AddAttribute(seq++, "min", min);
+                builder.AddAttribute(seq++, "max", max);
+                builder.AddAttribute(seq++, "step", "0.01");
+
+                var valueAttr = node.Attribute("Value");
+                if (valueAttr != null && IsBinding(valueAttr.Value))
+                {
+                    var propName = GetBindingPath(valueAttr.Value);
+                    var val = viewModel.Get(propName)?.ToString();
+                    builder.AddAttribute(seq++, "value", val);
+                    builder.AddAttribute(seq++, "oninput", EventCallback.Factory.Create<ChangeEventArgs>(this, (e) => 
+                    {
+                        viewModel.Set(propName, double.Parse(e.Value.ToString()));
+                        StateHasChanged();
+                    }));
+                }
+                builder.CloseElement();
+                break;
+
+            case "BoxView":
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", "maui-boxview");
+                ApplyCommonAttributes(builder, node, ref seq);
+                
+                var colorAttr = node.Attribute("Color");
+                if (colorAttr != null)
+                {
+                    var color = colorAttr.Value;
+                    if (IsBinding(color))
+                    {
+                        color = ResolveBinding(color, viewModel);
+                    }
+                    builder.AddAttribute(seq++, "style", $"background-color: {color}; width: 100px; height: 100px;");
+                }
+                builder.CloseElement();
+                break;
+        }
+    }
+
+    private void ApplyCommonAttributes(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, System.Xml.Linq.XElement node, ref int seq)
+    {
+        var style = new System.Text.StringBuilder();
+
+        var padding = node.Attribute("Padding")?.Value;
+        if (padding != null) style.Append($"padding: {padding}px;");
+        
+        var spacing = node.Attribute("Spacing")?.Value;
+        if (spacing != null) style.Append($"gap: {spacing}px;");
+
+        var fontSize = node.Attribute("FontSize")?.Value;
+        if (fontSize != null) style.Append($"font-size: {fontSize}px;");
+
+        var textColor = node.Attribute("TextColor")?.Value;
+        if (textColor != null) style.Append($"color: {textColor};");
+        
+        var horizontalOptions = node.Attribute("HorizontalOptions")?.Value;
+        if (horizontalOptions != null)
+        {
+            if (horizontalOptions.Contains("Center")) style.Append("align-self: center;");
+            else if (horizontalOptions.Contains("End")) style.Append("align-self: flex-end;");
+            else if (horizontalOptions.Contains("Start")) style.Append("align-self: flex-start;");
+        }
+
+        if (style.Length > 0)
+        {
+            builder.AddAttribute(seq++, "style", style.ToString());
+        }
+    }
+
+    private bool IsBinding(string value) => value.StartsWith("{Binding") && value.EndsWith("}");
+    
+    private string GetBindingPath(string binding)
+    {
+        var parts = binding.Split(' ');
+        if (parts.Length > 1)
+        {
+            return parts[1].Trim('}');
+        }
+        return "";
+    }
+
+    private string ResolveBinding(string value, SimulatedObject viewModel)
+    {
+        if (!IsBinding(value)) return value;
+        
+        var propName = GetBindingPath(value);
+        return viewModel.Get(propName)?.ToString() ?? "";
+    }
+}

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gekleurde .NET MAUI Cheat Sheet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* bg-slate-100 */
+        }
+        h1, h2, h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+        /* Inline code stijl */
+        code.inline-code {
+            background-color: #e2e8f0; /* bg-slate-200 */
+            color: #7c3aed; /* text-purple-700 */
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+        /* Code block stijl */
+        pre {
+            background-color: #0f172a; /* bg-slate-900 */
+            color: #cbd5e1; /* text-slate-300 */
+            border-radius: 8px;
+            padding: 1.25rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        /* Syntax highlighting (gesimuleerd) */
+        .hl-kwd { color: #60a5fa; } /* Keywords: public, class, new */
+        .hl-type { color: #5eead4; } /* Types: User, string, int, Task */
+        .hl-meth { color: #93c5fd; } /* Methods: OnPropertyChanged, SaveUser */
+        .hl-cmt { color: #64748b; } /* Comments */
+        .hl-str { color: #fde047; } /* Strings */
+        .hl-prop { color: #a5f3fc; } /* Properties */
+        .hl-attr { color: #fcd34d; } /* Attributes: [QueryProperty] */
+        .hl-tag { color: #f87171; } /* XAML Tags */
+        .hl-xaml-attr { color: #4ade80; } /* XAML Attributes */
+        .hl-xaml-bind { color: #fb923c; } /* XAML Binding */
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="max-w-5xl mx-auto p-4 md:p-10">
+
+        <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-3">.NET MAUI Architectuur & Data Cheat Sheet</h1>
+        <p class="text-lg text-slate-600 mb-10">Een overzicht van de kernconcepten voor het bouwen van een robuuste .NET MAUI-applicatie, met focus op het MVVM-patroon, databeheer en navigatie.</p>
+
+        <!-- 1. Het MVVM Patroon -->
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-6 border-b border-slate-200 pb-4">1. Het MVVM Patroon (Model - View - ViewModel)</h2>
+            <p class="mb-6">Dit is het aanbevolen architectuurpatroon voor MAUI. Het scheidt de UI (View) van de logica (ViewModel) en de data (Model).</p>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mb-3">Model</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li><strong>Doel:</strong> Bevat de pure data en business logic. Weet niets van de ViewModel of View.</li>
+                <li><strong>Voorbeeld (Model):</strong> <code class="inline-code">User.cs</code></li>
+            </ul>
+            <pre><code><span class="hl-kwd">public</span> <span class="hl-kwd">class</span> <span class="hl-type">User</span>
+{
+    <span class="hl-kwd">public</span> <span class="hl-type">int</span> <span class="hl-prop">Id</span> { <span class="hl-kwd">get</span>; <span class="hl-kwd">set</span>; }
+    <span class="hl-kwd">public</span> <span class="hl-type">string</span> <span class="hl-prop">Name</span> { <span class="hl-kwd">get</span>; <span class="hl-kwd">set</span>; }
+    <span class="hl-kwd">public</span> <span class="hl-type">string</span> <span class="hl-prop">Email</span> { <span class="hl-kwd">get</span>; <span class="hl-kwd">set</span>; }
+}
+</code></pre>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">View</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li><strong>Doel:</strong> De UI (XAML). Is "dom" en bevat idealiter geen code-behind (logica).</li>
+                <li><strong>Binding:</strong> Gebruikt Data Binding om te praten met de ViewModel.</li>
+                <li><strong>Voorbeeld (View):</strong> <code class="inline-code">UserDetailsPage.xaml</code></li>
+            </ul>
+            <pre><code>&lt;<span class="hl-tag">ContentPage</span> ...
+     <span class="hl-xaml-attr">xmlns:local</span>=<span class="hl-str">"clr-namespace:MyApp.ViewModels"</span>
+     <span class="hl-xaml-attr">x:DataType</span>=<span class="hl-str">"local:UserDetailsViewModel"</span>&gt;
+
+    &lt;<span class="hl-tag">Label</span> <span class="hl-xaml-attr">Text</span>=<span class="hl-xaml-bind">"{Binding CurrentUser.Name}"</span> /&gt;
+    &lt;<span class="hl-tag">Button</span> <span class="hl-xaml-attr">Text</span>=<span class="hl-str">"Opslaan"</span> <span class="hl-xaml-attr">Command</span>=<span class="hl-xaml-bind">"{Binding SaveUserCommand}"</span> /&gt;
+&lt;/<span class="hl-tag">ContentPage</span>&gt;
+</code></pre>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">ViewModel</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li><strong>Doel:</strong> De "lijm" tussen de View en het Model. Beheert de state (toestand) van de UI en voert acties uit.</li>
+                <li><code class="inline-code">INotifyPropertyChanged</code>: Essentiële interface. De ViewModel moet deze implementeren zodat de UI weet *wanneer* een property is veranderd.</li>
+                <li><code class="inline-code">ICommand</code>: Wordt gebruikt voor acties (zoals knop-kliks) i.p.v. "Clicked" events. Dit maakt de logica testbaar.</li>
+                <li><strong>Voorbeeld (ViewModel):</strong> <code class="inline-code">UserDetailsViewModel.cs</code></li>
+            </ul>
+            <pre><code><span class="hl-cmt">// (Vaak wordt een BaseViewModel of ObservableObject [uit MvvmToolkit] gebruikt)</span>
+<span class="hl-kwd">public</span> <span class="hl-kwd">class</span> <span class="hl-type">UserDetailsViewModel</span> : <span class="hl-type">INotifyPropertyChanged</span>
+{
+    <span class="hl-kwd">private</span> <span class="hl-type">User</span> _currentUser;
+
+    <span class="hl-kwd">public</span> <span class="hl-type">User</span> <span class="hl-prop">CurrentUser</span>
+    {
+        <span class="hl-kwd">get</span> =&gt; _currentUser;
+        <span class="hl-kwd">set</span>
+        {
+            _currentUser = value;
+            <span class="hl-meth">OnPropertyChanged</span>(); <span class="hl-cmt">// Vertelt de UI dat 'CurrentUser' is gewijzigd</span>
+        }
+    }
+
+    <span class="hl-kwd">public</span> <span class="hl-type">ICommand</span> <span class="hl-prop">SaveUserCommand</span> { <span class="hl-kwd">get</span>; }
+
+    <span class="hl-kwd">public</span> <span class="hl-meth">UserDetailsViewModel</span>()
+    {
+        <span class="hl-prop">SaveUserCommand</span> = <span class="hl-kwd">new</span> <span class="hl-type">Command</span>(<span class="hl-kwd">async</span> () =&gt; <span class="hl-kwd">await</span> <span class="hl-meth">SaveUser</span>());
+    }
+
+    <span class="hl-kwd">async</span> <span class="hl-type">Task</span> <span class="hl-meth">SaveUser</span>()
+    {
+        <span class="hl-cmt">// Logica om gebruiker op te slaan...</span>
+    }
+
+    <span class="hl-cmt">// Standaard INotifyPropertyChanged implementatie</span>
+    <span class="hl-kwd">public</span> <span class="hl-kwd">event</span> <span class="hl-type">PropertyChangedEventHandler</span> <span class="hl-prop">PropertyChanged</span>;
+    <span class="hl-kwd">protected</span> <span class="hl-kwd">void</span> <span class="hl-meth">OnPropertyChanged</span>([<span class="hl-type">CallerMemberName</span>] <span class="hl-type">string</span> propertyName = <span class="hl-kwd">null</span>)
+    {
+        <span class="hl-prop">PropertyChanged</span>?.<span class="hl-meth">Invoke</span>(<span class="hl-kwd">this</span>, <span class="hl-kwd">new</span> <span class="hl-type">PropertyChangedEventArgs</span>(propertyName));
+    }
+}
+</code></pre>
+            <p class="mt-4">
+                <strong>CommunityMVVM Toolkit:</strong> Een *must-have* NuGet-pakket (<code class="inline-code">CommunityToolkit.Mvvm</code>). Het vereenvoudigt MVVM enorm met <code class="inline-code">[ObservableProperty]</code> en <code class="inline-code">[RelayCommand]</code> attributen.
+            </p>
+        </section>
+
+        <!-- 2. Data Binding -->
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-6 border-b border-slate-200 pb-4">2. Data Binding</h2>
+            <p class="mb-6">Data Binding is de techniek die de View en de ViewModel synchroniseert.</p>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mb-3">BindingContext</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li>De View moet weten welke ViewModel zijn databron is.</li>
+                <li><strong>Code-behind (meest voorkomend):</strong></li>
+            </ul>
+            <pre><code><span class="hl-kwd">public</span> <span class="hl-meth">UserDetailsPage</span>(<span class="hl-type">UserDetailsViewModel</span> vm)
+{
+    <span class="hl-meth">InitializeComponent</span>();
+    <span class="hl-prop">BindingContext</span> = vm; <span class="hl-cmt">// Hier stel je de databron in</span>
+}
+</code></pre>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">Binding Markup Extensie: <code class="inline-code">{Binding ...}</code></h3>
+            <ul class="list-disc list-inside space-y-3">
+                <li><code class="inline-code">{Binding PropertyName}</code>: Bindt aan een public property op de <code class="inline-code">BindingContext</code>.
+                    <ul class="list-disc list-inside ml-6 mt-2">
+                        <li>Voorbeeld: <code class="inline-code">Text="{Binding CurrentUser.Name}"</code></li>
+                    </ul>
+                </li>
+                <li><strong><code class="inline-code">Mode</code> (Richting):</strong>
+                    <ul class="list-disc list-inside ml-6 mt-2 space-y-2">
+                        <li><code class="inline-code">OneWay</code> (Standaard): ViewModel → View.</li>
+                        <li><code class="inline-code">TwoWay</code>: ViewModel ↔ View. Essentieel voor invoervelden.
+                            <pre class="!mt-2 !text-sm"><code>&lt;<span class="hl-tag">Entry</span> <span class="hl-xaml-attr">Text</span>=<span class="hl-xaml-bind">"{Binding SearchQuery, Mode=TwoWay}"</span> /&gt;</code></pre>
+                        </li>
+                        <li><code class="inline-code">OneTime</code>: Alleen ingesteld bij het laden.</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        
+        <!-- 3. Collections & CollectionView -->
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-6 border-b border-slate-200 pb-4">3. Collections & <code class="inline-code">CollectionView</code></h2>
+            <p class="mb-6">De <code class="inline-code">CollectionView</code> is de standaard manier om een lijst met data te tonen.</p>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mb-3">ObservableCollection&lt;T&gt;</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li>Gebruik dit type in je ViewModel in plaats van <code class="inline-code">List&lt;T&gt;</code>.</li>
+                <li>Geeft automatisch een signaal aan de UI wanneer items worden <strong>toegevoegd</strong> of <strong>verwijderd</strong>.</li>
+                <li>(Het updatet *niet* de properties *binnen* een item, daarvoor moet het item zelf <code class="inline-code">INotifyPropertyChanged</code> implementeren).</li>
+                <li><strong>ViewModel:</strong></li>
+            </ul>
+            <pre><code><span class="hl-kwd">public</span> <span class="hl-type">ObservableCollection</span>&lt;<span class="hl-type">User</span>&gt; <span class="hl-prop">Users</span> { <span class="hl-kwd">get</span>; <span class="hl-kwd">set</span>; } = <span class="hl-kwd">new</span>();
+</code></pre>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">XAML (View)</h3>
+             <ul class="list-disc list-inside space-y-2 mb-4">
+                <li><code class="inline-code">ItemsSource</code>: De belangrijkste property. Bindt aan je <code class="inline-code">ObservableCollection</code>.</li>
+                <li><code class="inline-code">ItemTemplate</code>: Definieert hoe *één enkel item* in de lijst eruitziet.</li>
+                <li><code class="inline-code">DataTemplate</code>: Het "sjabloon" binnen de <code class="inline-code">ItemTemplate</code>.</li>
+                <li><code class="inline-code">x:DataType</code> (op de DataTemplate): Cruciaal voor performance en compile-time checking.</li>
+            </ul>
+            <pre><code>&lt;<span class="hl-tag">CollectionView</span> <span class="hl-xaml-attr">ItemsSource</span>=<span class="hl-xaml-bind">"{Binding Users}"</span>
+                <span class="hl-xaml-attr">SelectionMode</span>=<span class="hl-str">"Single"</span>
+                <span class="hl-xaml-attr">SelectedItem</span>=<span class="hl-xaml-bind">"{Binding SelectedUser, Mode=TwoWay}"</span>&gt;
+  
+    &lt;<span class="hl-tag">CollectionView.ItemTemplate</span>&gt;
+        &lt;<span class="hl-tag">DataTemplate</span> <span class="hl-xaml-attr">x:DataType</span>=<span class="hl-str">"models:User"</span>&gt;
+            &lt;<span class="hl-tag">Grid</span>&gt;
+                <span class="hl-cmt">&lt;!-- Binnen de DataTemplate is de BindingContext één 'User' object --&gt;</span>
+                &lt;<span class="hl-tag">Label</span> <span class="hl-xaml-attr">Text</span>=<span class="hl-xaml-bind">"{Binding Name}"</span> /&gt;
+                &lt;<span class="hl-tag">Label</span> <span class="hl-xaml-attr">Text</span>=<span class="hl-xaml-bind">"{Binding Email}"</span> /&gt;
+            &lt;/<span class="hl-tag">Grid</span>&gt;
+        &lt;/<span class="hl-tag">DataTemplate</span>&gt;
+    &lt;/<span class="hl-tag">CollectionView.ItemTemplate</span>&gt;
+  
+&lt;/<span class="hl-tag">CollectionView</span>&gt;
+</code></pre>
+        </section>
+
+        <!-- 4. Repository Patroon -->
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-6 border-b border-slate-200 pb-4">4. Repository Patroon & Interfaces</h2>
+            <p class="mb-6">Scheidt je data-ophalen (API, database) van je ViewModels.</p>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mb-3">Interface</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li>Definieert het "contract". Wat *kan* de repository doen?</li>
+                <li><strong>Voorbeeld:</strong> <code class="inline-code">IUserRepository.cs</code></li>
+            </ul>
+            <pre><code><span class="hl-kwd">public</span> <span class="hl-kwd">interface</span> <span class="hl-type">IUserRepository</span>
+{
+    <span class="hl-type">Task</span>&lt;<span class="hl-type">User</span>&gt; <span class="hl-meth">GetUserById</span>(<span class="hl-type">int</span> id);
+    <span class="hl-type">Task</span>&lt;<span class="hl-type">List</span>&lt;<span class="hl-type">User</span>&gt;&gt; <span class="hl-meth">GetAllUsers</span>();
+    <span class="hl-type">Task</span> <span class="hl-meth">SaveUser</span>(<span class="hl-type">User</span> user);
+}
+</code></pre>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">Repository (Implementatie)</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li>Doet het daadwerkelijke werk.</li>
+                <li><strong>Voorbeeld:</strong> <code class="inline-code">UserRepository.cs</code></li>
+            </ul>
+            <pre><code><span class="hl-kwd">public</span> <span class="hl-kwd">class</span> <span class="hl-type">UserRepository</span> : <span class="hl-type">IUserRepository</span>
+{
+    <span class="hl-cmt">// (Hier zou je bijv. een HttpClient of SQLiteConnection hebben)</span>
+    <span class="hl-kwd">public</span> <span class="hl-kwd">async</span> <span class="hl-type">Task</span>&lt;<span class="hl-type">List</span>&lt;<span class="hl-type">User</span>&gt;&gt; <span class="hl-meth">GetAllUsers</span>()
+    {
+        <span class="hl-cmt">// Logica om data van een API of database op te halen...</span>
+        <span class="hl-cmt">// ...</span>
+        <span class="hl-kwd">return</span> <span class="hl-kwd">new</span> <span class="hl-type">List</span>&lt;<span class="hl-type">User</span>&gt;(); <span class="hl-cmt">// Dummy data</span>
+    }
+    <span class="hl-cmt">// ... andere methodes ...</span>
+}
+</code></pre>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">Gebruik in ViewModel</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li>De ViewModel kent alleen de *interface*, niet de concrete implementatie. Dit maakt het flexibel en testbaar.</li>
+                <li><strong>Voorbeeld:</strong> <code class="inline-code">UserViewModel.cs</code></li>
+            </ul>
+            <pre><code><span class="hl-kwd">public</span> <span class="hl-kwd">class</span> <span class="hl-type">UserViewModel</span>
+{
+    <span class="hl-kwd">private</span> <span class="hl-kwd">readonly</span> <span class="hl-type">IUserRepository</span> _userRepository;
+
+    <span class="hl-cmt">// De repository wordt "geïnjecteerd" (zie Dependency Injection)</span>
+    <span class="hl-kwd">public</span> <span class="hl-meth">UserViewModel</span>(<span class="hl-type">IUserRepository</span> userRepository)
+    {
+        _userRepository = userRepository;
+    }
+
+    <span class="hl-kwd">public</span> <span class="hl-kwd">async</span> <span class="hl-type">Task</span> <span class="hl-meth">LoadUsers</span>()
+    {
+        <span class="hl-kwd">var</span> users = <span class="hl-kwd">await</span> _userRepository.<span class="hl-meth">GetAllUsers</span>();
+        <span class="hl-cmt">// ...</span>
+    }
+}
+</code></pre>
+        </section>
+
+        <!-- 5. Dependency Injection -->
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-6 border-b border-slate-200 pb-4">5. Dependency Injection (DI)</h2>
+            <p class="mb-6">DI is het mechanisme dat alles automatisch aan elkaar koppelt. In plaats van <code class="inline-code">new ViewModel()</code> te doen, *vraag* je erom in een constructor, en de DI-container geeft het je.</p>
+            
+            <h3 class="text-2xl font-semibold text-purple-700 mb-3">Registratie (in <code class="inline-code">MauiProgram.cs</code>)</h3>
+            <p class="mb-4">Je moet de "services" (zoals Views, ViewModels en Repositories) registreren.</p>
+            <pre><code><span class="hl-kwd">public</span> <span class="hl-kwd">static</span> <span class="hl-kwd">class</span> <span class="hl-type">MauiProgram</span>
+{
+    <span class="hl-kwd">public</span> <span class="hl-kwd">static</span> <span class="hl-type">MauiApp</span> <span class="hl-meth">CreateMauiApp</span>()
+    {
+        <span class="hl-kwd">var</span> builder = <span class="hl-type">MauiApp</span>.<span class="hl-meth">CreateBuilder</span>();
+        builder.<span class="hl-meth">UseMauiApp</span>&lt;<span class="hl-type">App</span>&gt;();
+
+        <span class="hl-cmt">// === HIER BEGINT DI ===</span>
+
+        <span class="hl-cmt">// Repositories (Interface -> Implementatie)</span>
+        <span class="hl-cmt">// 'Singleton' = er is maar 1 instance voor de hele app</span>
+        builder.<span class="hl-prop">Services</span>.<span class="hl-meth">AddSingleton</span>&lt;<span class="hl-type">IUserRepository</span>, <span class="hl-type">UserRepository</span>&gt;();
+
+        <span class="hl-cmt">// ViewModels</span>
+        <span class="hl-cmt">// 'Transient' = elke keer een nieuwe instance</span>
+        builder.<span class="hl-prop">Services</span>.<span class="hl-meth">AddTransient</span>&lt;<span class="hl-type">UserDetailsViewModel</span>&gt;();
+        builder.<span class="hl-prop">Services</span>.<span class="hl-meth">AddTransient</span>&lt;<span class="hl-type">UserListViewModel</span>&gt;();
+
+        <span class="hl-cmt">// Pages (Views)</span>
+        builder.<span class="hl-prop">Services</span>.<span class="hl-meth">AddTransient</span>&lt;<span class="hl-type">UserDetailsPage</span>&gt;();
+        builder.<span class="hl-prop">Services</span>.<span class="hl-meth">AddTransient</span>&lt;<span class="hl-type">UserListPage</span>&gt;();
+
+        <span class="hl-cmt">// === EINDE DI ===</span>
+
+        <span class="hl-kwd">return</span> builder.<span class="hl-meth">Build</span>();
+    }
+}
+</code></pre>
+        </section>
+
+        <!-- 6. Navigatie (Shell) -->
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-6 border-b border-slate-200 pb-4">6. Navigatie (Shell)</h2>
+            <p class="mb-6">.NET MAUI Shell is de aanbevolen manier voor app-structuur en navigatie.</p>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mb-3"><code class="inline-code">AppShell.xaml</code></h3>
+            <p class="mb-4">Definieert de structuur (Tabs, Flyout menu).</p>
+            <pre><code>&lt;<span class="hl-tag">Shell</span> ...&gt;
+    <span class="hl-cmt">&lt;!-- Een TabBar onderaan het scherm --&gt;</span>
+    &lt;<span class="hl-tag">TabBar</span>&gt;
+        &lt;<span class="hl-tag">Tab</span> <span class="hl-xaml-attr">Title</span>=<span class="hl-str">"Home"</span> <span class="hl-xaml-attr">Icon</span>=<span class="hl-str">"home.png"</span>&gt;
+            &lt;<span class="hl-tag">ShellContent</span>
+                <span class="hl-xaml-attr">Title</span>=<span class="hl-str">"Home"</span>
+                <span class="hl-xaml-attr">ContentTemplate</span>=<span class="hl-xaml-bind">"{DataTemplate local:HomePage}"</span>
+                <span class="hl-xaml-attr">Route</span>=<span class="hl-str">"HomePage"</span> /&gt;
+        &lt;/<span class="hl-tag">Tab</span>&gt;
+        &lt;<span class="hl-tag">Tab</span> <span class="hl-xaml-attr">Title</span>=<span class="hl-str">"Users"</span> <span class="hl-xaml-attr">Icon</span>=<span class="hl-str">"users.png"</span>&gt;
+            &lt;<span class="hl-tag">ShellContent</span>
+                <span class="hl-xaml-attr">Title</span>=<span class="hl-str">"Users"</span>
+                <span class="hl-xaml-attr">ContentTemplate</span>=<span class="hl-xaml-bind">"{DataTemplate local:UserListPage}"</span>
+                <span class="hl-xaml-attr">Route</span>=<span class="hl-str">"UserListPage"</span> /&gt;
+        &lt;/<span class="hl-tag">Tab</span>&gt;
+    &lt;/<span class="hl-tag">TabBar</span>&gt;
+&lt;/<span class="hl-tag">Shell</span>&gt;
+</code></pre>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">Routes Registreren (voor Detail Pagina's)</h3>
+            <p class="mb-4">Pagina's die niet in de TabBar/Flyout staan, moet je registreren. Dit kan in <code class="inline-code">AppShell.xaml.cs</code>:</p>
+            <pre><code><span class="hl-kwd">public</span> <span class="hl-meth">AppShell</span>()
+{
+    <span class="hl-meth">InitializeComponent</span>();
+
+    <span class="hl-cmt">// Registreer de route voor de detailpagina</span>
+    <span class="hl-type">Routing</span>.<span class="hl-meth">RegisterRoute</span>(<span class="hl-kwd">nameof</span>(<span class="hl-type">UserDetailsPage</span>), <span class="hl-kwd">typeof</span>(<span class="hl-type">UserDetailsPage</span>));
+}
+</code></pre>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">Navigeren (vanuit een ViewModel)</h3>
+            <ul class="list-disc list-inside space-y-2 mb-4">
+                <li>Gebruik de <code class="inline-code">Shell.Current</code> singleton.</li>
+                <li><code class="inline-code">await Shell.Current.GoToAsync("UserDetailsPage");</code></li>
+                <li>*Of (beter):* <code class="inline-code">await Shell.Current.GoToAsync(nameof(UserDetailsPage));</code></li>
+            </ul>
+
+            <h3 class="text-2xl font-semibold text-purple-700 mt-8 mb-3">Data Meesturen (Navigatie Parameters)</h3>
+            
+            <h4 class="text-xl font-semibold text-slate-700 mt-4 mb-2">1. Standaard (Query Property)</h4>
+            <p class="mb-4">Stuur data mee in de URL (simpel type).</p>
+            <pre><code><span class="hl-cmt">// Navigeren: Stuur de user ID 123 mee</span>
+<span class="hl-kwd">await</span> <span class="hl-type">Shell</span>.<span class="hl-prop">Current</span>.<span class="hl-meth">GoToAsync</span>($<span class="hl-str">"{nameof(UserDetailsPage)}?UserId=123"</span>);
+</code></pre>
+            <pre class="mt-4"><code><span class="hl-cmt">// Ontvangen (in ViewModel): Gebruik het [QueryProperty] attribuut.</span>
+[<span class="hl-attr">QueryProperty</span>(<span class="hl-kwd">nameof</span>(<span class="hl-prop">UserId</span>), <span class="hl-str">"UserId"</span>)]
+<span class="hl-kwd">public</span> <span class="hl-kwd">class</span> <span class="hl-type">UserDetailsViewModel</span> : <span class="hl-type">ObservableObject</span>
+{
+    [<span class="hl-attr">ObservableProperty</span>]
+    <span class="hl-type">string</span> userId; <span class="hl-cmt">// Wordt automatisch gevuld met "123"</span>
+    <span class="hl-cmt">// ...</span>
+}
+</code></pre>
+
+            <h4 class="text-xl font-semibold text-slate-700 mt-6 mb-2">2. Complex (Object)</h4>
+            <p class="mb-4">Stuur een heel object mee via een <code class="inline-code">Dictionary</code>.</p>
+            <pre><code><span class="hl-cmt">// Navigeren: Stuur een heel object mee.</span>
+<span class="hl-kwd">var</span> user = <span class="hl-kwd">new</span> <span class="hl-type">User</span> { <span class="hl-prop">Name</span> = <span class="hl-str">"Jan"</span> };
+<span class="hl-kwd">await</span> <span class="hl-type">Shell</span>.<span class="hl-prop">Current</span>.<span class="hl-meth">GoToAsync</span>(<span class="hl-kwd">nameof</span>(<span class="hl-type">UserDetailsPage</span>), <span class="hl-kwd">new</span> <span class="hl-type">Dictionary</span>&lt;<span class="hl-type">string</span>, <span class="hl-type">object</span>&gt;
+{
+    { <span class="hl-str">"SelectedUser"</span>, user } <span class="hl-cmt">// Key, Value</span>
+});
+</code></pre>
+            <pre class="mt-4"><code><span class="hl-cmt">// Ontvangen (in ViewModel):</span>
+[<span class="hl-attr">QueryProperty</span>(<span class="hl-kwd">nameof</span>(<span class="hl-prop">SelectedUser</span>), <span class="hl-str">"SelectedUser"</span>)]
+<span class="hl-kwd">public</span> <span class="hl-kwd">class</span> <span class="hl-type">UserDetailsViewModel</span> : <span class="hl-type">ObservableObject</span>
+{
+    [<span class="hl-attr">ObservableProperty</span>]
+    <span class="hl-type">User</span> selectedUser; <span class="hl-cmt">// Wordt automatisch gevuld met het 'user' object</span>
+}
+</code></pre>
+        </section>
+
+        <footer class="text-center mt-12 py-6 border-t border-slate-300">
+            <p class="text-slate-500 text-sm">Einde van de .NET MAUI Architectuur Cheat Sheet</p>
+        </footer>
+
+    </div>
+</body>
+</html>

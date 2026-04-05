@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:MauiNavigationExample.ViewModels"
+             xmlns:models="clr-namespace:MauiNavigationExample.Models"
+             x:Class="MauiNavigationExample.Views.PersonenOverzichtView"
+             Title="Personen Overzicht">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <Label Text="Dit is de tweede pagina" FontSize="18" FontAttributes="Bold" />
+            
+            <CollectionView ItemsSource="{Binding PersonenLijst}" HeightRequest="250">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Persoon">
+                        <HorizontalStackLayout Spacing="10" Padding="5">
+                            <Label Text="{Binding Voornaam}" />
+                            <Label Text="{Binding Geboortedatum, StringFormat='{0:dd/MM/yyyy}'}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="Gemiddelde Leeftijd:" FontAttributes="Bold" />
+                <Label Text="{Binding GemiddeldeLeeftijd, StringFormat='{0:F1} jaar'}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

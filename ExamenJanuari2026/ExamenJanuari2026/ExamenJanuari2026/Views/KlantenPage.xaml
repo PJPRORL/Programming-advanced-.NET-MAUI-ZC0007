@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ExamenJanuari2026.Views.KlantenPage"
+             xmlns:models="clr-namespace:ExamenJanuari2026.Models"
+             xmlns:viewmodels="clr-namespace:ExamenJanuari2026.ViewModels"
+             x:DataType="viewmodels:KlantenViewModel"
+             Title="Klanten">
+    <Grid RowDefinitions="*"
+          ColumnDefinitions="*, *, *,*">
+        <CollectionView Grid.Row="0"
+                        Grid.Column="0"
+                        SelectionMode="Single"
+                        
+                        EmptyView="No items to display">
+            <CollectionView.ItemTemplate>
+                <DataTemplate >
+                    <VerticalStackLayout Padding="10">
+                        <Label
+                               FontSize="20" />
+                        <Label 
+                               FontSize="20" />
+                        <HorizontalStackLayout Margin="0,0,5,0">
+                            <Label 
+                                   FontSize="16" />
+                            <Label 
+                                   Margin="5,0,0,0"
+                                   FontSize="16" />
+                        </HorizontalStackLayout>
+                        <Label 
+                               FontSize="16" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <CollectionView Grid.Row="0"
+                        Grid.Column="1"
+                        SelectionMode="Single"
+                        
+                        EmptyView="No items to display">
+            <CollectionView.ItemTemplate>
+                <DataTemplate >
+                    <VerticalStackLayout Padding="10">
+                        <Label 
+                               FontSize="20" />
+                        <Label 
+                               FontSize="20" />
+                        <Label 
+                               FontSize="16" />
+                        <Label
+                               FontSize="16" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <CollectionView Grid.Row="0"
+                        Grid.Column="2"
+                        SelectionMode="Single"
+                        EmptyView="No items to display">
+            <CollectionView.ItemTemplate>
+                <DataTemplate >
+                    <VerticalStackLayout Padding="10">
+
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <VerticalStackLayout Grid.Row="0"
+                             Grid.Column="3">
+            <Button Text="Alle Klanten ophalen"
+
+                    Margin="0,0,0,10" />
+            <HorizontalStackLayout>
+                <Picker  />
+                <Button Text="Orders ophalen voor klant"
+                        
+                        Margin="0,0,0,10" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout>
+                <Entry Placeholder="OrderId"
+                        />
+                <Button Text="Orderlijnen en producten ophalen"
+
+                        Margin="0,0,0,10" />
+            </HorizontalStackLayout>
+
+            <Button Text="Delete Order"
+                    
+                    IsEnabled="{Binding IsNotBusy}" />
+
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

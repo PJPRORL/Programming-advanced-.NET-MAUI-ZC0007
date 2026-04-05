@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiOefeningen2.ViewModels"
+             x:Class="MauiOefeningen2.Views.VragenlijstPage"
+             x:DataType="viewmodel:VragenlijstViewModel"
+             Title="Vragenlijst">
+    <VerticalStackLayout>
+        <Grid ColumnDefinitions="*,*"
+              RowDefinitions="*,*,*,*,*,*"
+              Padding="10"
+              RowSpacing="10"
+              ColumnSpacing="10"
+              IsVisible="{Binding IsNameGiven}">
+            <HorizontalStackLayout>
+                <Label Text="Welkom "
+                       Grid.ColumnSpan="2"
+                       Grid.Row="0"
+                       FontSize="25"/>
+                <Label Text="{Binding Name}"
+                       FontSize="25"/>
+            </HorizontalStackLayout>
+            <!-- Keuze menu Eten -->
+            <Label 
+                Grid.Row="1"
+                Grid.Column="0"
+                Text="Eet je gezond?"/>
+            <Picker 
+                Grid.Row="1"
+                Grid.Column="1"
+                Title="Maak een keuze"
+                ItemsSource="{Binding Eten}"
+                SelectedItem="{Binding SelectedEten}"/>
+
+            <!-- Keuze menu Drinken -->
+            <Label 
+                Grid.Row="2"
+                Grid.Column="0"
+                Text="Drink je voldoende?"/>
+            <Picker 
+                Grid.Row="2"
+                Grid.Column="1"
+                Title="Maak een keuze"
+                ItemsSource="{Binding Drinken}"
+                SelectedItem="{Binding SelectedDrinken}"/>
+            <!-- Slider -->
+            <Label 
+                Grid.Row="3"
+                Grid.Column="0"
+                Text="Hoeveel dagen per week sport je?"
+                FontSize="12"
+                />
+            <Slider
+                Grid.Row="3"
+                Grid.Column="1"
+                Minimum="0"
+                Maximum="7"
+                Value="{Binding Getal}"/>
+            <Label 
+                Grid.Row="3"
+                Grid.Column="1"
+                Text="{Binding Getal}"/>
+            
+            <!-- Knoppen -->
+            
+            <Button 
+                Grid.Row="4"
+                Grid.Column="0"
+                Text="Controleren"
+                Command="{Binding ControlerenCommand}"/>
+            <Button
+                Grid.Row="4"
+                Grid.Column="1"
+                Text="Herstarten"
+                Command="{Binding HerstartenCommand}"/>
+            <Label 
+                Grid.ColumnSpan="2"
+                Grid.Row="5"
+                Text="{Binding Resultaat}"/>
+        </Grid>
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiIntroductie.ViewModels"
+             x:DataType="viewmodel:LabelsViewModel"
+             x:Class="MauiIntroductie.Views.LabelsPage"
+             Title="LabelsPage">
+    <Grid ColumnDefinitions="*,*"
+		  RowDefinitions="*,*,*"
+          BackgroundColor="LightGray"
+          Padding="10">
+        <Label Grid.Row="0" 
+               Grid.ColumnSpan="2"
+               Text="{Binding Text}" 
+               VerticalOptions="Center" 
+               HorizontalOptions="Center"
+               HeightRequest="40"
+               FontSize="Large"/>
+
+        <Label Grid.Row="1" 
+               Grid.Column="0"
+               Text="Voorbeeld1" 
+               FontAttributes="{Binding FontAttributes}"/>
+
+        <Label Grid.Row="2" 
+               Grid.Column="0"
+               Text="Voorbeeld2" 
+               TextColor="{Binding TextColor}"/>
+
+        <Label Grid.Row="1" 
+               Grid.Column="1"
+               Text="Voorbeeld3" 
+               FontSize="{Binding FontSize}"/>
+
+        <Label Grid.Row="2" 
+               Grid.Column="1"
+               Text="Voorbeeld4"
+               Padding="{Binding Padding}"/>
+    </Grid>
+</ContentPage>

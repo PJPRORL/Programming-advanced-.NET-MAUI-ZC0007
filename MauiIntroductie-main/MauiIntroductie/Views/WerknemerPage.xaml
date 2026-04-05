@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiIntroductie.ViewModels"
+             x:Class="MauiIntroductie.Views.WerknemerPage"
+             xmlns:model="clr-namespace:MauiIntroductie.Models"
+             x:DataType="viewmodel:WerknemerViewModel"
+             Title="{Binding Title}">
+    <VerticalStackLayout>
+        <Entry Text="{Binding Werknemer.Id}" Placeholder="Getal"/>
+        <Entry Text="{Binding Werknemer.Achternaam}" Placeholder="Naam"/>
+        <Entry Text="{Binding Werknemer.Voornaam}" Placeholder="Voornaam"/>
+        <HorizontalStackLayout>
+            <Label Text="Wat is de functie van de werknemer?" />
+            <Picker ItemsSource="{Binding Functies}" SelectedItem="{Binding Werknemer.Functie}" ItemDisplayBinding="{Binding Naam}" />
+        </HorizontalStackLayout>
+        <HorizontalStackLayout>
+            <Label Text="Wat is de geboortedatum van de werknemer?" VerticalOptions="Center"/>
+            <DatePicker Date="{Binding Werknemer.Geboortedatum}"/>
+        </HorizontalStackLayout>
+        <Button Command="{Binding WerknemerToevoegenCommand}" Text="Werknemer toevoegen" />
+        <CollectionView ItemsSource="{Binding Werknemers}" SelectedItem="{Binding Werknemer}" SelectionMode="Single" EmptyView="Er zijn nog geen werknemers.">
+            <CollectionView.Header>
+                <Grid ColumnDefinitions="*,*,*,*,*">
+                    <Label Text="ID" FontSize="Medium" Grid.Column="0" />
+                    <Label Text="Naam" FontSize="Medium" Grid.Column="1" />
+                    <Label Text="Functie" FontSize="Medium" Grid.Column="2" />
+                    <Label Text="Geboortedatum" FontSize="Medium" Grid.Column="3" />
+                    <Label Text="In dienst sinds" FontSize="Medium" Grid.Column="4" />
+                </Grid>
+            </CollectionView.Header>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:Werknemer">
+                    <Grid ColumnDefinitions="*,*,*,*,*">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding GoToDetailsCommand, Source={RelativeSource AncestorType={x:Type viewmodel:WerknemerViewModel}}}"
+                                CommandParameter="{Binding .}"/>
+                        </Grid.GestureRecognizers>
+                        <Label Text="{Binding Id}" FontSize="Small" Grid.Column="0"/>
+                        <Label Text="{Binding VolledigeNaam}" FontSize="Small" Grid.Column="1"/>
+                        <Label Text="{Binding Functies}" FontSize="Small" Grid.Column="2"/>
+                        <Label Text="{Binding Geboortedatum, StringFormat='{0:dd-MM-yyyy}'}" FontSize="Small" Grid.Column="3"/>
+                        <Label Text="{Binding InDienst, StringFormat='{0:dd-MM-yyyy}'}" FontSize="Small" Grid.Column="4"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentPage>

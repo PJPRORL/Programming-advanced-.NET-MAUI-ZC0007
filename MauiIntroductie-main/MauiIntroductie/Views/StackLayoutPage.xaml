@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiIntroductie.ViewModels"
+             x:Class="MauiIntroductie.Views.StackLayoutPage"
+             x:DataType="viewmodel:StackLayoutViewModel"
+             Title="StackLayoutPage">
+    <StackLayout>
+        <HorizontalStackLayout>
+            <Entry Placeholder="Naam" Text="{Binding Naam}" Margin="5" />
+            <Entry Placeholder="E-mailadres" Text="{Binding Email}" Keyboard="Email" Margin="5"/>
+        </HorizontalStackLayout>
+
+        <Entry Placeholder="Telefoonnummer" Text="{Binding Telefoon}" Keyboard="Telephone" Margin="5"/>
+
+        <StackLayout Margin="5" RadioButtonGroup.SelectedValue="{Binding Geslacht}"
+                     RadioButtonGroup.GroupName="Geslacht">
+            <Label Text="Geslacht"/>
+            <RadioButton Content="M" Value="M" />
+            <RadioButton Content="V" Value="V"/>
+            <RadioButton Content="Andere" Value="Andere" />
+        </StackLayout>
+
+        <Button Text="Opslaan" Command="{Binding UitvoerTonenCommand}"/>
+        <Label Text="{Binding Uitvoer}"/>
+    </StackLayout>
+</ContentPage>

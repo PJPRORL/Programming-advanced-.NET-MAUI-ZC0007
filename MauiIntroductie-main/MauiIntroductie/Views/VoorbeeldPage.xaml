@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ViewModel="clr-namespace:MauiIntroductie.ViewModels"
+             x:Class="MauiIntroductie.Views.VoorbeeldPage"
+             Title="Voorbeeld_Naam">
+    <StackLayout>
+        <Entry Text="{Binding Naam}" />
+        <Label Text="{Binding Naam}" />
+    </StackLayout>
+</ContentPage>

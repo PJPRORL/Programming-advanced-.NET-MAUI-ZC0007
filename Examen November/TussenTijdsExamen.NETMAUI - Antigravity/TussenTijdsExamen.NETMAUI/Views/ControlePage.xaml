@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:TussenTijdsExamen.NETMAUI.ViewModels"
+             x:Class="TussenTijdsExamen.NETMAUI.Views.ControlePage"
+             x:DataType="viewmodel:MainViewModel"
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
+            <Label Text="Beheer" FontSize="Large" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+            <Frame BorderColor="Gray" Padding="10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Nieuwe Leerling" FontSize="Medium" FontAttributes="Bold"/>
+                    <Entry Placeholder="Voornaam" Text="{Binding Leerling.Voornaam}" />
+                    <Entry Placeholder="Achternaam" Text="{Binding Leerling.Achternaam}" />
+                    <Button Text="Voeg Leerling Toe" Command="{Binding AddLeerlingCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BorderColor="Gray" Padding="10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Nieuwe Docent" FontSize="Medium" FontAttributes="Bold"/>
+                    <Entry Placeholder="Voornaam" Text="{Binding Docent.Voornaam}" />
+                    <Entry Placeholder="Achternaam" Text="{Binding Docent.Achternaam}" />
+                    <Button Text="Voeg Docent Toe" Command="{Binding AddDocentCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

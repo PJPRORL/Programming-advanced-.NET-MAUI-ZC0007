@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Publishers.Views.StoresPage"
+    xmlns:models="clr-namespace:Publishers.Models"
+    xmlns:viewmodels="clr-namespace:Publishers.ViewModels" x:DataType="viewmodels:StoresViewModel" Title="StoresPage">
+    <Grid RowDefinitions="*" ColumnDefinitions="*, *">
+        <CollectionView Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" SelectionMode="Single" ItemsSource="{Binding Stores}" EmptyView="No items to display">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Store">
+                    <VerticalStackLayout Padding="10">
+                        <Label Text="{Binding Name}" FontSize="20" />
+                        <Label Text="{Binding Address}" FontSize="16" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" HorizontalOptions="Fill" VerticalOptions="Center" Color="{StaticResource Primary}" Grid.RowSpan="1" Grid.ColumnSpan="1" />
+
+        <Grid RowSpacing="10" ColumnSpacing="10" RowDefinitions="auto,auto,auto,auto" ColumnDefinitions="*, auto" Grid.Row="0" Grid.Column="1">
+            <Entry Placeholder="Naam" Text="{Binding Naam}" Grid.Row="0" Grid.Column="0" />
+            <Button Text="Ophalen via naam" Command="{Binding StoresOphalenViaNaamCommand}" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" />
+
+            <Entry Placeholder="Staat" Text="{Binding Staat}" Grid.Row="1" Grid.Column="0" />
+            <Button Text="Ophalen via staat" Command="{Binding StoresOphalenViaStaatCommand}" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Ophalen via naam en staat" Command="{Binding StoresOphalenViaNaamEnStaatCommand}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" IsEnabled="{Binding IsNotBusy}" />
+
+            <Entry Placeholder="Id" Text="{Binding Id}" Grid.Row="3" Grid.Column="0" />
+            <Button Text="Ophalen via id" Command="{Binding StoresOphalenViaIdCommand}" Grid.Row="3" Grid.Column="2" IsEnabled="{Binding IsNotBusy}" />
+        </Grid>
+    </Grid>
+</ContentPage>

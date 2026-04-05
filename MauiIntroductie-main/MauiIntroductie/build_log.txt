@@ -1,0 +1,10 @@
+﻿  Determining projects to restore...
+  Restored E:\School\Thomas More 2024-2027\Opleiding 2025 Thomas More\Programming advanced (ZC0007)\MauiIntroductie\MauiIntroductie\MauiIntroductie.csproj (in 689 ms).
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(345,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [E:\School\Thomas More 2024-2027\Opleiding 2025 Thomas More\Programming advanced (ZC0007)\MauiIntroductie\MauiIntroductie\MauiIntroductie.csproj::TargetFramework=net9.0-windows10.0.19041.0]
+  MauiIntroductie -> E:\School\Thomas More 2024-2027\Opleiding 2025 Thomas More\Programming advanced (ZC0007)\MauiIntroductie\MauiIntroductie\bin\Debug\net9.0-windows10.0.19041.0\win10-x64\MauiIntroductie.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:08.93

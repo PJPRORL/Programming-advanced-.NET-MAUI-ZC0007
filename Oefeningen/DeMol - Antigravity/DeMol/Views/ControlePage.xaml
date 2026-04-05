@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DeMol.Views.ControlePage"
+             xmlns:vm="clr-namespace:DeMol.ViewModels"
+             Title="{Binding Title}"
+             BackgroundColor="#FDFDF0">
+    
+    <VerticalStackLayout Spacing="20" 
+                         VerticalOptions="Center" 
+                         Padding="30">
+        
+        <Frame BackgroundColor="#F5F5DC" 
+               CornerRadius="10" 
+               Padding="5"
+               BorderColor="LightGray"
+               HasShadow="True">
+            <Entry Text="{Binding VerdachteNaam}"
+                   Placeholder="Geef een naam in"
+                   FontSize="18"
+                   TextColor="Black"
+                   PlaceholderColor="Gray"
+                   BackgroundColor="Transparent" />
+        </Frame>
+
+        <Button Text="Controleer"
+                Command="{Binding ControleerCommand}"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="50"
+                FontSize="18"/>
+    </VerticalStackLayout>
+</ContentPage>

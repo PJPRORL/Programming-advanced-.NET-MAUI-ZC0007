@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="Orders.Views.OrdersPage"
+            xmlns:models="clr-namespace:Orders.Models"
+            xmlns:viewmodels="clr-namespace:Orders.ViewModels"
+            x:DataType="viewmodels:OrdersViewModel"
+            Title="OrdersPage">
+    <Grid RowDefinitions="*" ColumnDefinitions="*, *">
+        <CollectionView
+        Grid.Row="0" Grid.Column="0"
+        SelectionMode="Single" ItemsSource="{Binding Orders}" EmptyView="No items to display">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Order">
+                    <VerticalStackLayout Padding="10">
+                        <Label FontSize="20">
+                            <Label.Text>
+                                <MultiBinding StringFormat="OrderId {0} van klant {1}">
+                                    <Binding Path="Id"/>
+                                    <Binding Path="Klant.Bedrijf"/>
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>       
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <ActivityIndicator IsVisible="{Binding IsBusy}"
+                       IsRunning="{Binding IsBusy}"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Center"
+                       Color="{StaticResource Primary}"
+                       Grid.RowSpan="1"
+                       Grid.ColumnSpan="1" />
+
+        <Grid RowSpacing="10" ColumnSpacing="10" RowDefinitions="auto,auto" ColumnDefinitions="*, auto" Grid.Row="0" Grid.Column="1">
+            <Button Text="Alle orders" Command="{Binding AlleOrdersOphalenCommand}"
+                Grid.Row="0" Grid.Column="1"
+                IsEnabled="{Binding IsNotBusy}" />
+
+            <Entry Placeholder="Bedrijfsnaam" Text="{Binding Bedrijfsnaam}" Grid.Row="1" Grid.Column="0" />
+            <Button Text="Zoeken op Bedrijfsnaam" Command="{Binding AlleOrdersOphalenVoorKlantCommand}"
+                Grid.Row="1" Grid.Column="1"
+                IsEnabled="{Binding IsNotBusy}" />
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:MauiNavigationExample.ViewModels"
+             xmlns:models="clr-namespace:MauiNavigationExample.Models"
+             x:Class="MauiNavigationExample.Views.PersonenBeheerView"
+             Title="Personen Beheer">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <Entry Placeholder="Voornaam" Text="{Binding Voornaam}" />
+            <DatePicker Date="{Binding Geboortedatum}" />
+            
+            <Button Text="Voeg toe" Command="{Binding ToevoegenCommand}" />
+
+            <CollectionView ItemsSource="{Binding Personen}" HeightRequest="250">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Persoon">
+                        <HorizontalStackLayout Spacing="10" Padding="5">
+                            <Label Text="{Binding Voornaam}" FontAttributes="Bold" />
+                            <Label Text="-" />
+                            <Label Text="{Binding Geboortedatum, StringFormat='{0:dd/MM/yyyy}'}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="Toon in Overzicht" Command="{Binding TonenCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

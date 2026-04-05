@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiOefeningen2.ViewModels"
+             x:Class="MauiOefeningen2.Views.ProgrammingAdvancedPage"
+             x:DataType="viewmodel:ProgrammingAdvancedViewModel"
+             Title="Vak">
+    <VerticalStackLayout>
+        <Label 
+            Text="Programming Advanced"
+            FontSize="25"
+            FontFamily="Calibri"
+            HorizontalTextAlignment="Start"
+            VerticalTextAlignment="Start"
+            HorizontalOptions="Start"
+            Margin="10,10,0,0"/>
+        <Image
+            Source="programmingadvanced.png"
+            HeightRequest="100"
+            Margin="10,10,0,0"
+            HorizontalOptions="Start"/>
+        <HorizontalStackLayout Margin="10,10,0,0">
+            <Entry 
+                WidthRequest="200"
+                Text="{Binding Voornaam}"
+                Placeholder="Voornaam"/>
+            <Entry
+                WidthRequest="500"
+                Text="{Binding Naam}"
+                Placeholder="Naam"/>
+        </HorizontalStackLayout>
+        <VerticalStackLayout HorizontalOptions="Start" Margin="10,0,0,0">
+            <Entry
+                WidthRequest="700"
+                Text="{Binding Campus}"
+                Placeholder="Locatie campus"
+                />
+            <HorizontalStackLayout Margin="5,15,0,5">
+                <Label Text="Vast lokaal?" VerticalOptions="Center" Margin="0,0,10,0"/>
+                <CheckBox Color="HotPink" IsChecked="False"/>
+                <Entry Placeholder="Lokaalnr"
+                       Text="{Binding Lookaalnr}"
+                       Margin="10,0,0,0"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Margin="5,0,0,0">
+                <Label
+                    Text="Datum eerste les:" 
+                    VerticalOptions="Center"
+                    Margin="0,0,10,0"/>
+                <DatePicker Date="{Binding Datum}"
+                            Format="dd/MM/yyyy"
+                            />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Margin="5,0,0,0">
+                <Label
+                    Text="Hoeveel denk je te scoren voor dit vak?"
+                    VerticalOptions="Center"
+                    Margin="0,0,10,0"/>
+                <Label VerticalOptions="Center" Text="{Binding Getal}" Margin="0,0,10,0"/>
+                <Label Text="/20"
+                       VerticalOptions="Center"/>
+                <Stepper 
+                    Minimum="0"
+                    Maximum="20"
+                    Increment="1"
+                    Value="{Binding Getal}"
+                    />
+            </HorizontalStackLayout>
+            <Button WidthRequest="100"
+                    HorizontalOptions="Start"
+                    Text="Opslaan"
+                    Command="{Binding ToonGegevensCommand}"
+                    Margin="5,10,0,0" />
+
+            <VerticalStackLayout>
+                <Label
+                    Text="Uitvoer"
+                    FontSize="25"
+                    Margin="5,10,0,0"/>
+                <Label Text="{Binding Uitvoer}"/>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

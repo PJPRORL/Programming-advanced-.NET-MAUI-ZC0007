@@ -1,0 +1,10 @@
+.idea/
+.vscode/
+bin/
+obj/
+.git/
+*.user
+*.suo
+build_log*.txt
+errors*.txt
+log.txt

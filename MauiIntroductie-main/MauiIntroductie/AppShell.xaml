@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MauiIntroductie.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Views="clr-namespace:MauiIntroductie.Views"
+    Shell.FlyoutBehavior="Flyout"
+    Title="MauiIntroductie">
+
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate Views:HomePage}"
+        Route="HomePage" />
+    <ShellContent
+        Title="Label pagina"
+        ContentTemplate="{DataTemplate Views:LabelsPage}"
+        Route="Labels" />
+    <ShellContent
+        Title="Stacklayout pagina"
+        ContentTemplate="{DataTemplate Views:StackLayoutPage}"
+        Route="StackLayout" />
+    <ShellContent
+        Title="Foto pagina"
+        ContentTemplate="{DataTemplate Views:FotoPage}"
+        Route="Foto pagina" />
+    <ShellContent
+        Title="Voorbeeld"
+        ContentTemplate="{DataTemplate Views:VoorbeeldPage}"
+        Route="VoorbeeldPage" />
+    <ShellContent
+        Title="Namen"
+        ContentTemplate="{DataTemplate Views:NamenPage}"
+        Route="NamenPage" />
+
+    <ShellContent
+        Title="Werknemers"
+        ContentTemplate="{DataTemplate Views:WerknemerPage}"
+        Route="WerkenemerPage" />
+</Shell>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiOefeningen2.ViewModels"
+             x:Class="MauiOefeningen2.Views.NaamTonenPage"
+             x:DataType="viewmodel:NaamTonenViewModel"
+             Title="Naam tonen">
+    <VerticalStackLayout>
+        <HorizontalStackLayout>
+            <Label
+                Text="Geef een naam in:"
+                VerticalOptions="Center"
+                Margin="0, 0, 25, 0"
+                FontSize="15"/>
+            <Entry
+                x:Name="NaamEntry"
+                Text="{Binding Naam}"
+                Placeholder="Naam"
+                WidthRequest="200"/>
+        </HorizontalStackLayout>
+        <HorizontalStackLayout>
+            <Label
+                Text="Geef een getal in:"
+                VerticalOptions="Center"
+                Margin="0, 0, 30, 0"
+                FontSize="15"/>
+            <Entry
+                x:Name="GetalEntry"
+                Text="{Binding Getal}"
+                Placeholder="Getal"
+                WidthRequest="50"/>
+        </HorizontalStackLayout>
+        <HorizontalStackLayout Spacing="5">
+            <Button Text="Naam tonen"
+                    Command="{Binding NaamTonenCommand}"
+                    WidthRequest="200"/>
+            <Button Text="Resultaat leegmaken"
+                    Command="{Binding ResultaatLeegmakenCommand}"
+                    WidthRequest="200"/>
+        </HorizontalStackLayout>
+
+        <HorizontalStackLayout>
+            <Label Text="Resultaat: "
+                   VerticalOptions="Center"
+                   Margin="0, 0, 10, 0"
+                   FontSize="15"/>
+            <Label Text="{Binding Uitvoer}"/>
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

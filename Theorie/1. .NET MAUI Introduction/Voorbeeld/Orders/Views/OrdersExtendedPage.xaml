@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:Orders.Models"
+    xmlns:viewmodels="clr-namespace:Orders.ViewModels" 
+    x:DataType="viewmodels:OrdersExtendedViewModel"
+    x:Class="Orders.Views.OrdersExtendedPage" Title="OrdersExtendedPage">
+    <Grid RowDefinitions="*" ColumnDefinitions="*, *">
+        <ScrollView Margin="5" Grid.Row="0" Grid.Column="0">
+            <Label Text="{Binding OrderOutput}" />
+        </ScrollView>
+
+        <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" HorizontalOptions="Fill" VerticalOptions="Center" Color="{StaticResource Primary}" Grid.RowSpan="1" Grid.ColumnSpan="1" />
+
+        <Grid RowSpacing="10" ColumnSpacing="10" RowDefinitions="auto,auto,auto,auto,auto,auto,auto" ColumnDefinitions="*, auto" Grid.Row="0" Grid.Column="1">
+            <Button Text="Alle orders" Command="{Binding AlleOrdersOphalenCommand}" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" />
+
+            <Entry Placeholder="Klant" Text="{Binding Bedrijfsnaam}" Grid.Row="1" Grid.Column="0" />
+            <Button Text="Zoeken op klant" Command="{Binding AlleOrdersOphalenVoorKlantCommand}" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Alle klanten met orders" Command="{Binding KlantenOphalenMetOrdersCommand}" Grid.Row="2" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Alle klanten met orders en orderlijnen" Command="{Binding KlantenOphalenMetOrdersEnOrderlijnenCommand}" Grid.Row="3" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Alle klanten met orders, orderlijnen en product" Command="{Binding KlantenOphalenMetOrdersEnOrderlijnenEnProductCommand}" Grid.Row="4" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" />
+
+            <Button Text="Alle klanten met orders, orderlijnen, product en werknemer" Command="{Binding KlantenOphalenMetOrdersEnOrderlijnenEnProductEnWerknemerCommand}" Grid.Row="5" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" />
+        </Grid>
+    </Grid>
+</ContentPage>

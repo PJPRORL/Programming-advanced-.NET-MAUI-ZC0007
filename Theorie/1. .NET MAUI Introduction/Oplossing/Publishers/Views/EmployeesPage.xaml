@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Publishers.Views.EmployeesPage"
+    xmlns:models="clr-namespace:Publishers.Models"
+    xmlns:viewmodels="clr-namespace:Publishers.ViewModels" x:DataType="viewmodels:EmployeesViewModel" Title="EmployeesPage">
+    <Grid RowDefinitions="*" ColumnDefinitions="*, *">
+        <CollectionView Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" SelectionMode="Single" ItemsSource="{Binding Employees}" EmptyView="No items to display">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Employee">
+                    <VerticalStackLayout Padding="10">
+                        <Label Text="{Binding FullName}" FontSize="20" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" HorizontalOptions="Fill" VerticalOptions="Center" Color="{StaticResource Primary}" Grid.RowSpan="1" Grid.ColumnSpan="1" />
+
+        <Grid RowSpacing="10" ColumnSpacing="10" RowDefinitions="auto,auto,auto,auto,auto, auto" ColumnDefinitions="*, auto" Grid.Row="0" Grid.Column="1">
+            <Button Text="Alle werknemers ophalen" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" IsEnabled="{Binding IsNotBusy}" Command="{Binding AlleWerknemersOphalenCommand}" />
+
+            <Picker ItemsSource="{Binding Jobs}" Grid.Row="1" Grid.Column="0" SelectedItem="{Binding SelectedJob}" />
+            <Button Text="Zoek werknemers via job" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" Command="{Binding WerknemersOphalenViaJobCommand}" />
+
+            <Picker ItemsSource="{Binding Publishers}" Grid.Row="2" Grid.Column="0" SelectedItem="{Binding SelectedPublisher}" />
+            <Button Text="Zoek werknemers via publisher" Grid.Row="2" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" Command="{Binding WerknemersOphalenViaPublisherCommand}" />
+
+            <Button Text="Zoeken via publisher en job" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" IsEnabled="{Binding IsNotBusy}" Command="{Binding WerknemersOphalenViaJobEnPublisherCommand}" />
+
+            <DatePicker Date="{Binding SelectedDate}" Grid.Row="4" Grid.Column="0" />
+            <Button Text="Zoeken op aanwerfdatum" Grid.Row="4" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" Command="{Binding WerknemersOphalenViaAanwerfdatumCommand}" />
+
+            <Entry Placeholder="Id" Text="{Binding Id}" Grid.Row="5" Grid.Column="0" />
+            <Button Text="Zoeken op id" Grid.Row="5" Grid.Column="1" IsEnabled="{Binding IsNotBusy}" Command="{Binding WerknemerOphalenViaIdCommand}" />
+        </Grid>
+    </Grid>
+</ContentPage>

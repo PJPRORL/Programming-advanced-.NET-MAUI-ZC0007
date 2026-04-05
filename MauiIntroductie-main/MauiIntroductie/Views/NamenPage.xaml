@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MauiIntroductie.ViewModels"
+             x:Class="MauiIntroductie.Views.NamenPage"
+             x:DataType="viewmodel:NamenViewModel"
+             Title="{Binding Title}">
+    <VerticalStackLayout Margin="10">
+        <Entry Text="{Binding Naam}" Placeholder="Geef een naam in" />
+        <Button Text="Naam Toevoegen" Command="{Binding NaamToevoegenCommand}"/>
+        <CollectionView ItemsSource="{Binding Namen}" EmptyView="Er zijn nog geen namen.">
+            <CollectionView.Header>
+                <Label Text="Namen:" FontSize="Medium"/>
+            </CollectionView.Header>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Label Text="{Binding}" FontSize="Small"/>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentPage>

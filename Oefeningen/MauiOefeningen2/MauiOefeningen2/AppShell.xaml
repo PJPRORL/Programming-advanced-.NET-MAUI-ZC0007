@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MauiOefeningen2.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Views="clr-namespace:MauiOefeningen2.Views"
+    Shell.FlyoutBehavior="Flyout"
+    Title="MauiOefeningen2">
+
+    <ShellContent
+        Title="Welkom"
+        ContentTemplate="{DataTemplate Views:MainPage}"
+        Route="MainPage" />
+    <ShellContent
+        Title="Naam tonen"
+        ContentTemplate="{DataTemplate Views:NaamTonenPage}"
+        Route="NaamTonenPage" />
+    <ShellContent
+        Title="Vak"
+        ContentTemplate="{DataTemplate Views:ProgrammingAdvancedPage}"
+        Route="ProgrammingAdvancedPage" />
+    <ShellContent
+        Title="Afbeeldingen"
+        ContentTemplate="{DataTemplate Views:AfbeeldingenPage}"
+        Route="AfbeeldingenPage" />
+    <ShellContent
+        Title="Vragenlijst"
+        ContentTemplate="{DataTemplate Views:VragenlijstPage}"
+        Route="VragenlijstPage" />
+    <ShellContent
+        Title="AlleNegen"
+        ContentTemplate="{DataTemplate Views:AlleNegenPage}"
+        Route="AlleNegenPage" />
+
+    <ShellContent
+        Title="GetallenRij"
+        ContentTemplate="{DataTemplate Views:GetallenRijPage}"
+         Route="GetallenRijPage" />
+
+    <ShellContent
+        Title="Factuur"
+        ContentTemplate="{DataTemplate Views:FactuurPage}"
+        Route="FactuurPage" />
+    
+    <ShellContent
+        Title="Game"
+        ContentTemplate="{DataTemplate Views:GamePage}"
+        Route="GamePage" />
+
+    <ShellContent
+        Title="Persoon"
+        ContentTemplate="{DataTemplate Views:PersoonPage}"
+        Route="PersoonPage" />
+</Shell>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:models="clr-namespace:Orders.Models"
+            xmlns:viewmodels="clr-namespace:Orders.ViewModels"
+            x:Class="Orders.Views.WerknemersPage"
+            x:DataType="viewmodels:WerknemersViewModel"
+            Title="Werknemers">
+    <Grid RowDefinitions="*" ColumnDefinitions="*, *">
+        <CollectionView
+            Grid.Row="0" Grid.Column="0"
+            SelectionMode="Single" ItemsSource="{Binding Werknemers}" EmptyView="No items to display">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Werknemer">
+                    <HorizontalStackLayout Padding="10">
+                        <Image Source="{Binding Avatar}" HeightRequest="100" WidthRequest="100" Aspect="AspectFill" />
+                        <VerticalStackLayout Padding="10">
+                            <Label Text="{Binding VolledigeNaam}" FontSize="20" />
+                            <Label Text="{Binding Functie}" FontSize="16" />
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <ActivityIndicator IsVisible="{Binding IsBusy}"
+                           IsRunning="{Binding IsBusy}"
+                           HorizontalOptions="Fill"
+                           VerticalOptions="Center"
+                           Color="{StaticResource Primary}"
+                           Grid.RowSpan="1"
+                           Grid.ColumnSpan="1" 
+                           BackgroundColor="Beige"/>
+
+        <Grid RowSpacing="10" ColumnSpacing="10" RowDefinitions="auto,auto,auto,auto" ColumnDefinitions="*, *, auto" Grid.Row="0" Grid.Column="1">
+            <Button Text="Alle werknemers" Command="{Binding AlleWerknemersOphalenCommand}"
+                    Grid.Row="0" Grid.Column="2"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <Entry Placeholder="Functie" Text="{Binding Functie}" Grid.Row="1" Grid.Column="0" />
+            <Button Text="Zoeken op functie" Command="{Binding WerknemersZoekenViaFunctieCommand}"
+                    Grid.Row="1" Grid.Column="2"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <Entry Placeholder="Voornaam" Text="{Binding Voornaam}"  Grid.Row="2" Grid.Column="0" />
+            <Entry Placeholder="Achternaam" Text="{Binding Achternaam}" Grid.Row="2" Grid.Column="1" />
+            <Button Text="Zoeken op naam" Command="{Binding WerknemersZoekenViaNaamCommand}" Grid.Row="2" Grid.Column="2"
+                    IsEnabled="{Binding IsNotBusy}" />
+
+            <Entry Placeholder="ID" Text="{Binding Id}" Grid.Row="3" Grid.Column="0" />
+            <Button Text="Zoeken op ID" Command="{Binding WerknemersZoekenViaIdCommand}" Grid.Row="3" Grid.Column="2"
+                    IsEnabled="{Binding IsNotBusy}" />
+        </Grid>
+    </Grid>
+</ContentPage>

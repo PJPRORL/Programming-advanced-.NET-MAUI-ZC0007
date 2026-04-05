@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DeMol.Views.VraagPage"
+             xmlns:vm="clr-namespace:DeMol.ViewModels"
+             Title="{Binding Title}"
+             BackgroundColor="#FDFDF0">
+    <Grid RowDefinitions="Auto, Auto, *, Auto" Padding="20">
+        
+        <Label Text="{Binding CurrentVraag}" 
+               FontSize="22"
+               TextColor="Black"
+               Margin="0,20,0,10"/>
+
+        <Label Grid.Row="1"
+               Text="Selecteer een antwoord"
+               FontSize="16"
+               TextColor="Black"
+               Margin="0,0,0,20"/>
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Opties}"
+                                 RadioButtonGroup.GroupName="Answers"
+                                 RadioButtonGroup.SelectedValue="{Binding SelectedAntwoord}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Content="{Binding VolledigeNaam}"
+                                     Value="{Binding .}"
+                                     TextColor="Black"
+                                     FontSize="18"
+                                     Margin="0,5,0,5" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Button Grid.Row="3"
+                Text="Volgende vraag" 
+                Command="{Binding VolgendeVraagCommand}"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="50"
+                FontSize="16"
+                Margin="0,20,0,20"
+                HorizontalOptions="Center"
+                WidthRequest="250"/>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell x:Class="Orders.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Orders"
+    xmlns:views="clr-namespace:Orders.Views" Shell.FlyoutBehavior="Flyout" Title="Orders">
+    <ShellContent Title="Home" ContentTemplate="{DataTemplate views:MainPage}" Route="MainPage" />
+    <ShellContent Title="Werknemers (select)" ContentTemplate="{DataTemplate views:WerknemersPage}" Route="WerknemersPage" />
+    <ShellContent Title="Orders (select met joins)" 
+                  ContentTemplate="{DataTemplate views:OrdersPage}" 
+                  Route="OrdersPage" />
+    <ShellContent Title="Orders (select met joins - meervoudige relaties)" 
+                  ContentTemplate="{DataTemplate views:OrdersExtendedPage}" 
+                  Route="OrdersExtendedPage" />    
+</Shell>
