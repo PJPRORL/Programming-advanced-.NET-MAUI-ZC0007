@@ -9,6 +9,6 @@ namespace MauiOefeningen2.Models
     public class Persoon
     {
         public string Voornaam { get; set; }
-        public DateTime GeboorteDatum { get; set; }
+        public DateTime GeboorteDatum { get; set; } = DateTime.Now;
     }
 }

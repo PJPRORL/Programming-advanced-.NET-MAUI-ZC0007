@@ -1,8 +1,135 @@
-# MAUI Element Catalog
+# MAUI Element Catalog (Uitgebreid)
 
-This catalog lists common .NET MAUI elements and their frequently used attributes. Use this as a reference when building your UI.
+Deze catalogus bevat een uitgebreid overzicht van .NET MAUI concepten, elementen en theorie-toepassingen, samengesteld uit oefeningen en examenmateriaal. Gebruik dit als ultiem naslagwerk voor de ontwikkeling van applicaties en User Interfaces.
 
-## 📐 Common Layout Properties
+---
+
+## 🏗️ 1. Architectuur & MVVM (CommunityToolkit.Mvvm)
+
+De Model-View-ViewModel (MVVM) architectuur scheidt de logica van de user interface. In combinatie met de `CommunityToolkit.Mvvm` bespaart dit veel "boilerplate" code.
+
+### Belangrijke Attributen in ViewModels (C#)
+
+| Attribuut / Concept | Beschrijving | Voorbeeld (C#) |
+|-----------------|--------------|----------------|
+| `[ObservableProperty]` | Genereert automatisch INotifyPropertyChanged ondersteuning voor een veld. | `[ObservableProperty] private string _naam;` |
+| `[RelayCommand]` | Genereert een IRelayCommand van een method, eventueel asynchroon of met parameters. | `[RelayCommand] private async Task SaveAsync() { ... }` |
+
+### XAML Databinding Syntax
+
+| Attribuut | Type / Concept | Beschrijving | Voorbeeld |
+|-----------|---|-------------|---------|
+| `BindingContext` | `Object` | De koppeling naar het ViewModel vanuit de View. | `BindingContext="{x:Reference naamViewModel}"` |
+| `{Binding ...}` | `Expression` | Verbindt een UI eigenschap aan een property in het ViewModel. | `Text="{Binding Naam}"` |
+| `StringFormat` | `String` | Formatteert de gebinde data rechtstreeks in XAML. | `Text="{Binding Prijs, StringFormat='€ {0:F2}'}"` |
+| `x:DataType` | `Type` | Compiled bindings. Zorgt voor snellere code en intellisense. | `x:DataType="viewmodels:MijnViewModel"` |
+
+---
+
+## 🧭 2. Navigatie (Shell)
+
+MAUI Shell versimpelt de visuele hiërarchie (Flyout, Tabs) en biedt een URI-gebaseerd navigatiesysteem.
+
+| Onderdeel / Eigenschap | Type | Beschrijving | Voorbeeld (C# of XAML) |
+|--------------------|---|-------------|---------|
+| `Routing.RegisterRoute()`| `Method` | Registreert unieke pagina routes in AppShell.xaml.cs. | `Routing.RegisterRoute(nameof(DetailPage), typeof(DetailPage));` |
+| `Shell.Current.GoToAsync`| `Task` | Navigeert naar de geregistreerde target URI. | `await Shell.Current.GoToAsync(nameof(DetailPage));` |
+| `[QueryProperty]` | `Attribute` | Vangt een parameter op die via de navigatie querystring wordt meegegeven. | `[QueryProperty(nameof(ItemId), "id")]` |
+| Navigatie parameters | `Dictionary` | Complexere data meenemen tijdens de navigatie. | `await Shell.Current.GoToAsync("...", new Dictionary<string, object> { { "Klant", geselecteerdeKlant } });` |
+
+---
+
+## 💾 3. Data Toegang (Dapper & Repositories)
+
+Om SQL-data op te halen/bewaren, maken we gebruik van Repository patronen in combinatie met Dapper.
+
+### Repository Patroon
+
+| Component | Beschrijving | Voorbeeld |
+|-----------|-------------|----------|
+| **Interface** (e.g., `IKlantRepository`) | Contract dat bepaalt welke databases-methodes er moeten bestaan. | `Task<IEnumerable<Klant>> GetKlantenAsync();` |
+| **Repository Class** | De echte implementatie die met Dapper de queries uitvoert. | `public class KlantRepository : IKlantRepository` |
+
+### Dapper Basis Functionaliteit
+
+| Methode | Beschrijving | Voorbeeld (C#) |
+|---------|-------------|---------------|
+| `QueryAsync<T>` | Haalt resultaten op als IEnumerable. Geschikt voor SELECT queries, ook voor JOINs. | `await connection.QueryAsync<Klant>("SELECT * FROM Klanten");` |
+| `ExecuteAsync` | Voert een CUD bewerking uit (Insert, Update, Delete) en retourneert iteraties. | `await connection.ExecuteAsync("DELETE FROM...", new { Id = id });` |
+| Query Parameters | Gebiedt veiligheid (SQL Injection protectie) met anonieme objecten. | `new { UserId = 5 }` op basis van `@UserId` in de query. |
+
+---
+
+## 🎨 4. Geavanceerde Layouts & Resources
+
+Voor een professionele applicatie is styling en hergebruik van kleuren onmisbaar, zoals getoond in het examen.
+
+| Element | Beschrijving | Voorbeeld |
+|---------|-------------|----------|
+| `ResourceDictionary` | Locatie voor gemeenschappelijke resources zoals kleuren en stijlen. Vaak apart toegevoegd via `MergedDictionaries`. | `<ResourceDictionary Source="Styles/Colors.xaml"/>` |
+| `SolidColorBrush` | Eigenschap om kwasten te benoemen, via app statische kleuren. | `<SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>` |
+| `Style` | Voorgedefinieerde verzameling properties/setters. | `<Style TargetType="Button" x:Key="PrimaryBtn">` |
+| `Setter` | Wijs eigenschappen toe in een Style. | `<Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>` |
+
+### VisualStateManager
+Biedt states aan componenten afhankelijk van hun modus (bijv. Normaal, Gefocust, Geselecteerd).
+```xml
+<VisualStateManager.VisualStateGroups>
+    <VisualStateGroupList>
+        <VisualStateGroup x:Name="CommonStates">
+            <VisualState x:Name="Normal" />
+            <VisualState x:Name="Selected">
+                <VisualState.Setters>
+                    <Setter Property="BackgroundColor" Value="LightBlue" />
+                </VisualState.Setters>
+            </VisualState>
+        </VisualStateGroup>
+    </VisualStateGroupList>
+</VisualStateManager.VisualStateGroups>
+```
+
+---
+
+## 🎛️ 5. Nieuwe Data Modellen, Forms & Input Controls
+
+Belangrijke elementen geput uit de CRUD en 'De Mol' opdrachten.
+
+### Geavanceerde CollectionView
+Uitbreidingen op de gewone weergave van datasets.
+
+| Property | Type | Beschrijving | Voorbeeld |
+|----------|------|-------------|---------|
+| `SelectionMode` | `SelectionMode` | Controleert of items selecteerbaar zijn. | `SelectionMode="Single"` |
+| `SelectedItem` | `Object` | (Two-way) bindt naar het currently selected item in VM. | `SelectedItem="{Binding GeselecteerdeKlant}"` |
+| `SelectionChangedCommand` | `ICommand` | Triggert een opdracht vanuit de interactie (zonder code-behind `Event`). | `SelectionChangedCommand="{Binding GaNaarDetailCommand}"` |
+
+### Picker (Dropdown)
+Maak een selectie binnen gekoppelde SQL-data (b.v. een Publisher of Land kiezen).
+
+| Property | Type | Beschrijving | Voorbeeld |
+|----------|------|-------------|---------|
+| `ItemsSource` | `IEnumerable` | De lijst opties zichtbaar in de picker. | `ItemsSource="{Binding LandenLijst}"` |
+| `ItemDisplayBinding` | `BindingBase` | Bepaalt de tekst/property die visueel getoond wordt. | `ItemDisplayBinding="{Binding LandNaam}"` |
+| `SelectedItem` | `Object` | Welk object door de gebruiker gekozen is. | `SelectedItem="{Binding GeselecteerdLand}"` |
+
+### Switch, RadioButton & CheckBox
+Vaak gebruikt in enquêtes / vragenformulieren.
+
+| Control | Beschrijving | Belangrijkste Properties |
+|---------|-------------|-----------------------|
+| `RadioButton` | Keuze uit één enkele optie binnen een groep. | `Content="Optie 1"`, `GroupName="Q1"`, `IsChecked="{Binding IsOptieGekozen}"` |
+| `CheckBox` | Ter goedkeuring van individuele statussen (Ja/Nee). | `IsChecked="{Binding Akkoord}"` |
+| `Switch` | Een aan/uit slider, geschikt voor configuratie/settings (bool values). | `IsToggled="{Binding IsActief}"` |
+
+---
+
+<br/><hr/><br/>
+
+## 📚 6. Basis .NET MAUI Catalogus (Standaard Elementen)
+
+*Dit is de fundamentele theorie en de originele catalogus voor de absolute basis properties en attributen.*
+
+### 📐 Common Layout Properties
 These properties apply to almost all visual elements (Layouts and Controls).
 
 | Property | Type | Description | Example |
@@ -19,16 +146,16 @@ These properties apply to almost all visual elements (Layouts and Controls).
 
 ---
 
-## 📦 Layouts
+### 📦 Layouts
 
-### VerticalStackLayout / HorizontalStackLayout
+**VerticalStackLayout / HorizontalStackLayout**
 Organizes children sequentially.
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `Spacing` | `Double` | Space between children. |
 
-### Grid
+**Grid**
 Organizes children in rows and columns.
 
 | Property | Type | Description | Example |
@@ -46,9 +173,9 @@ Organizes children in rows and columns.
 
 ---
 
-## 🎮 Controls
+### 🎮 Controls
 
-### Label
+**Label**
 Displays text.
 
 | Property | Type | Description |
@@ -61,7 +188,7 @@ Displays text.
 | `VerticalTextAlignment` | `TextAlignment` | `Start`, `Center`, `End`. |
 | `LineBreakMode` | `LineBreakMode` | `NoWrap`, `WordWrap`, `TailTruncation`. |
 
-### Button
+**Button**
 Clickable button.
 
 | Property | Type | Description |
@@ -75,7 +202,7 @@ Clickable button.
 | `BorderWidth` | `Double` | Width of the border. |
 | `ImageSource` | `ImageSource` | Icon to display on the button. |
 
-### Entry
+**Entry**
 Single-line text input.
 
 | Property | Type | Description |
@@ -89,7 +216,7 @@ Single-line text input.
 | `MaxLength` | `Int` | Max characters allowed. |
 | `ReturnType` | `ReturnType` | `Done`, `Next`, `Search`, `Send`. |
 
-### Image
+**Image**
 Displays an image.
 
 | Property | Type | Description |
@@ -99,9 +226,9 @@ Displays an image.
 
 ---
 
-## 📚 Data Views
+### 📚 Data Views
 
-### CollectionView
+**CollectionView**
 Displays a list of items.
 
 | Property | Type | Description |

@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "maui-learning-platform"
+		},
+		{
+			"path": "../../ExamenJanuari2026"
 		}
 	],
 	"settings": {
