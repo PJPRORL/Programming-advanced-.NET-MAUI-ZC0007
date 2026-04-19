@@ -8,7 +8,6 @@ namespace MauiOefeningen2.ViewModels
 {
     public partial class PersoonViewModel: ViewModel
     {
-        [ObservableProperty]
 
     }
 }
