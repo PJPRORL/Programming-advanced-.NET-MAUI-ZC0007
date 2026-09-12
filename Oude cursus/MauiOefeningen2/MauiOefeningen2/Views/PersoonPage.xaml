@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiOefeningen2.Views.PersoonPage"
+             xmlns:viewmodel="clr-namespace:MauiOefeningen2.ViewModels"
+             xmlns:model="clr-namespace:MauiOefeningen2.Models"
+             x:DataType="viewmodel:PersoonViewModel"
+             Title="{Binding Title}">
+    <CollectionView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Personen}" SelectedItem="{Binding Persoon}" SelectionMode="Single">
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="model:Persoon">
+                <Grid RowDefinitions="*, auto" ColumnDefinitions="*, auto"
+                    Margin="10">
+                    <Label Text="1" Grid.Column="0"/>
+                    <Label />
+                    <Label />
+                    <Label />
+                    <Label />
+                </Grid>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+</ContentPage>

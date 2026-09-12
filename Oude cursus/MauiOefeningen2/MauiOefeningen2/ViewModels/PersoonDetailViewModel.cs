@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MauiOefeningen2.ViewModels
+{
+    [QueryProperty(nameof(Persoon), "Persoon")]
+    public partial class PersoonDetailViewModel : BaseViewModel
+    {
+        [ObservableProperty]
+        Persoon persoon;
+    }
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:DeMol.ViewModels"
+             x:DataType="viewmodel:ControleViewModel"
+             x:Class="DeMol.Views.ControlePage"
+             Title="{Binding Title}"
+             BackgroundColor="{Binding Achtergrondkleur}">
+    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+        <Entry Text="{Binding Voornaam}" Placeholder="Geef een voornaam in"/>
+        <Button Text="Controleer" Command="{Binding ControleerCommand}" WidthRequest="200"/>
+    </VerticalStackLayout>
+</ContentPage>
