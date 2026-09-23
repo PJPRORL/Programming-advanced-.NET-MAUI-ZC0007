@@ -1,0 +1,26 @@
+{
+  {
+    "id": 1,
+    "merk": "Dell",
+    "processor": "Intel i7",
+    "ramInGB": 16,
+    "prijs": 1499.99,
+    "gpu": "RTX 4070"
+  },
+  {
+    "id": 2,
+    "merk": "Asus",
+    "processor": "Intel i9",
+    "ramInGB": 64,
+    "prijs": 3499.99,
+    "gpu": "RTX 5090"
+  },
+  {
+    "id": 3,
+    "merk": "Acer",
+    "processor": "Intel i5",
+    "ramInGB": 16,
+    "prijs": 1099.99,
+    "gpu": "RTX 5050"
+  }
+}
