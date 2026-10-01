@@ -71,25 +71,25 @@ namespace ProgrammingAdvancedOefeningen.Controllers
             : $"Er blijven nog {overgeblevenSloten} sloten vrij.";
         }
 
-        [HttpGet("build/{build}/{socketProcessor}/{wattage}/{aantalModules}")]
-        public class Build
-        {
-            public string Type { get; set; } = "";
-            public string Socket { get; set; } = "";
-            public int GeheugenSloten { get; set; } = 0;
-            public int Verbruik { get; set; } = 0;
-        }
+        //[HttpGet("build/{build}/{socketProcessor}/{wattage}/{aantalModules}")]
+        //public class Build
+        //{
+        //    public string Type { get; set; } = "";
+        //    public string Socket { get; set; } = "";
+        //    public int GeheugenSloten { get; set; } = 0;
+        //    public int Verbruik { get; set; } = 0;
+        //}
 
-        private readonly List<Build> standaarBuild = new List<Build>
-        {
-           new Build { Type = "kantoor", Socket = "AM5", GeheugenSloten = 2, Verbruik = 180 },
-           new Build { Type = "gaming", Socket = "AM5", GeheugenSloten = 4, Verbruik = 520 },
-           new Build { Type = "montage", Socket = "LGA1700", GeheugenSloten = 4, Verbruik = 610 }
-        };
+        //private readonly List<Build> standaarBuild = new List<Build>
+        //{
+        //   new Build { Type = "kantoor", Socket = "AM5", GeheugenSloten = 2, Verbruik = 180 },
+        //   new Build { Type = "gaming", Socket = "AM5", GeheugenSloten = 4, Verbruik = 520 },
+        //   new Build { Type = "montage", Socket = "LGA1700", GeheugenSloten = 4, Verbruik = 610 }
+        //};
 
-        public Build BuildKiezer(string build, string socketProcessor, int wattage, int aantalModules)
-        {
+        //public Build BuildKiezer(string build, string socketProcessor, int wattage, int aantalModules)
+        //{
             
-        }
+        //}
     }
 }
