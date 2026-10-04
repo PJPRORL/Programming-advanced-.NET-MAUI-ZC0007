@@ -45,7 +45,7 @@ namespace ProgrammingAdvancedOefeningen.Controllers
             return $"Artikelcode {code} telt {code.Length} tekens.";
         }
 
-        /*public class Onderdeel
+        public class Onderdeel
         {
             public string Type { get; set; } = "";
             public string Artikelcode { get; set; } = "";
@@ -61,20 +61,9 @@ namespace ProgrammingAdvancedOefeningen.Controllers
 
         [HttpGet("fiche/{soort}")]
 
-        public string InformatiePerOnderdeel(string type)
+        public Onderdeel InformatiePerOnderdeel(List<Onderdeel> type)
         {
-            switch (type.ToUpper())
-            {
-                case "moederbord":
-                    return $"";
-                    break;
-                case "processor":
-                    break;
-                case "videokaart":
-                    break;
-                default:
-                    return "Sorry, we hebben geen informatie over dit onderdeel.";
-            }
-        }*/
+            return "";
+        }
     }
 }
