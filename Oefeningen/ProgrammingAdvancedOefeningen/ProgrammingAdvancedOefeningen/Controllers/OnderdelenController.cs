@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security;
 
 namespace ProgrammingAdvancedOefeningen.Controllers
 {
@@ -13,26 +14,37 @@ namespace ProgrammingAdvancedOefeningen.Controllers
             return "Welkom bij de onderdelenbalie van Bit & Byte.";
         }
 
-        private static readonly Dictionary<string, string> onderdelen = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["moederbord"] = "Het moederbord verbindt alle onderdelen met elkaar.",
-            ["processor"] = "De processor voert alle berekeningen uit.",
-            ["videokaart"] = "De videokaart tekent het beeld voor je scherm.",
-        };
-        /* Word gebruikt om de informatie op te slagen. Je geeft 2 waarden mee <string, string>,
-         * deze worden dan later gekoppeld aan de waarden: [waarden1], "Waarden2" in de Dictionary*/
+        private const string OnbekendeSoort = "Sorry, dit soort onderdeel verkopen wij niet.";
 
         [HttpGet("soort/{soort}")]
-        public string OnderdeelSoort(string soort) =>
-            onderdelen.TryGetValue(soort, out string? tekst)
-            /*onderdelen.TryGetValue hangt vast aan
-             *Dictionary onderdelen die je erboven hebt aangemaakt*/
-            ? tekst
-            : "Sorry, we hebben geen informatie over dit onderdeel.";
+        public string OnderdeelSoortUitleg(string soort)
+        {
+            return UitlegVoorSoort(soort);
+        }
+
+        private string UitlegVoorSoort(string soort)
+        {
+            switch (soort)
+            {
+                case "moederbord":
+                    return "Het moederbord verbindt alle onderdelen met elkaar.";
+                case "processor":
+                    return "De processor voert alle berekeningen uit.";
+                case "videokaart":
+                    return "De videokaart tekent het beeld voor je scherm.";
+                default:
+                    return OnbekendeSoort;
+            }
+        }
 
         [HttpGet("voorraad/{aantal}")]
 
-        public string OpVoorraad(int aantal) => aantal switch
+        public string VoorraadStatus(int aantal)
+        {
+            return OpVoorraad(aantal);
+        }
+
+        private string OpVoorraad(int aantal) => aantal switch
         {
             0 => "Niet op voorraad, bestel bij de leverancier.",
             1 or <= 4 => "Beperkt op voorraad, hou dit in het oog.",
@@ -40,30 +52,42 @@ namespace ProgrammingAdvancedOefeningen.Controllers
         };
 
         [HttpGet("code/{artikelcode}")]
-        public string ArtikelcodeOpzoeken(string code)
+        public string ArtikelcodeKrijgen(string code)
         {
-            return $"Artikelcode {code} telt {code.Length} tekens.";
+            return CodeberichtVoor(code);
         }
 
-        public class Onderdeel
+        private string CodeberichtVoor(string artikelcode)
         {
-            public string Type { get; set; } = "";
-            public string Artikelcode { get; set; } = "";
-            public int Voorraad { get; set; } = 0;
-            public string Description { get; set; } = "";
-        };
-
-        public List<Onderdeel> Onderdelen = new() {
-            new Onderdeel { Type = "moederbord", Artikelcode = "MB-B650-01", Voorraad = 12, Description = "Het moederbord verbindt alle onderdelen met elkaar." },
-            new Onderdeel { Type = "processor", Artikelcode = "CPU-7600X-01", Voorraad = 3, Description = "De processor voert alle berekeningen uit." },
-            new Onderdeel { Type = "videokaart", Artikelcode = "GPU-4070-01", Voorraad = 0, Description = "De videokaart tekent het beeld voor je scherm." }
-        };
+            return $"Artikelcode {artikelcode.ToUpper()} telt {artikelcode.Length} tekens.";
+        }
 
         [HttpGet("fiche/{soort}")]
 
-        public Onderdeel InformatiePerOnderdeel(List<Onderdeel> type)
+        public string InformatiePerOnderdeel(string soort)
         {
-            return "";
+            string artikelcode = "";
+            int voorraad = 0;
+
+            switch (soort)
+            {
+                case "moederbord":
+                    artikelcode = "MB-B650-01";
+                    voorraad = 12;
+                    break;
+                case "processor":
+                    artikelcode = "CPU-7600X-01";
+                    voorraad = 3;
+                    break;
+                case "videokaart":
+                    artikelcode = "GPU-4070-01";
+                    voorraad = 0;
+                    break;
+                default:
+                    return OnbekendeSoort;
+            }
+
+            return $"{OnderdeelSoortUitleg(soort)} {VoorraadStatus(voorraad)} {ArtikelcodeKrijgen(artikelcode)}";
         }
     }
 }

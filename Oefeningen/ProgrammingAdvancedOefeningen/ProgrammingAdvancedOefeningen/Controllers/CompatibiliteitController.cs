@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using static ProgrammingAdvancedOefeningen.Controllers.CompatibiliteitController;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace ProgrammingAdvancedOefeningen.Controllers
 {
@@ -16,55 +13,57 @@ namespace ProgrammingAdvancedOefeningen.Controllers
         }
 
         [HttpGet("socket/{socketProcessor}/{socketMoederbord}")]
-        public string VergelijkSockets(string socketProcessor, string socketMoederbord)
+
+        public string VerkrijgenSockets(string socketProcessor, string socketMoederbord)
+        {
+            return VergelijkSockets(socketProcessor, socketMoederbord);
+        }
+        private static string VergelijkSockets(string socketProcessor, string socketMoederbord)
         {
 
             if (string.Equals(socketProcessor, socketMoederbord, StringComparison.OrdinalIgnoreCase))
             {
-                return $"De processor socket {socketProcessor} past in moederbord socket {socketMoederbord}.";
+                return "De processor past op dit moederbord.";
             }
 
             return $"De processor past niet: {socketProcessor} tegenover {socketMoederbord}.";
         }
 
-        //[HttpGet("voeding/{wattage}/{verbruik}")]
-        //public string TotaalVerbruik(int wattage, int verbruik)
-        //{
+        [HttpGet("voeding/{wattage}/{verbruik}")]
 
-        //    if (wattage < verbruik)
-        //    {
-        //        return $"De voeding is te zwak voor deze build.";
-        //    }
-        //    else if (wattage - verbruik < Marge)
-        //    {
-        //        return $"De voeding volstaat, maar de marge is krap.";
-        //    }
+        public string VoedingAdvies(int wattage, int verbruik)
+        {
+            return MargeVoeding(wattage, verbruik);
+        }
 
-        //    return $"De voeding is ruim voldoende.";
-        //}
         private const int Marge = 100;
 
-        [HttpGet("voeding/{wat}/{gebruik}")]
-        public string Verbruik(int wat, int gebruik) => (wat - gebruik) switch
+        private static string MargeVoeding(int berekenWattage, int berekenGebruik) => (berekenWattage - berekenGebruik) switch
         {
             < 0 => "De voeding is te zwak voor deze build.",
             < Marge => "De voeding volstaat, maar de marge is krap.",
             _ => "De voeding is ruim voldoende."
         };
 
-        [HttpGet("/sloten/{aantalSloten}/{aantalModules}")]
-        public string gebruikteSloten(int aantalSloten, int aantalModules)
+        [HttpGet("sloten/{aantalSloten}/{aantalModules}")]
+
+        public string OpvragenGeheugen(int aantalSloten, int aantalModules)
         {
-            if (aantalModules > aantalSloten)
+            return GebruikteSloten(aantalSloten, aantalModules);
+        }
+
+        private static string GebruikteSloten(int sloten, int modules)
+        {
+            if (modules > sloten)
             {
-                return $"Er passen maar {aantalSloten} modules in dit moederbord.";
+                return $"Er passen maar {sloten} modules in dit moederbord.";
             }
-            else if (aantalSloten == aantalModules)
+            else if (sloten == modules)
             {
                 return "Alle sloten worden gebruikt.";
             }
 
-            int overgeblevenSloten = aantalSloten - aantalModules;
+            int overgeblevenSloten = sloten - modules;
 
             return overgeblevenSloten == 1
             ? $"Er blijft nog {overgeblevenSloten} slot vrij."
@@ -72,24 +71,40 @@ namespace ProgrammingAdvancedOefeningen.Controllers
         }
 
         [HttpGet("build/{build}/{socketProcessor}/{wattage}/{aantalModules}")]
-        public class Build
+
+        public string InformatieBuild(string build, string socketProcessor, int wattage, int aantalModules)
         {
-            public string Type { get; set; } = "";
-            public string Socket { get; set; } = "";
-            public int GeheugenSloten { get; set; } = 0;
-            public int Verbruik { get; set; } = 0;
+            string socketMoederbord;
+            int verbruik;
+            int sloten;
+
+            switch (build)
+            {
+                case "kantoor":
+                    socketMoederbord = "AM5";
+                    verbruik = 180;
+                    sloten = 2;
+                    break;
+                case "gaming":
+                    socketMoederbord = "AM5";
+                    verbruik = 520;
+                    sloten = 4;
+                    break;
+                case "montage":
+                    socketMoederbord = "LGA1700";
+                    verbruik = 610;
+                    sloten = 4;
+                    break;
+                default:
+                    return "We kennen deze build niet.";
+            }
+
+            string socket = VerkrijgenSockets(socketProcessor, socketMoederbord);
+            string voeding = VoedingAdvies(wattage, verbruik);
+            string slot = OpvragenGeheugen(sloten, aantalModules);
+
+            return $"{socket} {voeding} {slot}";
         }
 
-        private readonly List<Build> standaarBuild = new List<Build>
-        {
-           new Build { Type = "kantoor", Socket = "AM5", GeheugenSloten = 2, Verbruik = 180 },
-           new Build { Type = "gaming", Socket = "AM5", GeheugenSloten = 4, Verbruik = 520 },
-           new Build { Type = "montage", Socket = "LGA1700", GeheugenSloten = 4, Verbruik = 610 }
-        };
-
-        public Build BuildKiezer(string build, string socketProcessor, int wattage, int aantalModules)
-        {
-
-        }
     }
 }
