@@ -1,0 +1,244 @@
+{
+  "formaat": 1,
+  "oefening": "TM_02_04",
+  "titel": "Festivaal Vlaanderen: evenementen, volledige CRUD + Location-header",
+  "hoofdstuk": 2,
+  "opgave": "Oefening2_4_TM.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "",
+    "probeer": [
+      "api/"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden uit punt 1 tot 5",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1.1",
+          "punt": "1",
+          "uitleg": "Alle evenementen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "evenementen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "naam": "Summer Music Festival",
+                "locatie": "Antwerpen",
+                "datum": "15-07-2026",
+                "maxDeelnemers": 5000,
+                "geregistreerdeDeelnemers": 3200
+              },
+              {
+                "id": 2,
+                "naam": "Culinaire Dagen",
+                "locatie": "Brugge",
+                "datum": "22-08-2026",
+                "maxDeelnemers": 200,
+                "geregistreerdeDeelnemers": 145
+              },
+              {
+                "id": 3,
+                "naam": "Tech Conference",
+                "locatie": "Gent",
+                "datum": "10-09-2026",
+                "maxDeelnemers": 300,
+                "geregistreerdeDeelnemers": 300
+              }
+            ]
+          }
+        },
+        {
+          "id": "2.1",
+          "punt": "2",
+          "uitleg": "Evenement 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "evenementen/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "naam": "Culinaire Dagen",
+              "locatie": "Brugge",
+              "datum": "22-08-2026",
+              "maxDeelnemers": 200,
+              "geregistreerdeDeelnemers": 145
+            }
+          }
+        },
+        {
+          "id": "2.2",
+          "punt": "2",
+          "uitleg": "Onbestaand evenement: 404 zonder body",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "evenementen/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        },
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Een nieuw evenement aanmaken, met Location-header",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "evenementen",
+            "body": {
+              "id": 0,
+              "naam": "Boekenfestival",
+              "locatie": "Leuven",
+              "datum": "05-10-2026",
+              "maxDeelnemers": 150,
+              "geregistreerdeDeelnemers": 0
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 4,
+              "naam": "Boekenfestival",
+              "locatie": "Leuven",
+              "datum": "05-10-2026",
+              "maxDeelnemers": 150,
+              "geregistreerdeDeelnemers": 0
+            },
+            "location": {
+              "eindigtOp": "/evenementen/4"
+            }
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "Het nieuwe evenement is opvraagbaar",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "evenementen/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Boekenfestival",
+              "locatie": "Leuven",
+              "datum": "05-10-2026",
+              "maxDeelnemers": 150,
+              "geregistreerdeDeelnemers": 0
+            }
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Evenement 2 bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "evenementen/2",
+            "body": {
+              "id": 2,
+              "naam": "Culinaire Dagen Brugge",
+              "locatie": "Brugge",
+              "datum": "22-08-2026",
+              "maxDeelnemers": 250,
+              "geregistreerdeDeelnemers": 145
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Evenement 2 heeft de nieuwe naam en het nieuwe maximum",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "evenementen/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "naam": "Culinaire Dagen Brugge",
+              "locatie": "Brugge",
+              "datum": "22-08-2026",
+              "maxDeelnemers": 250,
+              "geregistreerdeDeelnemers": 145
+            }
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Onbestaand evenement bijwerken: 404 zonder body",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "evenementen/99",
+            "body": {
+              "id": 99,
+              "naam": "Culinaire Dagen Brugge",
+              "locatie": "Brugge",
+              "datum": "22-08-2026",
+              "maxDeelnemers": 250,
+              "geregistreerdeDeelnemers": 145
+            }
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Evenement 1 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "evenementen/1"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Evenement 1 bestaat niet meer",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "evenementen/1"
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Onbestaand evenement verwijderen: 404 zonder body",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "evenementen/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        }
+      ]
+    }
+  ]
+}

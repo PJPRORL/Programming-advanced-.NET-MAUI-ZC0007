@@ -1,0 +1,465 @@
+{
+  "formaat": 1,
+  "oefening": "08_06",
+  "titel": "Include over een hele lijst",
+  "hoofdstuk": 8,
+  "opgave": "Oefening_08_06.md",
+  "bouwtOpVan": "07_06",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ConcertzaalDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "JSON uit punt 3 en 4 en testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1a",
+          "punt": "6",
+          "uitleg": "Ticket 3 met zijn concert: JSON uit punt 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "Lisa Maes",
+              "rij": 3,
+              "stoel": 12,
+              "prijs": 35.0,
+              "isGeannuleerd": false,
+              "concertId": 1,
+              "concert": {
+                "id": 1,
+                "titel": "Jazz in de Notenbalk",
+                "datum": "14-11-2026",
+                "tickets": [
+                  null
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.1b",
+          "punt": "6",
+          "uitleg": "Concert 2 met zijn tickets: JSON uit punt 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "titel": "Strijkkwartet Aurora",
+              "datum": "21-11-2026",
+              "tickets": {
+                "$verzameling": [
+                  {
+                    "id": 5,
+                    "naam": "Emma Claes",
+                    "rij": 7,
+                    "stoel": 2,
+                    "prijs": 25.0,
+                    "isGeannuleerd": false,
+                    "concertId": 2,
+                    "concert": null
+                  },
+                  {
+                    "id": 6,
+                    "naam": "Noah Willems",
+                    "rij": 7,
+                    "stoel": 3,
+                    "prijs": 25.0,
+                    "isGeannuleerd": false,
+                    "concertId": 2,
+                    "concert": null
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.2a",
+          "punt": "6",
+          "uitleg": "Details van het geannuleerde ticket 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/4/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id 4."
+          }
+        },
+        {
+          "id": "6.2b",
+          "punt": "6",
+          "uitleg": "Concert 1 met alle vier zijn tickets, ook het geannuleerde ticket 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "tickets": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 2
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 3
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 4,
+                        "isGeannuleerd": true
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.3a",
+          "punt": "6",
+          "uitleg": "Concert 3 zonder tickets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "tickets": []
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.3b",
+          "punt": "6",
+          "uitleg": "Details van een onbestaand concert",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen concert met Id 99."
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Het bestaande endpoint toont nog altijd geen tickets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "tickets": null
+              }
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "De groep uit 07_06 verkopen: elk nieuw ticket zonder concert",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": [
+              {
+                "naam": "Jonas Wouters",
+                "rij": 1,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Lies Martens",
+                "rij": 1,
+                "stoel": 6,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Ward Peeters",
+                "rij": 3,
+                "stoel": 13,
+                "prijs": 30.0,
+                "concertId": 1
+              }
+            ]
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 7,
+                  "concert": null
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 8,
+                  "concert": null
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 9,
+                  "concert": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "Concert 3 met de tickets van Jonas Wouters en Lies Martens",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "tickets": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "naam": "Jonas Wouters"
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "naam": "Lies Martens"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "Concert 1 met vijf tickets: 1 tot en met 4 en dat van Ward Peeters",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "tickets": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 2
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 3
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 4
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "naam": "Ward Peeters"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "De concerten van 2026, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/jaar/2026"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1,
+                  "tickets": {
+                    "$verzameling": [
+                      {
+                        "$bevat": {
+                          "id": 1
+                        }
+                      },
+                      {
+                        "$bevat": {
+                          "id": 2
+                        }
+                      },
+                      {
+                        "$bevat": {
+                          "id": 3
+                        }
+                      },
+                      {
+                        "$bevat": {
+                          "id": 4
+                        }
+                      },
+                      {
+                        "$bevat": {
+                          "naam": "Ward Peeters"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 2,
+                  "tickets": {
+                    "$verzameling": [
+                      {
+                        "id": 5,
+                        "naam": "Emma Claes",
+                        "rij": 7,
+                        "stoel": 2,
+                        "prijs": 25.0,
+                        "isGeannuleerd": false,
+                        "concertId": 2,
+                        "concert": null
+                      },
+                      {
+                        "id": 6,
+                        "naam": "Noah Willems",
+                        "rij": 7,
+                        "stoel": 3,
+                        "prijs": 25.0,
+                        "isGeannuleerd": false,
+                        "concertId": 2,
+                        "concert": null
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "De concerten van 2027",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/jaar/2027"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 3,
+                  "tickets": {
+                    "$verzameling": [
+                      {
+                        "$bevat": {
+                          "naam": "Jonas Wouters"
+                        }
+                      },
+                      {
+                        "$bevat": {
+                          "naam": "Lies Martens"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "Een jaar zonder concerten",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/jaar/2028"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen concerten in 2028."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "Open `ERD.md` in de projectmap: staat de relatie tussen `Concert` en `Ticket` erin, op één regel met een korte uitleg, met aan beide kanten de juiste cardinaliteit (een concert heeft nul of meer tickets, een ticket hoort bij precies één concert)?"
+    }
+  ]
+}

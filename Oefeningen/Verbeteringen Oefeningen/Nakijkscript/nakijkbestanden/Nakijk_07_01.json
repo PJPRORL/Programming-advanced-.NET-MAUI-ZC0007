@@ -1,0 +1,385 @@
+{
+  "formaat": 1,
+  "oefening": "07_01",
+  "titel": "Eén generieke repository, één Unit of Work",
+  "hoofdstuk": 7,
+  "opgave": "Oefening_07_01.md",
+  "bouwtOpVan": "06_01",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ArtikelDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Controle punt 4, testscenario punt 6 en regels uit punt 5 en 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "De migratie Controle is weer verwijderd: de database kent ze niet",
+          "sql": "SELECT \"MigrationId\" FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" LIKE '%\\_Controle'",
+          "verwacht": {
+            "aantal": 0
+          }
+        },
+        {
+          "id": "6.1a",
+          "punt": "6",
+          "uitleg": "Leverancier 2 bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "leverancier/2",
+            "body": {
+              "naam": "Componentenhuis NL",
+              "land": "Nederland"
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.1b",
+          "punt": "6",
+          "uitleg": "Leverancier 2 toont de nieuwe naam",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "naam": "Componentenhuis NL"
+              }
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Alle leveranciers, op Id, ook na het bijwerken",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Een onbestaande leverancier bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "leverancier/99",
+            "body": {
+              "naam": "Componentenhuis NL",
+              "land": "Nederland"
+            }
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan geen leverancier bijwerken met Id 99, omdat deze niet bestaat."
+          }
+        },
+        {
+          "id": "6.4a",
+          "punt": "6",
+          "uitleg": "Leverancier 1 bijwerken met een lege naam",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "leverancier/1",
+            "body": {
+              "naam": "",
+              "land": "België"
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een leverancier moet een naam hebben."
+          }
+        },
+        {
+          "id": "6.4b",
+          "punt": "6",
+          "uitleg": "De geweigerde wijziging veranderde niets aan leverancier 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "naam": "TechDistri"
+              }
+            }
+          }
+        },
+        {
+          "id": "6.5a",
+          "punt": "6",
+          "uitleg": "Artikel 4 onderbrengen bij leverancier 4",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "artikel/4/leverancier/4"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.5b",
+          "punt": "6",
+          "uitleg": "Leverancier 4 levert enkel artikel 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/4/artikelen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.5c",
+          "punt": "6",
+          "uitleg": "Leverancier 3 levert enkel nog artikel 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/3/artikelen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "Artikel 4: dezelfde JSON als in 06_01, maar met leverancierId 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Ryzen 7 7800X3D",
+              "merk": "AMD",
+              "soort": "processor",
+              "prijs": 389.0,
+              "aantalOpVoorraad": 0,
+              "garantiejaren": 3,
+              "leverancierId": 4,
+              "leverancier": null
+            }
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "Artikel 4 nog eens onderbrengen bij leverancier 4",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "artikel/4/leverancier/4"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit artikel komt al van deze leverancier."
+          }
+        },
+        {
+          "id": "6.8a",
+          "punt": "6",
+          "uitleg": "Artikel 4 onderbrengen bij een onbestaande leverancier",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "artikel/4/leverancier/99"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We vonden geen leverancier met Id 99."
+          }
+        },
+        {
+          "id": "6.8b",
+          "punt": "6",
+          "uitleg": "Een onbestaand artikel onderbrengen bij leverancier 1",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "artikel/99/leverancier/1"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 99."
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "Leverancier 4 verwijderen terwijl hij artikel 4 levert",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "leverancier/4"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze leverancier levert nog artikelen."
+          }
+        },
+        {
+          "id": "6.10a",
+          "punt": "6",
+          "uitleg": "Artikel 4 terug onderbrengen bij leverancier 3",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "artikel/4/leverancier/3"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.10b",
+          "punt": "6",
+          "uitleg": "Leverancier 4 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "leverancier/4"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.11",
+          "punt": "6",
+          "uitleg": "Kabelkoning toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "leverancier",
+            "body": {
+              "naam": "Kabelkoning",
+              "land": "België"
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "naam": "Kabelkoning",
+              "land": "België",
+              "artikelen": null
+            },
+            "location": {
+              "eindigtOp": "/api/leverancier/5"
+            }
+          }
+        },
+        {
+          "id": "5.r1a",
+          "punt": "5",
+          "uitleg": "Leverancier 3 bijwerken met een ander Id in de body: enkel het Id uit de URL telt",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "leverancier/3",
+            "body": {
+              "id": 1,
+              "naam": "ChipCentraal DE",
+              "land": "Duitsland"
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.r1b",
+          "punt": "5",
+          "uitleg": "Leverancier 3 is bijgewerkt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 3,
+                "naam": "ChipCentraal DE"
+              }
+            }
+          }
+        },
+        {
+          "id": "5.r1c",
+          "punt": "5",
+          "uitleg": "Leverancier 1 is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "naam": "TechDistri"
+              }
+            }
+          }
+        },
+        {
+          "id": "6.r1",
+          "punt": "6",
+          "uitleg": "Volgorde van de controles: eerst of het artikel bestaat",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "artikel/99/leverancier/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 99."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "4",
+      "tekst": "De migratie `Controle`, gemaakt zonder iets aan de modellen te veranderen, is leeg: `Up` en `Down` doen niets. Daarna is ze weer verwijderd."
+    },
+    {
+      "punt": "4",
+      "tekst": "Het testscenario van 06_01, opnieuw doorlopen, geeft elk antwoord zoals in 06_01 (bijvoorbeeld door Nakijk_06_01.json op dit project te laten lopen)."
+    }
+  ]
+}

@@ -1,0 +1,573 @@
+{
+  "formaat": 1,
+  "oefening": "02_02",
+  "titel": "Volledige CRUD",
+  "hoofdstuk": 2,
+  "opgave": "Oefening_02_02.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Punt 3 tot 7: CRUD en controles",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Alle ventilatoren; elk element heeft de velden uit punt 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "merk": {
+                  "$elk": true
+                },
+                "afmetingInMm": {
+                  "$elk": true
+                },
+                "verlichting": {
+                  "$elk": true
+                },
+                "prijs": {
+                  "$elk": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Een geldige ventilator toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 24.95
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 24.95
+            },
+            "location": {
+              "eindigtOp": "/api/ventilator/{{n1}}"
+            }
+          },
+          "bewaar": {
+            "n1": "id"
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "2",
+          "uitleg": "De nieuwe ventilator staat er bij een volgend verzoek nog",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/{{n1}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{n1}}",
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 24.95
+            }
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Toevoegen met een meegestuurd Id 999",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "id": 999,
+              "merk": "Arctic",
+              "afmetingInMm": 140,
+              "verlichting": "RGB",
+              "prijs": 12.5
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "merk": "Arctic",
+              "afmetingInMm": 140,
+              "verlichting": "RGB",
+              "prijs": 12.5
+            }
+          }
+        },
+        {
+          "id": "4.4",
+          "punt": "4",
+          "uitleg": "Het meegestuurde Id 999 werd overschreven",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen ventilator met Id 999."
+          }
+        },
+        {
+          "id": "4.5",
+          "punt": "4",
+          "uitleg": "Merk leeg",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 19.9
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een ventilator moet een merk hebben."
+          }
+        },
+        {
+          "id": "4.6",
+          "punt": "4",
+          "uitleg": "Afmeting 92 mm",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 92,
+              "verlichting": "geen",
+              "prijs": 19.9
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We verkopen enkel ventilatoren van 120 of 140 mm."
+          }
+        },
+        {
+          "id": "4.7",
+          "punt": "4",
+          "uitleg": "Prijs 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 0
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De prijs moet groter zijn dan 0."
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "De ventilator van 92 mm is niet in de lijst beland",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$geenElement": {
+                "$bevat": {
+                  "merk": "Noctua",
+                  "afmetingInMm": 92
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "De ventilator bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/{{n1}}",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 29.95
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "De wijziging is bewaard",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/{{n1}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{n1}}",
+              "merk": "Noctua",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 29.95
+            }
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Een onbestaande ventilator bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/999",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 29.95
+            }
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan geen ventilator bijwerken met Id 999, omdat deze niet bestaat."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Bijwerken met een leeg merk",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/{{n1}}",
+            "body": {
+              "merk": "",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 29.95
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "5.5",
+          "punt": "5",
+          "uitleg": "Bijwerken met 92 mm",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/{{n1}}",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 92,
+              "verlichting": "geen",
+              "prijs": 29.95
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "5.6",
+          "punt": "5",
+          "uitleg": "Bijwerken met prijs 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/{{n1}}",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 0
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De ventilator verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ventilator/{{n1}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "7",
+          "uitleg": "Dezelfde nog eens verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ventilator/{{n1}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan ventilator met Id {{n1}} niet verwijderen, omdat deze niet gevonden is."
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "De verwijderde ventilator is weg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/{{n1}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen ventilator met Id {{n1}}."
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "Punt 8: vervangen, en niets veranderd bij een mislukte vervanging",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "8.1",
+          "punt": "8",
+          "uitleg": "Een ventilator toevoegen die straks vervangen wordt",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "Corsair",
+              "afmetingInMm": 120,
+              "verlichting": "RGB",
+              "prijs": 21.5
+            }
+          },
+          "verwacht": {
+            "status": 201
+          },
+          "bewaar": {
+            "oud": "id"
+          }
+        },
+        {
+          "id": "8.2",
+          "punt": "8",
+          "uitleg": "Nog een ventilator toevoegen, zodat de te vervangen ventilator niet het hoogste Id heeft",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "Lian Li",
+              "afmetingInMm": 140,
+              "verlichting": "RGB",
+              "prijs": 32
+            }
+          },
+          "verwacht": {
+            "status": 201
+          }
+        },
+        {
+          "id": "8.3",
+          "punt": "8",
+          "uitleg": "Vervangen door een ventilator van 92 mm",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/{{oud}}",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 92,
+              "verlichting": "geen",
+              "prijs": 19.9
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "8.4",
+          "punt": "8",
+          "uitleg": "De oude ventilator staat er nog, ongewijzigd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/{{oud}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{oud}}",
+              "merk": "Corsair",
+              "afmetingInMm": 120,
+              "verlichting": "RGB",
+              "prijs": 21.5
+            }
+          }
+        },
+        {
+          "id": "8.5",
+          "punt": "8",
+          "uitleg": "Vervangen door een ventilator zonder merk",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/{{oud}}",
+            "body": {
+              "merk": "",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 19.9
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "8.6",
+          "punt": "8",
+          "uitleg": "Vervangen door een ventilator met prijs 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/{{oud}}",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 0
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "8.7",
+          "punt": "8",
+          "uitleg": "Geldige vervanging",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/{{oud}}",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 24.95
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 24.95
+            },
+            "location": {
+              "eindigtOp": "/api/ventilator/{{nieuw}}"
+            }
+          },
+          "bewaar": {
+            "nieuw": "id"
+          }
+        },
+        {
+          "id": "8.8",
+          "punt": "8",
+          "uitleg": "De oude ventilator is verwijderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/{{oud}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen ventilator met Id {{oud}}."
+          }
+        },
+        {
+          "id": "8.9",
+          "punt": "8",
+          "uitleg": "De nieuwe ventilator is opvraagbaar",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/{{nieuw}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{nieuw}}",
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 24.95
+            }
+          }
+        },
+        {
+          "id": "8.10",
+          "punt": "8",
+          "uitleg": "Een onbestaande ventilator vervangen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/999",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 24.95
+            }
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan ventilator met Id 999 niet vervangen, omdat deze niet gevonden is."
+          }
+        }
+      ]
+    }
+  ]
+}

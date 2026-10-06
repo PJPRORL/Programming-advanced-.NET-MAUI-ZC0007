@@ -1,0 +1,994 @@
+{
+  "formaat": 1,
+  "oefening": "02_06",
+  "titel": "Soft delete en plaatscontrole",
+  "hoofdstuk": 2,
+  "opgave": "Oefening_02_06.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Punt 3 tot 10: verkopen, wijzigen, annuleren, herstellen",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Enkel geldige tickets, met de velden uit punt 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "naam": {
+                  "$elk": true
+                },
+                "rij": {
+                  "$elk": true
+                },
+                "stoel": {
+                  "$elk": true
+                },
+                "prijs": {
+                  "$elk": true
+                },
+                "isGeannuleerd": false
+              }
+            }
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Alle tickets, met de velden uit punt 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "naam": {
+                  "$elk": true
+                },
+                "rij": {
+                  "$elk": true
+                },
+                "stoel": {
+                  "$elk": true
+                },
+                "prijs": {
+                  "$elk": true
+                },
+                "isGeannuleerd": {
+                  "$elk": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Een ticket verkopen op rij 91 stoel 1",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/{{t1}}"
+            }
+          },
+          "bewaar": {
+            "t1": "id"
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Het nieuwe ticket opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{t1}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{t1}}",
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Verkopen met Id 999 en isGeannuleerd true: het ticket is toch geldig",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "id": 999,
+              "naam": "Bram Wouters",
+              "rij": 91,
+              "stoel": 3,
+              "prijs": 35.5,
+              "isGeannuleerd": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Bram Wouters",
+              "rij": 91,
+              "stoel": 3,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Het meegestuurde Id 999 werd overschreven",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id 999."
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Naam leeg",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "",
+              "rij": 92,
+              "stoel": 1,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een ticket moet op naam staan."
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Rij 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Bram Wouters",
+              "rij": 0,
+              "stoel": 2,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De rij moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "Stoel 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Bram Wouters",
+              "rij": 92,
+              "stoel": 0,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De stoel moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "Prijs 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Bram Wouters",
+              "rij": 92,
+              "stoel": 4,
+              "prijs": 0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De prijs moet groter zijn dan 0."
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "Rij 91 stoel 1 is al bezet",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Bram Wouters",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 91 stoel 1 is al verkocht."
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "Een tweede ticket verkopen op rij 91 stoel 2",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Lotte Claes",
+              "rij": 91,
+              "stoel": 2,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Lotte Claes",
+              "rij": 91,
+              "stoel": 2,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "bewaar": {
+            "t2": "id"
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Wijzigen naar de plaats van een ander geldig ticket",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 2,
+              "prijs": 42,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Wijzigen met een lege naam",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 42,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "7.3",
+          "punt": "7",
+          "uitleg": "Wijzigen naar rij 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "Fien Peeters",
+              "rij": 0,
+              "stoel": 1,
+              "prijs": 42,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Wijzigen naar stoel 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 0,
+              "prijs": 42,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "Wijzigen met prijs 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "7.6",
+          "punt": "7",
+          "uitleg": "Een onbestaand ticket wijzigen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/999",
+            "body": {
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 42,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "7.7",
+          "punt": "7",
+          "uitleg": "Een ticket wijzigen en zijn eigen plaats houden",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 42,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "7.8",
+          "punt": "7",
+          "uitleg": "De wijziging is bewaard",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{t1}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{t1}}",
+              "naam": "Fien Peeters",
+              "rij": 91,
+              "stoel": 1,
+              "prijs": 42,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "10.1",
+          "punt": "10",
+          "uitleg": "Opbrengst voor de annulering",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200
+          },
+          "bewaar": {
+            "opbrengstVoor": ""
+          }
+        },
+        {
+          "id": "8.1",
+          "punt": "8",
+          "uitleg": "Het tweede ticket annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/{{t2}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "10.2",
+          "punt": "10",
+          "uitleg": "Opbrengst na de annulering: 35,50 lager",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$reken": "{{opbrengstVoor}} - 35.5"
+            }
+          }
+        },
+        {
+          "id": "8.2",
+          "punt": "8",
+          "uitleg": "Hetzelfde ticket nog eens annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/{{t2}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan ticket met Id {{t2}} niet annuleren, omdat het niet gevonden is."
+          }
+        },
+        {
+          "id": "8.3",
+          "punt": "5",
+          "uitleg": "Een geannuleerd ticket is niet meer op te vragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{t2}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id {{t2}}."
+          }
+        },
+        {
+          "id": "8.4",
+          "punt": "7",
+          "uitleg": "Een geannuleerd ticket wijzigen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t2}}",
+            "body": {
+              "naam": "Lotte Claes",
+              "rij": 91,
+              "stoel": 2,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "8.5",
+          "punt": "8",
+          "uitleg": "Het geannuleerde ticket staat nog in de lijst, op geannuleerd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$heeftElement": {
+                "id": "{{t2}}",
+                "naam": "Lotte Claes",
+                "rij": 91,
+                "stoel": 2,
+                "prijs": 35.5,
+                "isGeannuleerd": true
+              }
+            }
+          }
+        },
+        {
+          "id": "8.6",
+          "punt": "3",
+          "uitleg": "Het geannuleerde ticket staat niet bij de geldige tickets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$geenElement": {
+                "$bevat": {
+                  "id": "{{t2}}"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "9.1",
+          "punt": "9",
+          "uitleg": "Een geldig ticket herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/{{t1}}"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit ticket is niet geannuleerd."
+          }
+        },
+        {
+          "id": "9.2",
+          "punt": "9",
+          "uitleg": "Een onbestaand ticket herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/999"
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "9.3",
+          "punt": "8",
+          "uitleg": "De vrijgekomen plaats rij 91 stoel 2 aan iemand anders verkopen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Jens Maes",
+              "rij": 91,
+              "stoel": 2,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Jens Maes",
+              "rij": 91,
+              "stoel": 2,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          },
+          "bewaar": {
+            "t3": "id"
+          }
+        },
+        {
+          "id": "9.4",
+          "punt": "9",
+          "uitleg": "Het eerste ticket herstellen terwijl zijn plaats verkocht is",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/{{t2}}"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 91 stoel 2 is intussen aan iemand anders verkocht."
+          }
+        },
+        {
+          "id": "9.5",
+          "punt": "8",
+          "uitleg": "Het derde ticket annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/{{t3}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "9.6",
+          "punt": "9",
+          "uitleg": "Nu lukt het herstel",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/{{t2}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "9.7",
+          "punt": "9",
+          "uitleg": "Het herstelde ticket is weer geldig",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{t2}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{t2}}",
+              "naam": "Lotte Claes",
+              "rij": 91,
+              "stoel": 2,
+              "prijs": 35.5,
+              "isGeannuleerd": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "Testscenario punt 11: een ticket verhuizen",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "11.0a",
+          "punt": "11",
+          "uitleg": "Ticket A verkopen op rij 93 stoel 1",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Noor Jacobs",
+              "rij": 93,
+              "stoel": 1,
+              "prijs": 40,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201
+          },
+          "bewaar": {
+            "a": "id"
+          }
+        },
+        {
+          "id": "11.0b",
+          "punt": "11",
+          "uitleg": "Ticket B verkopen op rij 93 stoel 2",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Wout Hermans",
+              "rij": 93,
+              "stoel": 2,
+              "prijs": 25,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201
+          },
+          "bewaar": {
+            "b": "id"
+          }
+        },
+        {
+          "id": "11.1",
+          "punt": "11",
+          "uitleg": "Stap 1: opbrengst",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200
+          },
+          "bewaar": {
+            "opbrengst1": ""
+          }
+        },
+        {
+          "id": "11.2a",
+          "punt": "11",
+          "uitleg": "Stap 2: A verhuizen naar de vrije plaats rij 94 stoel 1",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{a}}/94/1"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "11.2b",
+          "punt": "11",
+          "uitleg": "A staat op rij 94 stoel 1, de prijs is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{a}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{a}}",
+              "naam": "Noor Jacobs",
+              "rij": 94,
+              "stoel": 1,
+              "prijs": 40,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "11.2c",
+          "punt": "11",
+          "uitleg": "Stap 2: opbrengst na de verhuizing is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$reken": "{{opbrengst1}}"
+            }
+          }
+        },
+        {
+          "id": "11.3",
+          "punt": "11",
+          "uitleg": "Stap 3: A naar precies dezelfde plaats verhuizen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{a}}/94/1"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit ticket zit al op rij 94 stoel 1."
+          }
+        },
+        {
+          "id": "11.4",
+          "punt": "11",
+          "uitleg": "Stap 4: A naar de plaats van B verhuizen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{a}}/93/2"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 93 stoel 2 is al verkocht."
+          }
+        },
+        {
+          "id": "11.5a",
+          "punt": "11",
+          "uitleg": "Stap 5: B annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/{{b}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "11.5b",
+          "punt": "11",
+          "uitleg": "Stap 5: A naar de vrijgekomen plaats van B verhuizen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{a}}/93/2"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "11.5c",
+          "punt": "11",
+          "uitleg": "A staat op rij 93 stoel 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{a}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{a}}",
+              "naam": "Noor Jacobs",
+              "rij": 93,
+              "stoel": 2,
+              "prijs": 40,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "11.6",
+          "punt": "11",
+          "uitleg": "Stap 6: B herstellen terwijl zijn plaats ingenomen is",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/{{b}}"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 93 stoel 2 is intussen aan iemand anders verkocht."
+          }
+        },
+        {
+          "id": "11.7",
+          "punt": "11",
+          "uitleg": "Stap 7: opbrengst gedaald met de prijs van B (25), en met niets meer",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$reken": "{{opbrengst1}} - 25"
+            }
+          }
+        },
+        {
+          "id": "11.8",
+          "punt": "11",
+          "uitleg": "Een onbestaand ticket verhuizen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/999/95/1"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id 999."
+          }
+        },
+        {
+          "id": "11.9",
+          "punt": "11",
+          "uitleg": "Een geannuleerd ticket verhuizen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{b}}/95/1"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id {{b}}."
+          }
+        },
+        {
+          "id": "11.10",
+          "punt": "11",
+          "uitleg": "Verhuizen naar rij 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{a}}/0/5"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De rij moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "11.11",
+          "punt": "11",
+          "uitleg": "Verhuizen naar stoel 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{a}}/95/0"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De stoel moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "11.12",
+          "punt": "11",
+          "uitleg": "De oude plaats van A (rij 93 stoel 1) is vrijgekomen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Sara Goossens",
+              "rij": 93,
+              "stoel": 1,
+              "prijs": 40,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201
+          }
+        }
+      ]
+    }
+  ]
+}

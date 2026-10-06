@@ -1,0 +1,563 @@
+{
+  "formaat": 1,
+  "oefening": "09_06",
+  "titel": "DTO's voor lezen, toevoegen en bijwerken",
+  "hoofdstuk": 9,
+  "opgave": "Oefening_09_06.md",
+  "bouwtOpVan": "08_06",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ConcertzaalDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 6, met de voorbeelden uit punt 3 en 5",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Ticket 3 als read-DTO",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "Lisa Maes",
+              "rij": 3,
+              "stoel": 12,
+              "prijs": 35.0,
+              "isGeannuleerd": false,
+              "concertId": 1
+            }
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Ticket 3 met titel en datum van zijn concert, plat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "Lisa Maes",
+              "rij": 3,
+              "stoel": 12,
+              "prijs": 35.0,
+              "isGeannuleerd": false,
+              "concertId": 1,
+              "titel": "Jazz in de Notenbalk",
+              "datum": "14-11-2026"
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Concert 2 met opbrengst en tickets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "titel": "Strijkkwartet Aurora",
+              "datum": "21-11-2026",
+              "opbrengst": 50.0,
+              "tickets": {
+                "$verzameling": [
+                  {
+                    "id": 5,
+                    "naam": "Emma Claes",
+                    "rij": 7,
+                    "stoel": 2,
+                    "prijs": 25.0,
+                    "isGeannuleerd": false
+                  },
+                  {
+                    "id": 6,
+                    "naam": "Noah Willems",
+                    "rij": 7,
+                    "stoel": 3,
+                    "prijs": 25.0,
+                    "isGeannuleerd": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Het overzicht van 2027, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/jaar/2027"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "jaar": 2027,
+              "aantalConcerten": 1,
+              "opbrengst": 0,
+              "tickets": []
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "Concert 1 als read-DTO",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "titel": "Jazz in de Notenbalk",
+              "datum": "14-11-2026"
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Concert 1 met opbrengst en alle vier de tickets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "opbrengst": 125.0,
+                "tickets": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 2
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 3
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 4,
+                        "isGeannuleerd": true
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.3a",
+          "punt": "6",
+          "uitleg": "Ticket verkopen; Id, isGeannuleerd en concert in de body worden genegeerd",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "id": 99,
+              "naam": "Jonas Wouters",
+              "rij": 1,
+              "stoel": 5,
+              "prijs": 30.0,
+              "isGeannuleerd": true,
+              "concertId": 2,
+              "concert": {
+                "titel": "Vals concert",
+                "datum": "01-01-2027"
+              }
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "naam": "Jonas Wouters",
+              "rij": 1,
+              "stoel": 5,
+              "prijs": 30.0,
+              "isGeannuleerd": false,
+              "concertId": 2
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/7"
+            }
+          }
+        },
+        {
+          "id": "6.3b",
+          "punt": "6",
+          "uitleg": "Nog altijd de concerten 1, 2 en 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.4a",
+          "punt": "6",
+          "uitleg": "Ticket 7 wijzigen: stoel 7, concertId 1 en isGeannuleerd true",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/7",
+            "body": {
+              "id": 99,
+              "naam": "Jonas Wouters",
+              "rij": 1,
+              "stoel": 7,
+              "prijs": 30.0,
+              "isGeannuleerd": true,
+              "concertId": 1,
+              "concert": {
+                "titel": "Vals concert",
+                "datum": "01-01-2027"
+              }
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.4b",
+          "punt": "6",
+          "uitleg": "Ticket 7: stoel 7, niet geannuleerd, nog bij concert 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/7"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 7,
+              "naam": "Jonas Wouters",
+              "rij": 1,
+              "stoel": 7,
+              "prijs": 30.0,
+              "isGeannuleerd": false,
+              "concertId": 2
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Concert 2 met opbrengst 80.00 en de tickets 5, 6 en 7",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 2,
+                "opbrengst": 80.0,
+                "tickets": {
+                  "$ids": [
+                    5,
+                    6,
+                    7
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "De groep uit 07_06 verkopen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": [
+              {
+                "naam": "Jonas Wouters",
+                "rij": 1,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Lies Martens",
+                "rij": 1,
+                "stoel": 6,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Ward Peeters",
+                "rij": 3,
+                "stoel": 13,
+                "prijs": 30.0,
+                "concertId": 1
+              }
+            ]
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 8,
+                  "isGeannuleerd": false,
+                  "concert": {
+                    "$ontbreekt": true
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 9,
+                  "isGeannuleerd": false,
+                  "concert": {
+                    "$ontbreekt": true
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 10,
+                  "isGeannuleerd": false,
+                  "concert": {
+                    "$ontbreekt": true
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "Het overzicht van 2026, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/jaar/2026"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "jaar": 2026,
+              "aantalConcerten": 2,
+              "opbrengst": 235.0,
+              "tickets": {
+                "$verzameling": [
+                  {
+                    "$bevat": {
+                      "titel": "Jazz in de Notenbalk",
+                      "isGeannuleerd": false
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "titel": "Jazz in de Notenbalk",
+                      "isGeannuleerd": false
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "titel": "Jazz in de Notenbalk",
+                      "isGeannuleerd": false
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "titel": "Jazz in de Notenbalk",
+                      "isGeannuleerd": false
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "titel": "Jazz in de Notenbalk",
+                      "isGeannuleerd": true
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "titel": "Strijkkwartet Aurora"
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "titel": "Strijkkwartet Aurora"
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "titel": "Strijkkwartet Aurora"
+                    }
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "Het overzicht van 2027 met de tickets van Jonas en Lies",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/jaar/2027"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "jaar": 2027,
+              "aantalConcerten": 1,
+              "opbrengst": 60.0,
+              "tickets": {
+                "$verzameling": [
+                  {
+                    "titel": "Nieuwjaarsconcert",
+                    "naam": "Jonas Wouters",
+                    "rij": 1,
+                    "stoel": 5,
+                    "prijs": 30.0,
+                    "isGeannuleerd": false
+                  },
+                  {
+                    "titel": "Nieuwjaarsconcert",
+                    "naam": "Lies Martens",
+                    "rij": 1,
+                    "stoel": 6,
+                    "prijs": 30.0,
+                    "isGeannuleerd": false
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "Een jaar zonder concerten",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/jaar/2028"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen concerten in 2028."
+          }
+        },
+        {
+          "id": "6.10",
+          "punt": "6",
+          "uitleg": "Ticket 3 wijzigen met een lege naam",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/3",
+            "body": {
+              "naam": "",
+              "rij": 3,
+              "stoel": 12,
+              "prijs": 35.0
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een ticket moet op naam staan."
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Details van een geannuleerd ticket: bericht uit 08_06",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/4/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id 4."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Details van een onbestaand concert: bericht uit 08_06",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen concert met Id 99."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "1",
+      "tekst": "`IgnoreCycles` staat niet meer in Program.cs."
+    },
+    {
+      "punt": "2",
+      "tekst": "Mapster is geïnstalleerd. Er is een map `DTOs` met een map per model, en een map `Configuration` met een klasse `MapperProfile`, zoals in les 09. Mapster vindt de `MapperProfile` bij het opstarten."
+    },
+    {
+      "punt": "2",
+      "tekst": "Geen enkele DTO bevat een model, en geen enkel model een DTO. Een DTO in een DTO verwijst niet terug."
+    },
+    {
+      "punt": "3",
+      "tekst": "Elk endpoint dat een model teruggaf, ook de groepsverkoop, geeft een read-DTO terug."
+    },
+    {
+      "punt": "4",
+      "tekst": "Aparte write-DTO's om toe te voegen en bij te werken, met enkel de velden uit de tabel van punt 4, zonder data annotations voor de controles."
+    }
+  ]
+}

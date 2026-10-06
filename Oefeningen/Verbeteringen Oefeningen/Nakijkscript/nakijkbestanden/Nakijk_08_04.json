@@ -1,0 +1,308 @@
+{
+  "formaat": 1,
+  "oefening": "08_04",
+  "titel": "Gerelateerde gegevens ophalen met Include",
+  "hoofdstuk": 8,
+  "opgave": "Oefening_08_04.md",
+  "bouwtOpVan": "07_04",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "AsielDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "JSON uit punt 4 en 5 en testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1a",
+          "punt": "6",
+          "uitleg": "Dier 4 met zijn verblijf: JSON uit punt 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/4/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Bella",
+              "soort": "hond",
+              "leeftijdInJaren": 1,
+              "isGechipt": true,
+              "verblijfId": 2,
+              "verblijf": {
+                "id": 2,
+                "naam": "Hondenren",
+                "capaciteit": 4,
+                "dieren": [
+                  null
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.1b",
+          "punt": "6",
+          "uitleg": "Verblijf 2 met zijn dieren: JSON uit punt 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "naam": "Hondenren",
+              "capaciteit": 4,
+              "dieren": {
+                "$verzameling": [
+                  {
+                    "id": 3,
+                    "naam": "Rex",
+                    "soort": "hond",
+                    "leeftijdInJaren": 7,
+                    "isGechipt": true,
+                    "verblijfId": 2,
+                    "verblijf": null
+                  },
+                  {
+                    "id": 4,
+                    "naam": "Bella",
+                    "soort": "hond",
+                    "leeftijdInJaren": 1,
+                    "isGechipt": true,
+                    "verblijfId": 2,
+                    "verblijf": null
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Het lege verblijf 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 5,
+                "dieren": []
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.3a",
+          "punt": "6",
+          "uitleg": "Details van een onbestaand dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier met Id 99."
+          }
+        },
+        {
+          "id": "6.3b",
+          "punt": "6",
+          "uitleg": "Details van een onbestaand verblijf",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen verblijf met Id 99."
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Het bestaande endpoint toont nog altijd geen verblijf",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "verblijf": null
+              }
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Alle verblijven met hun dieren, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1,
+                  "dieren": {
+                    "$ids": [
+                      1,
+                      2
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 2,
+                  "dieren": {
+                    "$ids": [
+                      3,
+                      4
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 3,
+                  "dieren": {
+                    "$ids": [
+                      5
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 4,
+                  "dieren": {
+                    "$ids": [
+                      6
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 5,
+                  "dieren": []
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "Dier 4 verhuizen naar verblijf 5 (endpoint uit 07_04)",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "dier/4/verblijf/5"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "Enkel dier 3 in verblijf 2, dier 4 in verblijf 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 2,
+                  "dieren": {
+                    "$ids": [
+                      3
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 3
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 4
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 5,
+                  "dieren": {
+                    "$ids": [
+                      4
+                    ]
+                  }
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "Het bestaande endpoint: enkel dier 3, zonder verblijf",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/2/dieren"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 3,
+                  "verblijf": null
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "Open `ERD.md` in de projectmap: staat de relatie tussen `Verblijf` en `Dier` erin, op één regel met een korte uitleg, met aan beide kanten de juiste cardinaliteit (in een verblijf wonen nul of meer dieren, een dier woont in precies één verblijf)?"
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+{
+  "formaat": 1,
+  "oefening": "02_04",
+  "titel": "Model, lijst en statuscodes",
+  "hoofdstuk": 2,
+  "opgave": "Oefening_02_04.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Regels uit punt 1 tot 7 (eigen startgegevens van de student)",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Alle dieren; elk dier heeft de velden uit punt 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "naam": {
+                  "$elk": true
+                },
+                "soort": {
+                  "$elk": true
+                },
+                "leeftijdInJaren": {
+                  "$elk": true
+                },
+                "verblijfsnummer": {
+                  "$elk": true
+                }
+              }
+            }
+          },
+          "bewaar": {
+            "eersteId": "[0].id",
+            "eersteSoort": "[0].soort"
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Het eerste dier uit de lijst opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/{{eersteId}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{eersteId}}",
+              "naam": {
+                "$elk": true
+              },
+              "soort": "{{eersteSoort}}",
+              "leeftijdInJaren": {
+                "$elk": true
+              },
+              "verblijfsnummer": {
+                "$elk": true
+              }
+            }
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Onbestaand dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier met Id 999."
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Dieren van de soort van het eerste dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soort/{{eersteSoort}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "$bevat": {
+                  "soort": "{{eersteSoort}}"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Soort die niet in het asiel is",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soort/giraf"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We hebben op dit moment geen giraf in het asiel."
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Enkel de jonge dieren",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/jong"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "naam": {
+                  "$elk": true
+                },
+                "soort": {
+                  "$elk": true
+                },
+                "leeftijdInJaren": {
+                  "$elk": true
+                },
+                "verblijfsnummer": {
+                  "$elk": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Fiche van het eerste dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/fiche/{{eersteId}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "dier": {
+                "$bevat": {
+                  "id": "{{eersteId}}"
+                }
+              },
+              "isJong": {
+                "$elk": true
+              },
+              "aantalVanDezelfdeSoort": {
+                "$elk": true
+              },
+              "isOudsteVanDeSoort": {
+                "$elk": true
+              }
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Fiche van een onbestaand dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/fiche/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier met Id 999."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "6",
+      "tekst": "`api/dier/jong` bevat enkel dieren met `leeftijdInJaren` kleiner dan 2."
+    },
+    {
+      "punt": "7",
+      "tekst": "In de fiche: `aantalVanDezelfdeSoort` is 0 bij een dier dat als enige van zijn soort in het asiel zit; `isJong` is true bij de dieren jonger dan twee jaar; van twee dieren van dezelfde soort staat `isOudsteVanDeSoort` maar bij één op true."
+    }
+  ]
+}

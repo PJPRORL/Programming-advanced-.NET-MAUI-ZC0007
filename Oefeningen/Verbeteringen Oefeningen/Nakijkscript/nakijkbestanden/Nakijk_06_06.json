@@ -1,0 +1,550 @@
+{
+  "formaat": 1,
+  "oefening": "06_06",
+  "titel": "Concerten en hun tickets",
+  "hoofdstuk": 6,
+  "opgave": "Oefening_06_06.md",
+  "bouwtOpVan": "05_06",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ConcertzaalDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Regels uit punt 2 tot 6 en testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "De migratie Concerten is uitgevoerd",
+          "sql": "SELECT \"MigrationId\" FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" LIKE '%\\_Concerten'",
+          "verwacht": {
+            "aantal": 1
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Ticket 3 opvragen, met zijn concertId",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "Lisa Maes",
+              "rij": 3,
+              "stoel": 12,
+              "prijs": 35.0,
+              "isGeannuleerd": false,
+              "concertId": 1,
+              "concert": null
+            }
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Alle concerten, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Concert 1 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "titel": "Jazz in de Notenbalk",
+                "datum": "14-11-2026"
+              }
+            }
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Onbestaand concert",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen concert met Id 99."
+          }
+        },
+        {
+          "id": "4.4",
+          "punt": "4",
+          "uitleg": "Opbrengst van een onbestaand concert",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/99/opbrengst"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen concert met Id 99."
+          }
+        },
+        {
+          "id": "6.1a",
+          "punt": "6",
+          "uitleg": "Opbrengst van concert 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 125.0
+          }
+        },
+        {
+          "id": "6.1b",
+          "punt": "6",
+          "uitleg": "Opbrengst van concert 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/2/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 50.0
+          }
+        },
+        {
+          "id": "6.1c",
+          "punt": "6",
+          "uitleg": "Opbrengst van concert 3, zonder tickets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/3/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 0
+          }
+        },
+        {
+          "id": "6.1d",
+          "punt": "6",
+          "uitleg": "Opbrengst over alles samen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 175.0
+          }
+        },
+        {
+          "id": "6.2a",
+          "punt": "6",
+          "uitleg": "Rij 1 stoel 5 verkopen voor concert 2",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Jonas Wouters",
+              "rij": 1,
+              "stoel": 5,
+              "prijs": 30.0,
+              "concertId": 2
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "naam": "Jonas Wouters",
+              "rij": 1,
+              "stoel": 5,
+              "prijs": 30.0,
+              "isGeannuleerd": false,
+              "concertId": 2,
+              "concert": null
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/7"
+            }
+          }
+        },
+        {
+          "id": "6.2b",
+          "punt": "6",
+          "uitleg": "Rij 1: dezelfde stoel op twee concerten, het kleinste Id eerst",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/rij/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                7,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Dezelfde plaats op concert 2 nog eens verkopen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Lies Martens",
+              "rij": 1,
+              "stoel": 5,
+              "prijs": 30.0,
+              "concertId": 2
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 1 stoel 5 is al verkocht."
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Een ticket voor een onbestaand concert",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Lies Martens",
+              "rij": 2,
+              "stoel": 1,
+              "prijs": 30.0,
+              "concertId": 99
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We vonden geen concert met Id 99."
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Ticket 5 verhuizen naar een plaats die enkel op concert 1 bezet is",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/5/3/12"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "Ticket 4 herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/4"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "Opbrengst van concert 1 na het herstel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 160.0
+          }
+        },
+        {
+          "id": "6.6c",
+          "punt": "6",
+          "uitleg": "Rij 3: op stoel, bij dezelfde stoel het kleinste Id eerst",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/rij/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3,
+                5,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.7a",
+          "punt": "6",
+          "uitleg": "Opbrengst van concert 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/2/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 80.0
+          }
+        },
+        {
+          "id": "6.7b",
+          "punt": "6",
+          "uitleg": "Opbrengst over alles samen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 240.0
+          }
+        },
+        {
+          "id": "6.8a",
+          "punt": "6",
+          "uitleg": "Concert 2 verwijderen terwijl het tickets heeft",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "concert/2"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit concert heeft nog tickets."
+          }
+        },
+        {
+          "id": "6.8b",
+          "punt": "6",
+          "uitleg": "Concert 3 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "concert/3"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "Lentefeest toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "concert",
+            "body": {
+              "titel": "Lentefeest",
+              "datum": "21-03-2027"
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 4,
+              "titel": "Lentefeest",
+              "datum": "21-03-2027",
+              "tickets": null
+            },
+            "location": {
+              "eindigtOp": "/api/concert/4"
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Ticket 1 wijzigen met een ander concertId",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/1",
+            "body": {
+              "id": 1,
+              "naam": "Sofie Peeters",
+              "rij": 1,
+              "stoel": 5,
+              "prijs": 45.0,
+              "isGeannuleerd": false,
+              "concertId": 2
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Ticket 1 hoort nog altijd bij concert 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "concertId": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "6.10a",
+          "punt": "6",
+          "uitleg": "Ticket 5 annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/5"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.10b",
+          "punt": "6",
+          "uitleg": "Ticket 6 annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/6"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.10c",
+          "punt": "6",
+          "uitleg": "Ticket 7 annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/7"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.10d",
+          "punt": "6",
+          "uitleg": "Concert 2 verwijderen: zijn tickets zijn geannuleerd maar bestaan nog",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "concert/2"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit concert heeft nog tickets."
+          }
+        },
+        {
+          "id": "6.10e",
+          "punt": "2",
+          "uitleg": "De database weigert zelf concert 2 te verwijderen",
+          "sql": "DELETE FROM \"Concerten\" WHERE \"Id\" = 2",
+          "verwacht": {
+            "fout": "foreign key"
+          }
+        },
+        {
+          "id": "4.5",
+          "punt": "4",
+          "uitleg": "Een concert zonder titel",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "concert",
+            "body": {
+              "titel": "",
+              "datum": "21-03-2027"
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een concert moet een titel hebben."
+          }
+        },
+        {
+          "id": "4.6",
+          "punt": "4",
+          "uitleg": "Een concert zonder datum",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "concert",
+            "body": {
+              "titel": "Lentefeest",
+              "datum": ""
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een concert moet een datum hebben."
+          }
+        },
+        {
+          "id": "4.7",
+          "punt": "4",
+          "uitleg": "Een onbestaand concert verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "concert/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen concert met Id 99."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "3",
+      "tekst": "`OnModelCreating` is verdeeld in twee methodes: één voor de tabellen en relaties, één voor de startgegevens."
+    },
+    {
+      "punt": "1",
+      "tekst": "`BestandTicketRepository` en `tickets.json` zijn uit het project verdwenen."
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "formaat": 1,
+  "oefening": "05_04",
+  "titel": "Een repository op de database, asynchroon",
+  "hoofdstuk": 5,
+  "opgave": "Oefening_05_04.md",
+  "bouwtOpVan": "04_04",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "AsielDb",
+    "opbouwen": "sqlscript"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeeld uit punt 6 en verzoeken uit punt 7",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Alle soorten, elk één keer, alfabetisch",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soorten"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              "hond",
+              "kat",
+              "konijn",
+              "parkiet"
+            ]
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Alle dieren, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Onbestaand dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier met Id 99."
+          }
+        },
+        {
+          "id": "7.3",
+          "punt": "7",
+          "uitleg": "Dieren van de soort hond",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soort/hond"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Onbekende soort",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soort/cavia"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We hebben op dit moment geen cavia in het asiel."
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "De jonge dieren",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/jong"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                2,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.6",
+          "punt": "7",
+          "uitleg": "Zoeken op MI, hoofdletters spelen geen rol",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/zoek/MI"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.7",
+          "punt": "7",
+          "uitleg": "Zoeken zonder resultaat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/zoek/xyz"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier waarvan de naam xyz bevat."
+          }
+        },
+        {
+          "id": "7.8",
+          "punt": "7",
+          "uitleg": "Dier 4 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Bella",
+              "soort": "hond",
+              "leeftijdInJaren": 1,
+              "verblijfsnummer": 5,
+              "isGechipt": true
+            }
+          }
+        },
+        {
+          "id": "7.9",
+          "punt": "7",
+          "uitleg": "Fiche van dier 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/fiche/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "dier": {
+                "id": 3,
+                "naam": "Rex",
+                "soort": "hond",
+                "leeftijdInJaren": 7,
+                "verblijfsnummer": 5,
+                "isGechipt": true
+              },
+              "isJong": false,
+              "aantalVanDezelfdeSoort": 1,
+              "isOudsteVanDeSoort": true
+            }
+          }
+        },
+        {
+          "id": "7.10",
+          "punt": "7",
+          "uitleg": "Fiche van dier 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/fiche/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "isJong": true,
+                "aantalVanDezelfdeSoort": 1,
+                "isOudsteVanDeSoort": false
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "7",
+      "tekst": "In het terminalvenster van de API staan de logberichten nog, met hetzelfde niveau als in 03_04, en bij elk verzoek de SQL van Entity Framework Core. Bij het zoeken op naam staat het vergelijken zonder hoofdletters in die SQL."
+    }
+  ]
+}

@@ -1,0 +1,698 @@
+{
+  "formaat": 1,
+  "valkuilen": [
+    {
+      "code": "BUILD",
+      "titel": "Je project bouwt niet",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "waarom": "De compiler stopt bij de eerste fouten. Zolang je project niet bouwt, kan het script geen enkel verzoek uitvoeren.",
+      "richting": "Begin bij de eerste fout in de lijst: één fout veroorzaakt vaak de volgende. Het bestand en de regel staan erbij.",
+      "tips": [
+        "Bouw in VS Code met `dotnet build` en lees de eerste regel met `error`.",
+        "Een fout in een bestand dat je niet verwacht? Kijk of je een klasse of property hernoemde zonder alle plaatsen mee te nemen."
+      ]
+    },
+    {
+      "code": "API-START",
+      "titel": "Je API start niet",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "log": [
+        "Unhandled exception",
+        "Application startup exception"
+      ],
+      "waarom": "Je project bouwt, maar stopt meteen bij het opstarten, of antwoordt niet. Bij het opstarten leest ASP.NET Program.cs: daar loopt het mis.",
+      "richting": "Lees de exception in de uitvoer van de API hieronder. Ze noemt meestal de klasse of de registratie die het probleem geeft.",
+      "tips": [
+        "Start je API zelf met `dotnet run` en kijk naar de eerste rode regels."
+      ]
+    },
+    {
+      "code": "DI-ONTBREEKT",
+      "titel": "Een klasse die je controller vraagt, is niet geregistreerd",
+      "ernst": "fout",
+      "vanaf": 3,
+      "tot": 9,
+      "log": [
+        "Unable to resolve service for type"
+      ],
+      "waarom": "Je controller vraagt in zijn constructor een interface. ASP.NET zoekt in Program.cs welke klasse daarbij hoort. Vindt het er geen, dan kan het je controller niet aanmaken, en faalt elk verzoek naar die controller met een 500.",
+      "richting": "Kijk in de foutmelding welk type ASP.NET niet vindt, en zoek in Program.cs waar je dat type registreert.",
+      "tips": [
+        "De naam in de melding is de naam van het type dat ontbreekt, niet die van je controller."
+      ]
+    },
+    {
+      "code": "SCOPED-IN-SINGLETON",
+      "titel": "Een singleton gebruikt iets dat per verzoek bestaat",
+      "ernst": "fout",
+      "vanaf": 5,
+      "tot": 9,
+      "log": [
+        "Cannot consume scoped service"
+      ],
+      "waarom": "Een DbContext leeft één verzoek lang (scoped). Een klasse die als singleton geregistreerd is, leeft zo lang als de API. Zo'n klasse mag dus geen DbContext in haar constructor vragen: ASP.NET weigert dat al bij het opstarten.",
+      "richting": "Vergelijk de levensduur waarmee je repository geregistreerd is met die van je DbContext. Les 06 legt uit wat AddScoped betekent.",
+      "tips": []
+    },
+    {
+      "code": "API-GEEN-ANTWOORD",
+      "titel": "Je API geeft geen antwoord meer",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "antwoord": "geenAntwoord",
+      "waarom": "Het script kreeg op een verzoek geen antwoord: je API is gestopt of hangt. Meestal stopt een exception in je code het hele proces niet, maar een oneindige lus of een `Environment.Exit` wel.",
+      "richting": "Kijk in de uitvoer van de API wat er gebeurde vlak voor het eerste verzoek zonder antwoord.",
+      "tips": []
+    },
+    {
+      "code": "CONTROLLER-NIET-GEVONDEN",
+      "titel": "Geen enkel endpoint van de opgave antwoordt",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "antwoord": "alles404",
+      "waarom": "Elk verzoek gaf 404, ook met en zonder `api/` ervoor. ASP.NET vindt je controller dus niet, of de routes liggen ergens anders dan de opgave vraagt.",
+      "richting": "Kijk of je controller-klasse publiek is en op `Controller` eindigt, of ze het attribuut `[ApiController]` en een `[Route]` heeft, en of Program.cs de controllers registreert én koppelt.",
+      "tips": [
+        "Open Scalar: zie je je controller daar staan? Dan vergelijk je de routes die Scalar toont met die van de opgave."
+      ]
+    },
+    {
+      "code": "ROUTE-PARAMNAAM",
+      "titel": "Een naam in de route komt niet overeen met een parameter van de methode",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "statisch": "routeParamNaam",
+      "waarom": "ASP.NET koppelt een stuk van de URL alleen aan een parameter met exact dezelfde naam. Vindt het de naam niet, dan zoekt het in de querystring, en daar staat niets. Een parameter die nergens gevonden wordt, krijgt stil zijn standaardwaarde: 0 voor een getal, null voor een tekst. Daarom geeft je endpoint een antwoord dat niet bij de URL past, zonder foutmelding.",
+      "richting": "Een naam van een routeparameter bestaat altijd op twee plaatsen. Leg het attribuut en de kop van de methode naast elkaar en lees ze naam per naam.",
+      "tips": [
+        "Hernoem je een parameter, pas dan in dezelfde beweging het attribuut aan.",
+        "Krijg je in een reeks verzoeken telkens exact hetzelfde antwoord, wat je ook invult? Dan komt je invoer waarschijnlijk niet aan.",
+        "Open het endpoint in Scalar en kijk waar elk invoerveld staat: in de route of in de query."
+      ]
+    },
+    {
+      "code": "ROUTE-SLASH",
+      "titel": "Een route begint met een `/` en negeert zo de route van de controller",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "statisch": "routeSlash",
+      "waarom": "Een route op een methode die met `/` of `~/` begint, is absoluut: ASP.NET plakt de route van de controller er niet meer voor. Het endpoint staat dan op een ander adres dan de opgave vraagt.",
+      "richting": "Vergelijk de route van dit endpoint met die van de andere endpoints in dezelfde controller.",
+      "tips": []
+    },
+    {
+      "code": "ARGUMENT-VOLGORDE",
+      "titel": "Argumenten in een andere volgorde dan de parameters",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "statisch": "argumentVolgorde",
+      "waarom": "Een methode-oproep koppelt argumenten op volgorde, niet op naam: het eerste argument gaat altijd naar de eerste parameter. Hier staat een argument met de naam van een parameter op de plaats van een andere parameter.",
+      "richting": "Lees de oproep en de kop van de opgeroepen methode naast elkaar, argument per argument.",
+      "tips": [
+        "C# laat je bij een oproep de naam van de parameter voor het argument zetten, gevolgd door een dubbele punt. Dan maakt de volgorde niet meer uit.",
+        "Een voorbeeld waarin twee getallen gelijk zijn, verbergt een omwisseling: test ook met verschillende waarden."
+      ]
+    },
+    {
+      "code": "ROUTE-DUBBEL",
+      "titel": "Twee endpoints luisteren op dezelfde route",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "log": [
+        "AmbiguousMatchException",
+        "The request matched multiple endpoints"
+      ],
+      "waarom": "Voor één verzoek vond ASP.NET meer dan één methode die past. Het kiest dan niet zelf, maar geeft een 500.",
+      "richting": "De melding noemt de methodes die botsen. Kijk wat hun routes van elkaar onderscheidt, ook het HTTP-verb.",
+      "tips": []
+    },
+    {
+      "code": "VERB-ONTBREEKT",
+      "titel": "De route bestaat, maar niet voor dit HTTP-verb",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "antwoord": "status405",
+      "waarom": "Je API antwoordt met 405 Method Not Allowed: er is een endpoint op dit adres, maar niet voor deze methode (GET, POST, PUT of DELETE).",
+      "richting": "Kijk welk attribuut boven je methode staat: `[HttpGet]`, `[HttpPost]`, `[HttpPut]` of `[HttpDelete]`.",
+      "tips": []
+    },
+    {
+      "code": "ROUTE-PREFIX",
+      "titel": "Je routes beginnen met `api/`, de opgave niet",
+      "ernst": "afwijking",
+      "vanaf": 1,
+      "tot": 2,
+      "antwoord": "prefix",
+      "waarom": "De voorbeelden in de opgave staan zonder `api/`. Verdedigbaar: de cursus raadt `api/` zelfs aan. Het script testte daarom ook met `api/` ervoor.",
+      "richting": "Bij een examen houd je je aan de routes van de opgave. Test je zelf, zet dan `api/` voor elk voorbeeld.",
+      "tips": []
+    },
+    {
+      "code": "TEKST-BIJNA",
+      "titel": "Bijna de gevraagde tekst",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "antwoord": "tekstBijna",
+      "waarom": "Je antwoord verschilt van de opgave enkel in hoofdletters, spaties of leestekens. Een client die op de tekst vergelijkt, ziet dat toch als een ander antwoord.",
+      "richting": "Leg je tekst en die van de opgave letter voor letter naast elkaar, ook het punt op het einde.",
+      "tips": [
+        "Kopieer vaste teksten uit de opgave in plaats van ze over te typen."
+      ]
+    },
+    {
+      "code": "ACCOLADE-ZONDER-DOLLAR",
+      "titel": "Een `{...}` in je tekst wordt niet ingevuld",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "statisch": "accoladeZonderDollar",
+      "antwoord": "accoladeZonderDollar",
+      "waarom": "Je antwoord toont letterlijk een naam tussen accolades, zoals in de code. C# vult `{...}` enkel in bij een tekst die met `$` begint. Zonder `$` is het gewone tekst.",
+      "richting": "Zoek in de tabel welke tekst de accolades toont, en kijk in je code hoe die tekst begint.",
+      "tips": [
+        "Zie je in een antwoord een accolade, dan komt die bijna altijd rechtstreeks uit je code."
+      ]
+    },
+    {
+      "code": "EXTRA-TEKST",
+      "titel": "Je antwoord bevat meer dan de gevraagde tekst",
+      "ernst": "fout",
+      "vanaf": 1,
+      "tot": 9,
+      "antwoord": "extraTekst",
+      "waarom": "De tekst die de opgave vraagt, staat in je antwoord, maar er staat nog iets voor of achter. Een client die het antwoord vergelijkt, ziet een ander antwoord.",
+      "richting": "Kijk in de tabel wat er bij jou extra staat, en zoek waar dat stuk in je antwoord terechtkomt.",
+      "tips": []
+    },
+    {
+      "code": "BERICHT-ONTBREEKT",
+      "titel": "De juiste statuscode, maar zonder het bericht van de opgave",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 9,
+      "antwoord": "berichtOntbreekt",
+      "waarom": "Je API geeft de statuscode die de opgave vraagt, maar zonder de tekst die erbij hoort. `NotFound()` of `BadRequest()` zonder argument geven enkel de standaardfoutmelding van ASP.NET.",
+      "richting": "Kijk in les 02 hoe je een bericht meegeeft met een foutcode.",
+      "tips": []
+    },
+    {
+      "code": "STATUS-201",
+      "titel": "Een toevoeging geeft 200 in plaats van 201",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 9,
+      "antwoord": "status201",
+      "waarom": "Bij een geslaagde POST verwacht een client 201 Created, met het adres van het nieuwe item in de header Location. `Ok(...)` geeft 200 en geen adres.",
+      "richting": "Lees in les 02 welke methode van ControllerBase 201 teruggeeft, samen met een adres.",
+      "tips": []
+    },
+    {
+      "code": "LOCATION-NAAR-POST",
+      "titel": "De header Location wijst niet naar het nieuwe item",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 9,
+      "statisch": "createdAtActionNaarZichzelf",
+      "antwoord": "location",
+      "waarom": "Het adres in Location moet het nieuwe item opleveren met een GET. `CreatedAtAction` bouwt dat adres op uit de methode die je met `nameof` noemt. Noem je de POST zelf, of een methode zonder `{id}` in de route, dan komt het Id als `?id=` achteraan, of op een verkeerde plaats.",
+      "richting": "Kijk naar welke methode je `nameof(...)` in `CreatedAtAction` verwijst, en welke route die methode heeft.",
+      "tips": [
+        "De code in les 07 en 08 verwijst hier zelf naar de POST: neem die regel niet zomaar over."
+      ]
+    },
+    {
+      "code": "CREATEDATACTION-ASYNC",
+      "titel": "`CreatedAtAction` vindt de methode met het achtervoegsel Async niet",
+      "ernst": "fout",
+      "vanaf": 5,
+      "tot": 9,
+      "statisch": "createdAtActionAsync",
+      "log": [
+        "No route matches the supplied values"
+      ],
+      "waarom": "ASP.NET haalt standaard het achtervoegsel `Async` van de namen van je acties. `nameof(GetArtikelAsync)` levert een naam die ASP.NET niet meer kent: het kan geen adres bouwen en geeft een 500 — nadat het item al bewaard is.",
+      "richting": "Lees de melding \"No route matches the supplied values\" in de uitvoer van je API. Zoek uit hoe ASP.NET de namen van acties met `Async` behandelt.",
+      "tips": []
+    },
+    {
+      "code": "PUT-ID-BODY",
+      "titel": "Een bijwerking eist een Id in de body",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 9,
+      "statisch": "putIdBody",
+      "antwoord": "putIdBody",
+      "waarom": "De opgave zegt: het Id staat in de URL, de nieuwe gegevens staan in de body. Je API vergelijkt het Id in de URL met een Id in de body. Stuurt de client geen Id mee, zoals in de opgave, dan is dat 0 en geeft je API 400.",
+      "richting": "Lees opnieuw wat de opgave over het Id bij een PUT zegt, en vergelijk dat met de controle in je methode.",
+      "tips": [
+        "De les toont deze controle wel. De opgave vraagt iets anders: de opgave gaat voor."
+      ]
+    },
+    {
+      "code": "VERPLICHT-VELD",
+      "titel": "ASP.NET weigert het verzoek nog voor je code het ziet",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 9,
+      "antwoord": "verplichtVeld",
+      "waarom": "Je API antwoordt met de standaardfoutmelding van ASP.NET en een lijst `errors`. Met `[ApiController]` controleert ASP.NET de body eerst zelf: een property die niet nullable is, moet in de body staan. Ontbreekt ze, of is het type fout, dan komt je eigen code niet eens aan de beurt.",
+      "richting": "Lees in de foutmelding welk veld ASP.NET mist. Kijk dan naar het type van die property in je model of DTO.",
+      "tips": [
+        "Een lijst die de client nooit meestuurt (een navigation property), hoort nullable te zijn."
+      ]
+    },
+    {
+      "code": "NAVIGATIE-NIET-NULLABLE",
+      "titel": "Een navigation property is niet nullable",
+      "ernst": "afwijking",
+      "vanaf": 6,
+      "tot": 9,
+      "statisch": "navigatieNietNullable",
+      "waarom": "Een lijst als `List<Artikel>` zonder vraagteken vraagt ASP.NET om bij elke POST of PUT mee te sturen. Een client stuurt die lijst nooit: elk verzoek zonder die lijst krijgt een automatische 400.",
+      "richting": "Vergelijk het type van je navigation properties met de tabel in de opgave.",
+      "tips": []
+    },
+    {
+      "code": "VOLGORDE",
+      "titel": "De juiste elementen, in een andere volgorde",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 9,
+      "antwoord": "volgorde",
+      "waarom": "Je lijst bevat precies wat de opgave vraagt, maar niet in de gevraagde volgorde. Een database belooft geen volgorde, tenzij je erom vraagt. Na een wijziging kan een rij zomaar achteraan komen.",
+      "richting": "Kijk waar je API de volgorde van deze lijst vraagt. Bij een generieke repository uit les 07 gebeurt dat niet vanzelf.",
+      "tips": []
+    },
+    {
+      "code": "JSON-HOOFDLETTERS",
+      "titel": "Velden in je JSON hebben andere hoofdletters",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 9,
+      "antwoord": "hoofdletters",
+      "waarom": "ASP.NET zet de namen van je properties standaard om naar camelCase (`aantalOpVoorraad`). Je JSON heeft andere hoofdletters, dus iets in je project verandert die standaard.",
+      "richting": "Zoek waar je de JSON-instellingen of de namen van de velden aanpast.",
+      "tips": []
+    },
+    {
+      "code": "TOESTAND-VERLOREN",
+      "titel": "Wat je API toevoegt, is bij het volgende verzoek verdwenen",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 4,
+      "statisch": "lijstNietStatisch",
+      "antwoord": "toestandVerloren",
+      "waarom": "Een POST gaf 201, maar een volgend verzoek vindt het nieuwe item niet. ASP.NET maakt je controller (en een scoped repository) bij elk verzoek opnieuw aan: een gewone lijst in zo'n object begint dus elke keer opnieuw.",
+      "richting": "Kijk waar je lijst leeft, en hoe lang. Les 02 en 03 tonen hoe je een lijst bewaart over verzoeken heen.",
+      "tips": []
+    },
+    {
+      "code": "MAX-LEGE-LIJST",
+      "titel": "Een nieuw Id berekenen op een lege lijst",
+      "ernst": "fout",
+      "vanaf": 2,
+      "tot": 4,
+      "log": [
+        "Sequence contains no elements"
+      ],
+      "waarom": "`Max()` op een lege lijst gooit een exception. Een lijst die leeg begint, zoals een historiek, faalt dus bij de allereerste toevoeging.",
+      "richting": "Denk na over wat het eerste Id moet zijn als er nog niets in de lijst staat.",
+      "tips": []
+    },
+    {
+      "code": "NA-HERSTART-VERLOREN",
+      "titel": "Na een herstart van je API zijn de gegevens weg",
+      "ernst": "fout",
+      "vanaf": 3,
+      "tot": 3,
+      "antwoord": "naHerstart",
+      "waarom": "Het script herstartte je API, en daarna klopten je gegevens niet meer. Een bestandsrepository moet bij het opstarten lezen wat ze eerder schreef, en na elke wijziging schrijven.",
+      "richting": "Open je JSON-bestand na een paar wijzigingen: staat alles erin? En leest je repository het bestand bij het starten?",
+      "tips": []
+    },
+    {
+      "code": "DB-VERBINDING",
+      "titel": "Je API kan de database niet bereiken",
+      "ernst": "fout",
+      "vanaf": 4,
+      "tot": 9,
+      "log": [
+        "Failed to connect to",
+        "28P01",
+        "password authentication failed",
+        "Connection refused",
+        "No such host is known"
+      ],
+      "waarom": "De connection string wijst naar een database die niet bereikbaar is, of de gebruiker of het wachtwoord klopt niet.",
+      "richting": "Kijk of je Docker-container draait, en vergelijk de connection string in appsettings.json met de instellingen van je container.",
+      "tips": []
+    },
+    {
+      "code": "TABEL-ONTBREEKT",
+      "titel": "Een tabel of kolom bestaat niet in de database",
+      "ernst": "fout",
+      "vanaf": 4,
+      "tot": 9,
+      "log": [
+        "42P01",
+        "42703",
+        "relation \\\".+\\\" does not exist",
+        "column .+ does not exist"
+      ],
+      "waarom": "Je code vraagt een tabel of kolom die de database niet kent. Meestal is een migratie niet uitgevoerd, of heet de tabel anders dan je DbSet.",
+      "richting": "Kijk in de melding welke naam ontbreekt, en vergelijk met je migraties en met de tabelnamen die de opgave vraagt.",
+      "tips": []
+    },
+    {
+      "code": "TELLER-NA-STARTGEGEVENS",
+      "titel": "De database geeft een nieuw item een Id dat al bestaat",
+      "ernst": "fout",
+      "vanaf": 4,
+      "tot": 9,
+      "log": [
+        "23505",
+        "duplicate key value violates unique constraint \\\"PK_"
+      ],
+      "waarom": "De startgegevens hebben vaste Id's. De teller van PostgreSQL weet daar niets van en begint bij 1: de eerste POST botst op een bestaand Id (duplicate key), en geeft een 500.",
+      "richting": "Lees de waarschuwing over startgegevens in je leerboek, en de oefening van les 04 of 06 over de teller.",
+      "tips": []
+    },
+    {
+      "code": "TE-LANG",
+      "titel": "Een tekst is te lang voor de database",
+      "ernst": "fout",
+      "vanaf": 4,
+      "tot": 9,
+      "log": [
+        "22001",
+        "value too long for type"
+      ],
+      "waarom": "De database weigert een tekst die langer is dan de kolom toelaat. Je API laat het aan de database over, en de client krijgt een 500 in plaats van het bericht van de opgave.",
+      "richting": "Leg de maximale lengtes uit je Fluent API naast de controles in je API.",
+      "tips": []
+    },
+    {
+      "code": "FK-NIET-GECONTROLEERD",
+      "titel": "De database weigert een relatie die je API niet controleerde",
+      "ernst": "fout",
+      "vanaf": 6,
+      "tot": 9,
+      "log": [
+        "23503",
+        "violates foreign key constraint"
+      ],
+      "waarom": "Een vreemde sleutel verwijst naar iets wat niet bestaat, of je verwijdert iets waar nog naar verwezen wordt. De database weigert, en de client krijgt een 500. De opgave vraagt dat je API dat eerst zelf nakijkt.",
+      "richting": "Zoek in de opgave het bericht voor dit geval, en kijk waar je API het moet controleren voor hij iets bewaart of verwijdert.",
+      "tips": []
+    },
+    {
+      "code": "RELATIE-VERBROKEN",
+      "titel": "Entity Framework Core weigert een relatie te verbreken",
+      "ernst": "fout",
+      "vanaf": 6,
+      "tot": 9,
+      "log": [
+        "The association between entity types .+ has been severed"
+      ],
+      "waarom": "Bij het bewaren verwijst er nog een gevolgd object naar iets dat je verwijdert, terwijl de relatie verplicht is. Entity Framework Core weigert dan al voor de database iets ziet.",
+      "richting": "Kijk welke objecten er bij het bewaren nog naar het verwijderde object verwijzen, en wat er met elk van hen moet gebeuren.",
+      "tips": []
+    },
+    {
+      "code": "OBJECT-CYCLE",
+      "titel": "Je JSON loopt vast op een cyclus",
+      "ernst": "fout",
+      "vanaf": 6,
+      "tot": 9,
+      "log": [
+        "A possible object cycle was detected"
+      ],
+      "waarom": "Twee objecten kennen elkaar over en weer, en de JSON-serializer raakt er niet uit: 500. Entity Framework Core vult navigation properties zelf aan met objecten die het in hetzelfde verzoek al kent.",
+      "richting": "Kijk welke objecten je API in dit verzoek ophaalt. In les 06 en 07: haal geen object op als je enkel wil weten óf het bestaat. In les 08 lees je hoe je dit tijdelijk opvangt, in les 09 hoe je het oplost.",
+      "tips": []
+    },
+    {
+      "code": "NAVIGATIE-GEVULD",
+      "titel": "Een navigation property is gevuld waar de opgave `null` toont",
+      "ernst": "fout",
+      "vanaf": 6,
+      "tot": 8,
+      "antwoord": "navigatieGevuld",
+      "waarom": "De opgave toont hier `null`: dit endpoint haalt geen gerelateerde gegevens op. Bij jou is het veld gevuld, omdat Entity Framework Core navigation properties zelf aanvult met objecten die het in hetzelfde verzoek al kent.",
+      "richting": "Kijk welke andere objecten je API in dit verzoek ophaalt, en of dat nodig is.",
+      "tips": []
+    },
+    {
+      "code": "NAVIGATIE-LEGE-LIJST",
+      "titel": "Een navigation property is een lege lijst waar de opgave `null` toont",
+      "ernst": "fout",
+      "vanaf": 6,
+      "tot": 8,
+      "antwoord": "navigatieLegeLijst",
+      "waarom": "Je model maakt die lijst al aan bij het aanmaken van het object. De opgave toont `null`: zo'n lijst bestaat pas als iemand ze ophaalt.",
+      "richting": "Vergelijk de declaratie van die property met de tabel in de opgave.",
+      "tips": []
+    },
+    {
+      "code": "TRACKING-CONFLICT",
+      "titel": "Twee objecten met hetzelfde Id",
+      "ernst": "fout",
+      "vanaf": 7,
+      "tot": 9,
+      "log": [
+        "is already being tracked"
+      ],
+      "waarom": "Entity Framework Core volgt elk object dat je ophaalt. Geef je het daarna een tweede object met hetzelfde Id om bij te werken, dan weigert het: *already being tracked*. De client krijgt 500.",
+      "richting": "Tel hoeveel objecten met hetzelfde Id je API in dit verzoek aan Entity Framework Core geeft.",
+      "tips": [
+        "De laptopcontroller uit les 07 loopt hier zelf op vast: neem hem niet zomaar over."
+      ]
+    },
+    {
+      "code": "UPDATE-ONBESTAAND",
+      "titel": "Een bijwerking op iets wat niet bestaat",
+      "ernst": "fout",
+      "vanaf": 7,
+      "tot": 9,
+      "log": [
+        "DbUpdateConcurrencyException",
+        "expected to affect 1 row"
+      ],
+      "waarom": "Entity Framework Core probeerde een rij bij te werken of te verwijderen die er niet is: 0 rijen aangepast. Je API keek niet eerst of het item bestaat.",
+      "richting": "Zoek in de opgave het bericht voor een onbestaand Id, en kijk waar je API dat controleert.",
+      "tips": []
+    },
+    {
+      "code": "VELD-OVERSCHREVEN",
+      "titel": "Een bijwerking verandert een veld dat de client niet mocht veranderen",
+      "ernst": "fout",
+      "vanaf": 3,
+      "tot": 9,
+      "antwoord": "veldOverschreven",
+      "waarom": "Na een PUT heeft een veld een andere waarde, terwijl de opgave zegt dat bijwerken het niet verandert. Wie het object uit de body bewaart, of er met Mapster een nieuw model van maakt, overschrijft elk veld, ook wat de client niet meestuurde: dat wordt 0, false of null.",
+      "richting": "Vergelijk na een PUT elk veld met de toestand ervoor. Kijk welke objecten je API bewaart, en waar hun waarden vandaan komen.",
+      "tips": []
+    },
+    {
+      "code": "NIET-BEWAARD",
+      "titel": "Een wijziging komt niet in de database",
+      "ernst": "fout",
+      "vanaf": 4,
+      "tot": 9,
+      "antwoord": "nietBewaard",
+      "waarom": "Je API antwoordt alsof het gelukt is, maar de database weet van niets: een nieuw item krijgt Id 0, of een volgend verzoek vindt de wijziging niet. Entity Framework Core onthoudt wijzigingen tot iemand ze bewaart.",
+      "richting": "Volg één verzoek van je controller tot in je repository, en kijk waar de wijziging naar de database gaat.",
+      "tips": []
+    },
+    {
+      "code": "QUERY-AANTAL",
+      "titel": "Meer query's dan de opgave toelaat",
+      "ernst": "fout",
+      "vanaf": 8,
+      "tot": 9,
+      "antwoord": "queries",
+      "waarom": "De opgave vraagt dat dit verzoek met één query werkt. Je API stuurt er meer: een aparte controle of iets bestaat, of losse query's per gerelateerd object (het N+1-probleem uit les 07).",
+      "richting": "Kijk in de uitvoer van je API welke query's er bij dit verzoek staan, en welke ervan je met `Include` kan samenvoegen.",
+      "tips": []
+    },
+    {
+      "code": "INCLUDE-VERGETEN",
+      "titel": "Gerelateerde gegevens ontbreken in het antwoord",
+      "ernst": "fout",
+      "vanaf": 8,
+      "tot": 9,
+      "antwoord": "includeVergeten",
+      "waarom": "De opgave verwacht hier een lijst of object, maar je antwoord heeft `null` of een lege plaats. Entity Framework Core haalt gerelateerde gegevens niet uit zichzelf op.",
+      "richting": "Kijk welke methode van je repository dit endpoint gebruikt, en wat die mee ophaalt.",
+      "tips": []
+    },
+    {
+      "code": "MAPSTER-LEEG",
+      "titel": "Een veld van je DTO blijft leeg",
+      "ernst": "fout",
+      "vanaf": 9,
+      "tot": 9,
+      "antwoord": "mapsterLeeg",
+      "waarom": "Mapster vult een property enkel vanzelf als de naam en het type overeenkomen. Lukt dat niet, dan blijft ze leeg, zonder foutmelding.",
+      "richting": "Kijk of de naam en het type van dit veld overeenkomen met het model, en anders of je `MapperProfile` het vastlegt — en of Mapster dat profiel wel leest.",
+      "tips": []
+    },
+    {
+      "code": "MODEL-TERUG",
+      "titel": "Je API geeft nog een model terug in plaats van een DTO",
+      "ernst": "fout",
+      "vanaf": 9,
+      "tot": 9,
+      "antwoord": "modelTerug",
+      "waarom": "Het antwoord bevat nog navigation properties: je API stuurt het model zelf terug. De opgave vraagt een read-DTO zonder die velden.",
+      "richting": "Kijk welk type je controller teruggeeft voor dit endpoint.",
+      "tips": []
+    },
+    {
+      "code": "SAVECHANGES-IN-REPOSITORY",
+      "titel": "Een repository bewaart zelf",
+      "ernst": "afwijking",
+      "vanaf": 7,
+      "tot": 9,
+      "statisch": "saveChangesInRepository",
+      "waarom": "In les 07 bewaren repositories niets meer: toevoegen, bijwerken en verwijderen vertellen Entity Framework Core enkel wat er moet gebeuren. Enkel de Unit of Work roept `SaveChangesAsync` aan.",
+      "richting": "Zoek in je repositories naar `SaveChanges`.",
+      "tips": []
+    },
+    {
+      "code": "PROGRAM-REPOSITORIES",
+      "titel": "Program.cs registreert nog losse repositories",
+      "ernst": "afwijking",
+      "vanaf": 7,
+      "tot": 9,
+      "statisch": "programRepositories",
+      "waarom": "Sinds les 07 registreert Program.cs enkel je DbContext en je Unit of Work. De Unit of Work maakt de repositories zelf aan.",
+      "richting": "Kijk welke regels in Program.cs nog een repository registreren.",
+      "tips": []
+    },
+    {
+      "code": "CONTROLLER-REPOSITORY",
+      "titel": "Een controller vraagt nog een repository in zijn constructor",
+      "ernst": "afwijking",
+      "vanaf": 7,
+      "tot": 9,
+      "statisch": "controllerRepository",
+      "waarom": "Sinds les 07 krijgt een controller enkel de Unit of Work, en verder zijn logger.",
+      "richting": "Kijk naar de parameters van de constructor van deze controller.",
+      "tips": []
+    },
+    {
+      "code": "INCLUDE-IN-GENERIEK",
+      "titel": "`Include` in de generieke repository",
+      "ernst": "afwijking",
+      "vanaf": 8,
+      "tot": 9,
+      "statisch": "includeInGeneriek",
+      "waarom": "Les 08 zet `Include` in een specifieke repository: wat je mee ophaalt, hangt af van het model. Een generieke repository kent die relaties niet.",
+      "richting": "Kijk welke methode met `Include` bij één model hoort, en waar die thuishoort.",
+      "tips": []
+    },
+    {
+      "code": "IGNORECYCLES-ONTBREEKT",
+      "titel": "`IgnoreCycles` staat niet in Program.cs",
+      "ernst": "afwijking",
+      "vanaf": 8,
+      "tot": 8,
+      "statisch": "ignoreCyclesOntbreekt",
+      "waarom": "Les 08 vangt circulaire referenties tijdelijk op met `ReferenceHandler.IgnoreCycles`. Zonder die instelling lopen de details-endpoints vast op een object cycle.",
+      "richting": "Lees in les 08 waar die instelling komt.",
+      "tips": []
+    },
+    {
+      "code": "IGNORECYCLES-NOG-AANWEZIG",
+      "titel": "`IgnoreCycles` staat nog in Program.cs",
+      "ernst": "afwijking",
+      "vanaf": 9,
+      "tot": 9,
+      "statisch": "ignoreCyclesAanwezig",
+      "waarom": "Les 09 vraagt die regel weg te halen: met DTO's zijn er geen cycli meer. Op het examen volstaat `IgnoreCycles` niet.",
+      "richting": "Zoek de regel in Program.cs.",
+      "tips": []
+    },
+    {
+      "code": "MAPSTER-SCAN",
+      "titel": "Mapster leest je `MapperProfile` niet",
+      "ernst": "fout",
+      "vanaf": 9,
+      "tot": 9,
+      "statisch": "mapsterScanOntbreekt",
+      "waarom": "Je hebt een klasse die `IRegister` implementeert, maar Program.cs laat Mapster het project niet scannen. Je eigen mappings worden dan genegeerd, en velden blijven leeg zonder foutmelding.",
+      "richting": "Lees in les 09 wat er in Program.cs moet staan om je profiel te laten lezen.",
+      "tips": []
+    },
+    {
+      "code": "MODEL-IN-DTO",
+      "titel": "Een DTO bevat een model",
+      "ernst": "afwijking",
+      "vanaf": 9,
+      "tot": 9,
+      "statisch": "modelInDto",
+      "waarom": "Een DTO bevat nooit een model, en een model nooit een DTO. Een model in een DTO brengt de cycli en de overbodige velden terug.",
+      "richting": "Kijk welk type deze property heeft, en maak er een DTO van als je de gegevens wil tonen.",
+      "tips": []
+    },
+    {
+      "code": "DUBBELE-NEWCONFIG",
+      "titel": "Twee configuraties voor hetzelfde paar",
+      "ernst": "fout",
+      "vanaf": 9,
+      "tot": 9,
+      "statisch": "dubbeleNewConfig",
+      "waarom": "Voor hetzelfde paar bron en doel bestaat er maar één configuratie. Schrijf je er twee, dan vervangt de tweede de eerste, en verdwijnen de mappings uit de eerste.",
+      "richting": "Zoek de twee `NewConfig` met hetzelfde paar, en kijk welke regels uit de eerste je nog nodig hebt.",
+      "tips": [
+        "De code in les 09 heeft dit zelf: neem die twee blokken niet zomaar over."
+      ]
+    },
+    {
+      "code": "DATA-ANNOTATIONS",
+      "titel": "Data annotations op een write-DTO",
+      "ernst": "afwijking",
+      "vanaf": 9,
+      "tot": 9,
+      "statisch": "dataAnnotations",
+      "waarom": "Een data annotation geeft een eigen 400 met de standaardfoutmelding van ASP.NET, met een ander bericht dan de opgave vraagt.",
+      "richting": "Kijk of je controles en berichten nog uit je controller komen.",
+      "tips": []
+    },
+    {
+      "code": "DOLLAR-ZONDER-ACCOLADE",
+      "titel": "Een `$` voor een tekst zonder `{...}`",
+      "ernst": "opkuis",
+      "vanaf": 1,
+      "tot": 9,
+      "statisch": "dollarZonderAccolade",
+      "waarom": "Het `$`-teken maakt van een tekst een interpolated string. Zonder `{...}` erin doet het niets.",
+      "richting": "Haal het weg waar er niets in te vullen valt.",
+      "tips": []
+    },
+    {
+      "code": "LEGE-REGEL-ATTRIBUUT",
+      "titel": "Een lege regel tussen een attribuut en zijn methode",
+      "ernst": "opkuis",
+      "vanaf": 1,
+      "tot": 9,
+      "statisch": "legeRegelAttribuut",
+      "waarom": "Dat werkt, maar meestal staat het attribuut er rechtstreeks boven, zodat je ziet dat ze bij elkaar horen.",
+      "richting": "Zet het attribuut vlak boven de methode.",
+      "tips": []
+    }
+  ]
+}

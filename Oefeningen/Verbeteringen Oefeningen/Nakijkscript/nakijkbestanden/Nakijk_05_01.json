@@ -1,0 +1,232 @@
+{
+  "formaat": 1,
+  "oefening": "05_01",
+  "titel": "Een repository op de database, asynchroon",
+  "hoofdstuk": 5,
+  "opgave": "Oefening_05_01.md",
+  "bouwtOpVan": "04_01",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ArtikelDb",
+    "opbouwen": "sqlscript"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeeld uit punt 6 en verzoeken uit punt 7",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Alle merken, elk één keer, alfabetisch",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/merken"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              "AMD",
+              "Asus",
+              "MSI"
+            ]
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Alle artikelen, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Onbestaand artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 99."
+          }
+        },
+        {
+          "id": "7.3",
+          "punt": "7",
+          "uitleg": "Artikelen van de soort processor",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/soort/processor"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Onbekende soort",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/soort/koeler"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikelen van de soort koeler."
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "Artikelen op voorraad",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/voorradig"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.6",
+          "punt": "7",
+          "uitleg": "Artikelen van het merk asus, kleine letters",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/merk/asus"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.7",
+          "punt": "7",
+          "uitleg": "Onbekend merk",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/merk/corsair"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikelen van het merk corsair."
+          }
+        },
+        {
+          "id": "7.8",
+          "punt": "7",
+          "uitleg": "Artikel 4 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Ryzen 7 7800X3D",
+              "merk": "AMD",
+              "soort": "processor",
+              "prijs": 389.0,
+              "aantalOpVoorraad": 0,
+              "garantiejaren": 3
+            }
+          }
+        },
+        {
+          "id": "7.9",
+          "punt": "7",
+          "uitleg": "Fiche van artikel 6",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/fiche/6"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "artikel": {
+                "id": 6,
+                "naam": "Ventus 2X RTX 4060",
+                "merk": "MSI",
+                "soort": "videokaart",
+                "prijs": 299.99,
+                "aantalOpVoorraad": 0,
+                "garantiejaren": 2
+              },
+              "isVoorradig": false,
+              "aantalVanDezelfdeSoort": 1,
+              "isGoedkoopsteVanDeSoort": true
+            }
+          }
+        },
+        {
+          "id": "7.10",
+          "punt": "7",
+          "uitleg": "Fiche van artikel 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/fiche/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "isVoorradig": true,
+                "aantalVanDezelfdeSoort": 1,
+                "isGoedkoopsteVanDeSoort": false
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "7",
+      "tekst": "In het terminalvenster van de API staan de logberichten nog, met hetzelfde niveau als in 03_01, en bij elk verzoek de SQL van Entity Framework Core. Bij het verzoek naar de merken staan het sorteren en het weglaten van dubbels in die SQL."
+    }
+  ]
+}

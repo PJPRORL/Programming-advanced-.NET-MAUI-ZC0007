@@ -1,0 +1,220 @@
+{
+  "formaat": 1,
+  "oefening": "03_04",
+  "titel": "Repository en dependency injection",
+  "hoofdstuk": 3,
+  "opgave": "Oefening_03_04.md",
+  "bouwtOpVan": "02_04",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Endpoints uit punt 1, zoeken uit punt 6 en fiche uit punt 7",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1.1",
+          "punt": "1",
+          "uitleg": "De volledige lijst; het eerste dier wordt onthouden",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier"
+          },
+          "verwacht": {
+            "status": 200
+          },
+          "bewaar": {
+            "id": "[0].id",
+            "soort": "[0].soort",
+            "naam": "[0].naam"
+          }
+        },
+        {
+          "id": "1.2",
+          "punt": "1",
+          "uitleg": "Eén dier opvragen; de JSON heeft dezelfde velden als in 02_04",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/{{id}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{id}}",
+              "naam": "{{naam}}",
+              "soort": "{{soort}}",
+              "leeftijdInJaren": {
+                "$elk": true
+              },
+              "verblijfsnummer": {
+                "$elk": true
+              }
+            }
+          }
+        },
+        {
+          "id": "1.3",
+          "punt": "1",
+          "uitleg": "Een onbestaand dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier met Id 999."
+          }
+        },
+        {
+          "id": "1.4",
+          "punt": "1",
+          "uitleg": "Dieren van de soort van het eerste dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soort/{{soort}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "$bevat": {
+                  "soort": "{{soort}}"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "1.5",
+          "punt": "1",
+          "uitleg": "Een soort die niet in het asiel zit",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soort/olifant"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We hebben op dit moment geen olifant in het asiel."
+          }
+        },
+        {
+          "id": "1.6",
+          "punt": "1",
+          "uitleg": "Jonge dieren: altijd 200, ook bij een lege lijst",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/jong"
+          },
+          "verwacht": {
+            "status": 200
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Zoeken op de naam van het eerste dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/zoek/{{naam}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "$bevat": {
+                  "naam": {
+                    "$tekstBevat": "{{naam}}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Een stukje dat in geen enkele naam voorkomt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/zoek/qxz"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier waarvan de naam qxz bevat."
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "De fiche van het eerste dier, met de vier gegevens uit 02_04",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/fiche/{{id}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "dier": {
+                "$bevat": {
+                  "id": "{{id}}"
+                }
+              },
+              "isJong": {
+                "$elk": true
+              },
+              "aantalVanDezelfdeSoort": {
+                "$elk": true
+              },
+              "isOudsteVanDeSoort": {
+                "$elk": true
+              }
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "De fiche van een onbestaand dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/fiche/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier met Id 999."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "Map Repositories met de interface `IDierRepository`: enkel methodekoppen voor alle dieren, één dier op Id (of niets), per soort, de jonge dieren en zoeken op een stukje van de naam."
+    },
+    {
+      "punt": "3",
+      "tekst": "`InMemoryDierRepository` implementeert `IDierRepository` en bevat de lijst; in de DierController staat geen lijst met dieren meer."
+    },
+    {
+      "punt": "4",
+      "tekst": "De DierController krijgt `IDierRepository` via zijn constructor en bewaart die in een privaat veld; nergens `new` voor een repository; Program.cs legt vast welke klasse geleverd wordt."
+    },
+    {
+      "punt": "5",
+      "tekst": "De controller krijgt `ILogger<DierController>` via zijn constructor; elk verzoek logt een regel op Information, elke 404 een regel op Warning."
+    },
+    {
+      "punt": "6",
+      "tekst": "Een stukje uit het midden van een naam vindt dat dier; hetzelfde stukje in kleine letters en in hoofdletters geeft twee keer dezelfde dieren (de startgegevens liggen in hoofdstuk 03 niet vast); het zoeken gebeurt in de repository."
+    },
+    {
+      "punt": "7",
+      "tekst": "De fiches van drie dieren tonen dezelfde gegevens als in 02_04; `AantalVanDezelfdeSoort` is 0 bij een dier dat als enige van zijn soort in het asiel zit; bij twee dieren van dezelfde soort met een verschillende leeftijd staat `IsOudsteVanDeSoort` maar bij één op ja; een onbestaande fiche zet een Warning in de log."
+    }
+  ]
+}

@@ -1,0 +1,273 @@
+{
+  "formaat": 1,
+  "oefening": "05_05",
+  "titel": "CRUD op de database, asynchroon",
+  "hoofdstuk": 5,
+  "opgave": "Oefening_05_05.md",
+  "bouwtOpVan": "04_05",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "FietsverhuurDb",
+    "opbouwen": "sqlscript"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De verhuringen zijn leeg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/verhuringen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Racefiets toevoegen: Id overschreven, beschikbaar",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "id": 2,
+              "type": "racefiets",
+              "framemaat": 58,
+              "prijsPerDag": 22.5,
+              "isBeschikbaar": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "type": "racefiets",
+              "framemaat": 58,
+              "prijsPerDag": 22.5,
+              "isBeschikbaar": true
+            },
+            "location": {
+              "eindigtOp": "/api/fiets/5"
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Fiets 5 verhuren",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/verhuur/5"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Fiets 1 verhuren",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/verhuur/1"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Fiets 5 terugbrengen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/terug/5"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "Een verhuurde fiets verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "fiets/1"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een verhuurde fiets kan je niet uit de vloot halen."
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "De e-bike verhuren",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/verhuur/3"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze fiets is al verhuurd."
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "API stoppen en opnieuw starten",
+          "actie": "herstart"
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "De verhuringen na de herstart",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/verhuringen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "actie": "verhuurd",
+                "fietsId": 5
+              },
+              {
+                "id": 2,
+                "actie": "verhuurd",
+                "fietsId": 1
+              },
+              {
+                "id": 3,
+                "actie": "teruggebracht",
+                "fietsId": 5
+              }
+            ]
+          }
+        },
+        {
+          "id": "6.10a",
+          "punt": "6",
+          "uitleg": "Fiets 1 is niet beschikbaar",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "isBeschikbaar": false
+              }
+            }
+          }
+        },
+        {
+          "id": "6.10b",
+          "punt": "6",
+          "uitleg": "Fiets 5 is beschikbaar",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/5"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 5,
+                "isBeschikbaar": true
+              }
+            }
+          }
+        },
+        {
+          "id": "6.11a",
+          "punt": "6",
+          "uitleg": "De tabel Fietsen bevat hetzelfde als de API",
+          "sql": "SELECT \"Id\", \"Type\", \"Framemaat\", \"PrijsPerDag\", \"IsBeschikbaar\" FROM \"Fietsen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "stadsfiets",
+                "54",
+                "12.50",
+                "f"
+              ],
+              [
+                "2",
+                "mountainbike",
+                "48",
+                "18.00",
+                "t"
+              ],
+              [
+                "3",
+                "e-bike",
+                "56",
+                "25.00",
+                "f"
+              ],
+              [
+                "4",
+                "bakfiets",
+                "52",
+                "30.00",
+                "t"
+              ],
+              [
+                "5",
+                "racefiets",
+                "58",
+                "22.50",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "6.11b",
+          "punt": "6",
+          "uitleg": "De tabel Verhuringen bevat hetzelfde als de API",
+          "sql": "SELECT \"Id\", \"Actie\", \"FietsId\" FROM \"Verhuringen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "verhuurd",
+                "5"
+              ],
+              [
+                "2",
+                "verhuurd",
+                "1"
+              ],
+              [
+                "3",
+                "teruggebracht",
+                "5"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        }
+      ]
+    }
+  ]
+}

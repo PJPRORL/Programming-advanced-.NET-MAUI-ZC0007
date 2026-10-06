@@ -1,0 +1,227 @@
+{
+  "formaat": 1,
+  "oefening": "01_06",
+  "titel": "Twee routeparameters in één route",
+  "hoofdstuk": 1,
+  "opgave": "Oefening_01_06.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "",
+    "probeer": [
+      "api/"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden en regels uit punt 1 tot 5",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1",
+          "punt": "1",
+          "uitleg": "Openingsuren",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad"
+          },
+          "verwacht": {
+            "tekst": "Zwembad De Waterval is elke dag open van 7 tot 21 uur."
+          }
+        },
+        {
+          "id": "2a",
+          "punt": "2",
+          "uitleg": "Jonger dan 3 in het weekend blijft gratis",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/tarief/2/weekend"
+          },
+          "verwacht": {
+            "tekst": "Gratis."
+          }
+        },
+        {
+          "id": "2b",
+          "punt": "2",
+          "uitleg": "Volwassene in de week",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/tarief/30/week"
+          },
+          "verwacht": {
+            "tekst": "Je betaalt 4 euro."
+          }
+        },
+        {
+          "id": "2c",
+          "punt": "2",
+          "uitleg": "Volwassene in het weekend",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/tarief/30/weekend"
+          },
+          "verwacht": {
+            "tekst": "Je betaalt 5 euro."
+          }
+        },
+        {
+          "id": "2d",
+          "punt": "2",
+          "uitleg": "3 jaar in de week",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/tarief/3/week"
+          },
+          "verwacht": {
+            "tekst": "Je betaalt 2 euro."
+          }
+        },
+        {
+          "id": "2e",
+          "punt": "2",
+          "uitleg": "65 jaar in de week",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/tarief/65/week"
+          },
+          "verwacht": {
+            "tekst": "Je betaalt 3 euro."
+          }
+        },
+        {
+          "id": "2f",
+          "punt": "2",
+          "uitleg": "Onbekende dag",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/tarief/30/feestdag"
+          },
+          "verwacht": {
+            "tekst": "We kennen deze dag niet."
+          }
+        },
+        {
+          "id": "3a",
+          "punt": "3",
+          "uitleg": "Minder dan 24 graden",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/temperatuur/20"
+          },
+          "verwacht": {
+            "tekst": "Het water is fris, neem je tijd om in te stappen."
+          }
+        },
+        {
+          "id": "3b",
+          "punt": "3",
+          "uitleg": "24 graden",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/temperatuur/24"
+          },
+          "verwacht": {
+            "tekst": "Het water heeft een aangename temperatuur."
+          }
+        },
+        {
+          "id": "3c",
+          "punt": "3",
+          "uitleg": "Meer dan 28 graden",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/temperatuur/29"
+          },
+          "verwacht": {
+            "tekst": "Het water is warm, ideaal voor de kleinsten."
+          }
+        },
+        {
+          "id": "4a",
+          "punt": "4",
+          "uitleg": "Minder zwemmers dan banen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/banen/4/3"
+          },
+          "verwacht": {
+            "tekst": "Iedereen krijgt een eigen baan."
+          }
+        },
+        {
+          "id": "4b",
+          "punt": "4",
+          "uitleg": "Evenveel zwemmers als banen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/banen/4/4"
+          },
+          "verwacht": {
+            "tekst": "Iedereen krijgt een eigen baan."
+          }
+        },
+        {
+          "id": "4c",
+          "punt": "4",
+          "uitleg": "Verdeling gaat gelijk op",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/banen/4/8"
+          },
+          "verwacht": {
+            "tekst": "Er zwemmen 2 zwemmers per baan."
+          }
+        },
+        {
+          "id": "4d",
+          "punt": "4",
+          "uitleg": "Verdeling met rest",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/banen/4/10"
+          },
+          "verwacht": {
+            "tekst": "Er zwemmen 2 zwemmers per baan, 2 banen krijgen er één extra."
+          }
+        },
+        {
+          "id": "5a",
+          "punt": "5",
+          "uitleg": "Bezoekrapport volwassene in het weekend",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/bezoek/30/weekend/26/14"
+          },
+          "verwacht": {
+            "tekst": "Je betaalt 5 euro. Het water heeft een aangename temperatuur. Er zwemmen 2 zwemmers per baan, 2 banen krijgen er één extra."
+          }
+        },
+        {
+          "id": "5b",
+          "punt": "5",
+          "uitleg": "Bezoekrapport kleuter in de week",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/bezoek/2/week/22/4"
+          },
+          "verwacht": {
+            "tekst": "Gratis. Het water is fris, neem je tijd om in te stappen. Iedereen krijgt een eigen baan."
+          }
+        },
+        {
+          "id": "5c",
+          "punt": "5",
+          "uitleg": "Bezoekrapport met onbekende dag",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "zwembad/bezoek/30/feestdag/26/14"
+          },
+          "verwacht": {
+            "tekst": "We kennen deze dag niet."
+          }
+        }
+      ]
+    }
+  ]
+}

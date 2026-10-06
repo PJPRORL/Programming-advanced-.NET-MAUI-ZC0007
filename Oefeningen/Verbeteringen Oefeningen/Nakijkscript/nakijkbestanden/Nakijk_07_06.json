@@ -1,0 +1,546 @@
+{
+  "formaat": 1,
+  "oefening": "07_06",
+  "titel": "Alles of niets, met één Unit of Work",
+  "hoofdstuk": 7,
+  "opgave": "Oefening_07_06.md",
+  "bouwtOpVan": "06_06",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ConcertzaalDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 4 en regels uit punt 3 en 4",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "4.1a",
+          "punt": "4",
+          "uitleg": "Ticket 3 wijzigen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/3",
+            "body": {
+              "naam": "Lisa Maes-Peeters",
+              "rij": 3,
+              "stoel": 12,
+              "prijs": 35.0
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "4.1b",
+          "punt": "4",
+          "uitleg": "Ticket 3: nieuwe naam, niet geannuleerd, bij concert 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "naam": "Lisa Maes-Peeters",
+                "isGeannuleerd": false,
+                "concertId": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "4.2a",
+          "punt": "4",
+          "uitleg": "Ticket 5 wijzigen met concertId 3 en isGeannuleerd true",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/5",
+            "body": {
+              "id": 5,
+              "naam": "Emma Claes",
+              "rij": 7,
+              "stoel": 2,
+              "prijs": 25.0,
+              "isGeannuleerd": true,
+              "concertId": 3
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "4.2b",
+          "punt": "4",
+          "uitleg": "Ticket 5 hoort nog bij concert 2 en is nog geldig",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/5"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "isGeannuleerd": false,
+                "concertId": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "4.3a",
+          "punt": "4",
+          "uitleg": "De geldige tickets, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                5,
+                6
+              ]
+            }
+          }
+        },
+        {
+          "id": "4.3b",
+          "punt": "4",
+          "uitleg": "Ticket 4 is nog altijd geannuleerd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/4"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id 4."
+          }
+        },
+        {
+          "id": "4.4a",
+          "punt": "4",
+          "uitleg": "Groep met twee keer rij 1 stoel 5 op concert 3",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": [
+              {
+                "naam": "Jonas Wouters",
+                "rij": 1,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Lies Martens",
+                "rij": 1,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Ward Peeters",
+                "rij": 3,
+                "stoel": 13,
+                "prijs": 30.0,
+                "concertId": 1
+              }
+            ]
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 1 stoel 5 komt twee keer voor in deze groep."
+          }
+        },
+        {
+          "id": "4.4b",
+          "punt": "4",
+          "uitleg": "Niets verkocht: de opbrengst van concert 3 is nog 0",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/3/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 0
+          }
+        },
+        {
+          "id": "4.5a",
+          "punt": "4",
+          "uitleg": "Groep met Lies Martens op een bezette plaats van concert 1",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": [
+              {
+                "naam": "Jonas Wouters",
+                "rij": 1,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Lies Martens",
+                "rij": 1,
+                "stoel": 6,
+                "prijs": 30.0,
+                "concertId": 1
+              },
+              {
+                "naam": "Ward Peeters",
+                "rij": 3,
+                "stoel": 13,
+                "prijs": 30.0,
+                "concertId": 1
+              }
+            ]
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 1 stoel 6 is al verkocht."
+          }
+        },
+        {
+          "id": "4.5b",
+          "punt": "4",
+          "uitleg": "Ook Jonas Wouters is niet verkocht: opbrengst concert 3 is nog 0",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/3/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 0
+          }
+        },
+        {
+          "id": "4.5c",
+          "punt": "4",
+          "uitleg": "Nog altijd zes tickets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$aantal": 6
+            }
+          }
+        },
+        {
+          "id": "4.6a",
+          "punt": "4",
+          "uitleg": "Een lege groep",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": []
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een groep moet minstens één ticket bevatten."
+          }
+        },
+        {
+          "id": "4.6b",
+          "punt": "4",
+          "uitleg": "Groep met een onbestaand concert voor Ward Peeters",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": [
+              {
+                "naam": "Jonas Wouters",
+                "rij": 1,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Lies Martens",
+                "rij": 1,
+                "stoel": 6,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Ward Peeters",
+                "rij": 3,
+                "stoel": 13,
+                "prijs": 30.0,
+                "concertId": 99
+              }
+            ]
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We vonden geen concert met Id 99."
+          }
+        },
+        {
+          "id": "4.7",
+          "punt": "4",
+          "uitleg": "De groep verkopen, met isGeannuleerd true bij Ward Peeters",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": [
+              {
+                "naam": "Jonas Wouters",
+                "rij": 1,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Lies Martens",
+                "rij": 1,
+                "stoel": 6,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Ward Peeters",
+                "rij": 3,
+                "stoel": 13,
+                "prijs": 30.0,
+                "concertId": 1,
+                "isGeannuleerd": true
+              }
+            ]
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 7,
+                  "isGeannuleerd": false
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 8,
+                  "isGeannuleerd": false
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 9,
+                  "isGeannuleerd": false
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "4.8a",
+          "punt": "4",
+          "uitleg": "Opbrengst van concert 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/3/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 60.0
+          }
+        },
+        {
+          "id": "4.8b",
+          "punt": "4",
+          "uitleg": "Opbrengst van concert 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "concert/1/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 155.0
+          }
+        },
+        {
+          "id": "4.8c",
+          "punt": "4",
+          "uitleg": "Opbrengst over alles samen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 265.0
+          }
+        },
+        {
+          "id": "4.9",
+          "punt": "4",
+          "uitleg": "Ticket 4 herstellen: Ward zit op zijn plaats",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/4"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 3 stoel 13 is intussen aan iemand anders verkocht."
+          }
+        },
+        {
+          "id": "3.r1a",
+          "punt": "3",
+          "uitleg": "Ticket 6 wijzigen met een ander Id in de body: enkel het Id uit de URL telt",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/6",
+            "body": {
+              "id": 1,
+              "naam": "Noah Willems",
+              "rij": 7,
+              "stoel": 3,
+              "prijs": 27.5
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "3.r1b",
+          "punt": "3",
+          "uitleg": "Ticket 6 is gewijzigd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/6"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 6,
+                "prijs": 27.5
+              }
+            }
+          }
+        },
+        {
+          "id": "3.r1c",
+          "punt": "3",
+          "uitleg": "Ticket 1 is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "naam": "Sofie Peeters",
+                "prijs": 45.0
+              }
+            }
+          }
+        },
+        {
+          "id": "4.r1",
+          "punt": "4",
+          "uitleg": "Twee plaatsen dubbel: de eerste plaats die een tweede keer voorkomt",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": [
+              {
+                "naam": "An Peeters",
+                "rij": 2,
+                "stoel": 1,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Bart Peeters",
+                "rij": 2,
+                "stoel": 2,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Chris Peeters",
+                "rij": 2,
+                "stoel": 2,
+                "prijs": 30.0,
+                "concertId": 3
+              },
+              {
+                "naam": "Dirk Peeters",
+                "rij": 2,
+                "stoel": 1,
+                "prijs": 30.0,
+                "concertId": 3
+              }
+            ]
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 2 stoel 2 komt twee keer voor in deze groep."
+          }
+        },
+        {
+          "id": "4.r2",
+          "punt": "4",
+          "uitleg": "Dezelfde plaats op twee verschillende concerten is geen dubbele plaats",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket/groep",
+            "body": [
+              {
+                "naam": "Eva Jacobs",
+                "rij": 2,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 2
+              },
+              {
+                "naam": "Finn Jacobs",
+                "rij": 2,
+                "stoel": 5,
+                "prijs": 30.0,
+                "concertId": 3
+              }
+            ]
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                10,
+                11
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "4",
+      "tekst": "Een geslaagde groep bewaart alle tickets met één `SaveChangesAsync`."
+    }
+  ]
+}

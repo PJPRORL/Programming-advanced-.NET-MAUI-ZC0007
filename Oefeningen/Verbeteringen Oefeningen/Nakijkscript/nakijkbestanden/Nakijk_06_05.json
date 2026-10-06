@@ -1,0 +1,460 @@
+{
+  "formaat": 1,
+  "oefening": "06_05",
+  "titel": "Een veel-op-veel-relatie",
+  "hoofdstuk": 6,
+  "opgave": "Oefening_06_05.md",
+  "bouwtOpVan": "05_05",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "FietsverhuurDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Regels uit punt 2 tot 6 en testscenario punt 7",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "De migratie Accessoires is uitgevoerd",
+          "sql": "SELECT \"MigrationId\" FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" LIKE '%\\_Accessoires'",
+          "verwacht": {
+            "aantal": 1
+          }
+        },
+        {
+          "id": "2.1",
+          "punt": "2",
+          "uitleg": "Een fiets toont haar accessoires als null",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "type": "e-bike",
+              "framemaat": 56,
+              "prijsPerDag": 25.0,
+              "isBeschikbaar": false,
+              "fietsAccessoires": null
+            }
+          }
+        },
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "De database weigert zelf fiets 2 te verwijderen",
+          "sql": "DELETE FROM \"Fietsen\" WHERE \"Id\" = 2",
+          "verwacht": {
+            "fout": "foreign key"
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "De database weigert zelf accessoire 1 te verwijderen",
+          "sql": "DELETE FROM \"Accessoires\" WHERE \"Id\" = 1",
+          "verwacht": {
+            "fout": "foreign key"
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Alle accessoires, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Accessoire 2 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 2,
+                "naam": "helm"
+              }
+            }
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Onbestaand accessoire",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen accessoire met Id 99."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Koppelingen van fiets 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/2/accessoires"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 3,
+                "fietsId": 2,
+                "fiets": null,
+                "accessoireId": 1,
+                "accessoire": null,
+                "aantal": 1
+              },
+              {
+                "id": 4,
+                "fietsId": 2,
+                "fiets": null,
+                "accessoireId": 2,
+                "accessoire": null,
+                "aantal": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "5.5",
+          "punt": "5",
+          "uitleg": "Koppelingen van een onbestaande fiets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/99/accessoires"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen fiets met Id 99."
+          }
+        },
+        {
+          "id": "5.6",
+          "punt": "5",
+          "uitleg": "Onbestaande koppeling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fietsaccessoire/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen koppeling met Id 99."
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Accessoire 2 koppelen aan fiets 3",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fietsaccessoire",
+            "body": {
+              "fietsId": 3,
+              "accessoireId": 2,
+              "aantal": 1
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "fietsId": 3,
+              "fiets": null,
+              "accessoireId": 2,
+              "accessoire": null,
+              "aantal": 1
+            },
+            "location": {
+              "eindigtOp": "/api/fietsaccessoire/7"
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Dezelfde koppeling nog eens",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fietsaccessoire",
+            "body": {
+              "fietsId": 3,
+              "accessoireId": 2,
+              "aantal": 1
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit accessoire hoort al bij deze fiets."
+          }
+        },
+        {
+          "id": "7.3",
+          "punt": "7",
+          "uitleg": "Een onbestaand accessoire koppelen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fietsaccessoire",
+            "body": {
+              "fietsId": 1,
+              "accessoireId": 99,
+              "aantal": 1
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We vonden geen accessoire met Id 99."
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Een fiets met accessoires verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "fiets/2"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze fiets heeft nog accessoires."
+          }
+        },
+        {
+          "id": "7.5a",
+          "punt": "7",
+          "uitleg": "De verhuurde e-bike vervangen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/3",
+            "body": {
+              "type": "e-bike",
+              "framemaat": 56,
+              "prijsPerDag": 25.0
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een verhuurde fiets kan je niet uit de vloot halen."
+          }
+        },
+        {
+          "id": "7.5b",
+          "punt": "7",
+          "uitleg": "De e-bike is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "type": "e-bike",
+              "framemaat": 56,
+              "prijsPerDag": 25.0,
+              "isBeschikbaar": false,
+              "fietsAccessoires": null
+            }
+          }
+        },
+        {
+          "id": "7.6",
+          "punt": "7",
+          "uitleg": "Fiets 1 vervangen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/1",
+            "body": {
+              "type": "stadsfiets",
+              "framemaat": 56,
+              "prijsPerDag": 13.5
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "type": "stadsfiets",
+              "framemaat": 56,
+              "prijsPerDag": 13.5,
+              "isBeschikbaar": true,
+              "fietsAccessoires": null
+            },
+            "location": {
+              "eindigtOp": "/api/fiets/5"
+            }
+          }
+        },
+        {
+          "id": "7.7",
+          "punt": "7",
+          "uitleg": "De koppelingen van fiets 1 horen nu bij fiets 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/5/accessoires"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "fietsId": 5,
+                "fiets": null,
+                "accessoireId": 1,
+                "accessoire": null,
+                "aantal": 1
+              },
+              {
+                "id": 2,
+                "fietsId": 5,
+                "fiets": null,
+                "accessoireId": 4,
+                "accessoire": null,
+                "aantal": 2
+              }
+            ]
+          }
+        },
+        {
+          "id": "7.8a",
+          "punt": "7",
+          "uitleg": "Fiets 1 is weg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/1"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen fiets met Id 1."
+          }
+        },
+        {
+          "id": "7.8b",
+          "punt": "7",
+          "uitleg": "De verhuringen zijn nog altijd leeg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/verhuringen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "7.9",
+          "punt": "7",
+          "uitleg": "De nieuwe fiets 5 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "fiets/5"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze fiets heeft nog accessoires."
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Een accessoire koppelen aan een onbestaande fiets",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fietsaccessoire",
+            "body": {
+              "fietsId": 99,
+              "accessoireId": 1,
+              "aantal": 1
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We vonden geen fiets met Id 99."
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Een koppeling met aantal 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fietsaccessoire",
+            "body": {
+              "fietsId": 2,
+              "accessoireId": 3,
+              "aantal": 0
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het aantal moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Een verhuurde fiets met accessoires verwijderen: verhuurd gaat voor",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "fiets/3"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een verhuurde fiets kan je niet uit de vloot halen."
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Een onbestaande fiets verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "fiets/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan fiets met Id 99 niet verwijderen, omdat deze niet gevonden is."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "4",
+      "tekst": "`OnModelCreating` is verdeeld in twee methodes: één voor de tabellen en relaties, één voor de startgegevens."
+    }
+  ]
+}

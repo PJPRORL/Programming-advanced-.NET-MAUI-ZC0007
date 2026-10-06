@@ -1,0 +1,592 @@
+{
+  "formaat": 1,
+  "oefening": "02_05",
+  "titel": "Volledige CRUD",
+  "hoofdstuk": 2,
+  "opgave": "Oefening_02_05.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Punt 3 tot 7: CRUD en controles",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Alle fietsen; elk element heeft de velden uit punt 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "type": {
+                  "$elk": true
+                },
+                "framemaat": {
+                  "$elk": true
+                },
+                "prijsPerDag": {
+                  "$elk": true
+                },
+                "isBeschikbaar": {
+                  "$elk": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Een geldige fiets toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "Stadsfiets",
+              "framemaat": 54,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "type": "Stadsfiets",
+              "framemaat": 54,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true
+            },
+            "location": {
+              "eindigtOp": "/api/fiets/{{n1}}"
+            }
+          },
+          "bewaar": {
+            "n1": "id"
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "2",
+          "uitleg": "De nieuwe fiets staat er bij een volgend verzoek nog",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/{{n1}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{n1}}",
+              "type": "Stadsfiets",
+              "framemaat": 54,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true
+            }
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Toevoegen met een meegestuurd Id 999",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "id": 999,
+              "type": "Racefiets",
+              "framemaat": 56,
+              "prijsPerDag": 25,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "type": "Racefiets",
+              "framemaat": 56,
+              "prijsPerDag": 25,
+              "isBeschikbaar": true
+            }
+          }
+        },
+        {
+          "id": "4.4",
+          "punt": "4",
+          "uitleg": "Het meegestuurde Id 999 werd overschreven",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen fiets met Id 999."
+          }
+        },
+        {
+          "id": "4.5",
+          "punt": "4",
+          "uitleg": "Type leeg",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "",
+              "framemaat": 54,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een fiets moet een type hebben."
+          }
+        },
+        {
+          "id": "4.6",
+          "punt": "4",
+          "uitleg": "Framemaat 70",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "Stadsfiets",
+              "framemaat": 70,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De framemaat moet tussen 44 en 62 liggen."
+          }
+        },
+        {
+          "id": "4.7",
+          "punt": "4",
+          "uitleg": "Framemaat 40",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "Stadsfiets",
+              "framemaat": 40,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De framemaat moet tussen 44 en 62 liggen."
+          }
+        },
+        {
+          "id": "4.8",
+          "punt": "4",
+          "uitleg": "Prijs per dag 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "Stadsfiets",
+              "framemaat": 54,
+              "prijsPerDag": 0,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De prijs per dag moet groter zijn dan 0."
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "De fiets met framemaat 70 is niet in de lijst beland",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$geenElement": {
+                "$bevat": {
+                  "type": "Stadsfiets",
+                  "framemaat": 70
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "De fiets bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/{{n1}}",
+            "body": {
+              "type": "Stadsfiets",
+              "framemaat": 58,
+              "prijsPerDag": 14,
+              "isBeschikbaar": false
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "De wijziging is bewaard",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/{{n1}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{n1}}",
+              "type": "Stadsfiets",
+              "framemaat": 58,
+              "prijsPerDag": 14,
+              "isBeschikbaar": false
+            }
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Een onbestaande fiets bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/999",
+            "body": {
+              "type": "Stadsfiets",
+              "framemaat": 58,
+              "prijsPerDag": 14,
+              "isBeschikbaar": false
+            }
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan geen fiets bijwerken met Id 999, omdat deze niet bestaat."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Bijwerken met een leeg type",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/{{n1}}",
+            "body": {
+              "type": "",
+              "framemaat": 58,
+              "prijsPerDag": 14,
+              "isBeschikbaar": false
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "5.5",
+          "punt": "5",
+          "uitleg": "Bijwerken met framemaat 70",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/{{n1}}",
+            "body": {
+              "type": "Stadsfiets",
+              "framemaat": 70,
+              "prijsPerDag": 14,
+              "isBeschikbaar": false
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "5.6",
+          "punt": "5",
+          "uitleg": "Bijwerken met prijs per dag 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/{{n1}}",
+            "body": {
+              "type": "Stadsfiets",
+              "framemaat": 58,
+              "prijsPerDag": 0,
+              "isBeschikbaar": false
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De fiets verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "fiets/{{n1}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "7",
+          "uitleg": "Dezelfde nog eens verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "fiets/{{n1}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan fiets met Id {{n1}} niet verwijderen, omdat deze niet gevonden is."
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "De verwijderde fiets is weg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/{{n1}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen fiets met Id {{n1}}."
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "Punt 8: vervangen, en niets veranderd bij een mislukte vervanging",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "8.1",
+          "punt": "8",
+          "uitleg": "Een fiets toevoegen die straks vervangen wordt",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "Mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 20,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 201
+          },
+          "bewaar": {
+            "oud": "id"
+          }
+        },
+        {
+          "id": "8.2",
+          "punt": "8",
+          "uitleg": "Nog een fiets toevoegen, zodat de te vervangen fiets niet het hoogste Id heeft",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "Bakfiets",
+              "framemaat": 52,
+              "prijsPerDag": 35,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 201
+          }
+        },
+        {
+          "id": "8.3",
+          "punt": "8",
+          "uitleg": "Vervangen door een fiets met framemaat 70",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/{{oud}}",
+            "body": {
+              "type": "Mountainbike",
+              "framemaat": 70,
+              "prijsPerDag": 22.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "8.4",
+          "punt": "8",
+          "uitleg": "De oude fiets staat er nog, ongewijzigd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/{{oud}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{oud}}",
+              "type": "Mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 20,
+              "isBeschikbaar": true
+            }
+          }
+        },
+        {
+          "id": "8.5",
+          "punt": "8",
+          "uitleg": "Vervangen door een fiets zonder type",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/{{oud}}",
+            "body": {
+              "type": "",
+              "framemaat": 50,
+              "prijsPerDag": 22.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "8.6",
+          "punt": "8",
+          "uitleg": "Vervangen door een fiets met prijs per dag 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/{{oud}}",
+            "body": {
+              "type": "Mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 0,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "8.7",
+          "punt": "8",
+          "uitleg": "Geldige vervanging",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/{{oud}}",
+            "body": {
+              "type": "Mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 22.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "type": "Mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 22.5,
+              "isBeschikbaar": true
+            },
+            "location": {
+              "eindigtOp": "/api/fiets/{{nieuw}}"
+            }
+          },
+          "bewaar": {
+            "nieuw": "id"
+          }
+        },
+        {
+          "id": "8.8",
+          "punt": "8",
+          "uitleg": "De oude fiets is verwijderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/{{oud}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen fiets met Id {{oud}}."
+          }
+        },
+        {
+          "id": "8.9",
+          "punt": "8",
+          "uitleg": "De nieuwe fiets is opvraagbaar",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/{{nieuw}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{nieuw}}",
+              "type": "Mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 22.5,
+              "isBeschikbaar": true
+            }
+          }
+        },
+        {
+          "id": "8.10",
+          "punt": "8",
+          "uitleg": "Een onbestaande fiets vervangen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/999",
+            "body": {
+              "type": "Mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 22.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan fiets met Id 999 niet vervangen, omdat deze niet gevonden is."
+          }
+        }
+      ]
+    }
+  ]
+}

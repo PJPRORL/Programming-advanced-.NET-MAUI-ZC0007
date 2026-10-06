@@ -1,0 +1,266 @@
+{
+  "formaat": 1,
+  "oefening": "06_01",
+  "titel": "Een één-op-veel-relatie",
+  "hoofdstuk": 6,
+  "opgave": "Oefening_06_01.md",
+  "bouwtOpVan": "05_01",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ArtikelDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "JSON uit punt 5 en testscenario punt 7",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "De migratie Leveranciers is uitgevoerd",
+          "sql": "SELECT \"MigrationId\" FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" LIKE '%\\_Leveranciers'",
+          "verwacht": {
+            "aantal": 1
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Leverancier 3 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "ChipCentraal",
+              "land": "Duitsland",
+              "artikelen": null
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Artikel 4 opvragen, met zijn leverancierId",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Ryzen 7 7800X3D",
+              "merk": "AMD",
+              "soort": "processor",
+              "prijs": 389.0,
+              "aantalOpVoorraad": 0,
+              "garantiejaren": 3,
+              "leverancierId": 3,
+              "leverancier": null
+            }
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Onbestaande leverancier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen leverancier met Id 99."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "De artikelen van leverancier 3, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/3/artikelen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Leverancier 3 verwijderen terwijl hij nog artikelen levert",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "leverancier/3"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze leverancier levert nog artikelen."
+          }
+        },
+        {
+          "id": "7.1b",
+          "punt": "7",
+          "uitleg": "De processors zijn er nog",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/soort/processor"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "De database weigert zelf leverancier 3 te verwijderen",
+          "sql": "DELETE FROM \"Leveranciers\" WHERE \"Id\" = 3",
+          "verwacht": {
+            "fout": "foreign key"
+          }
+        },
+        {
+          "id": "7.3a",
+          "punt": "7",
+          "uitleg": "Leverancier 4 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "leverancier/4"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "7.3b",
+          "punt": "7",
+          "uitleg": "Leverancier 4 nog eens verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "leverancier/4"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen leverancier met Id 4."
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Kabelkoning toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "leverancier",
+            "body": {
+              "naam": "Kabelkoning",
+              "land": "België"
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "naam": "Kabelkoning",
+              "land": "België",
+              "artikelen": null
+            },
+            "location": {
+              "eindigtOp": "/api/leverancier/5"
+            }
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "Alle leveranciers, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.6",
+          "punt": "7",
+          "uitleg": "Een leverancier zonder artikelen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/5/artikelen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "7.7",
+          "punt": "7",
+          "uitleg": "Artikelen van een onbestaande leverancier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/99/artikelen"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen leverancier met Id 99."
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Een leverancier zonder naam",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "leverancier",
+            "body": {
+              "naam": "",
+              "land": "België"
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een leverancier moet een naam hebben."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "4",
+      "tekst": "`OnModelCreating` is verdeeld in twee methodes: één voor de tabellen, één voor de startgegevens."
+    }
+  ]
+}

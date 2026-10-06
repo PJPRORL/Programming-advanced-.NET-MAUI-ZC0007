@@ -1,0 +1,472 @@
+{
+  "formaat": 1,
+  "oefening": "06_03",
+  "titel": "Bestellingen en hun lijnen",
+  "hoofdstuk": 6,
+  "opgave": "Oefening_06_03.md",
+  "bouwtOpVan": "05_03",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "BestellijnDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Regels uit punt 2 tot 6 en testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "De migratie Bestellingen is uitgevoerd",
+          "sql": "SELECT \"MigrationId\" FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" LIKE '%\\_Bestellingen'",
+          "verwacht": {
+            "aantal": 1
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Een geschrapte lijn opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/4"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id 4."
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Lijn 1 opvragen, met haar bestellingId",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "omschrijving": "Moederbord ASUS B650",
+              "aantal": 1,
+              "stukPrijs": 249.99,
+              "isActief": true,
+              "bestellingId": 1,
+              "bestelling": null
+            }
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Alle bestellingen, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Bestelling 1 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "referentie": "BB-2026-001",
+                "klantnaam": "An Vermeulen"
+              }
+            }
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Onbestaande bestelling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestelling met Id 99."
+          }
+        },
+        {
+          "id": "6.0",
+          "punt": "6",
+          "uitleg": "Fiche van een onbestaande bestelling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/99/fiche"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestelling met Id 99."
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Fiche van bestelling 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/1/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 3,
+              "aantalGeschrapteLijnen": 1,
+              "totaalActief": 608.79,
+              "totaalGeschrapt": 89.95,
+              "duursteActieveLijn": {
+                "id": 1,
+                "omschrijving": "Moederbord ASUS B650",
+                "aantal": 1,
+                "stukPrijs": 249.99,
+                "isActief": true,
+                "bestellingId": 1,
+                "bestelling": null
+              },
+              "isLeeg": false
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Fiche van bestelling 3, zonder lijnen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/3/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 0,
+              "aantalGeschrapteLijnen": 0,
+              "totaalActief": 0,
+              "totaalGeschrapt": 0,
+              "duursteActieveLijn": null,
+              "isLeeg": true
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Een lijn toevoegen aan bestelling 3",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 1,
+              "stukPrijs": 109.95,
+              "bestellingId": 3
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 1,
+              "stukPrijs": 109.95,
+              "isActief": true,
+              "bestellingId": 3,
+              "bestelling": null
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/7"
+            }
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Een lijn toevoegen aan een onbestaande bestelling",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 1,
+              "stukPrijs": 109.95,
+              "bestellingId": 99
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We vonden geen bestelling met Id 99."
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Bestelling 3 verwijderen terwijl ze een lijn heeft",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestelling/3"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze bestelling heeft nog bestellijnen."
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "Alle lijnen van bestelling 2 schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestelling/2/lijnen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 0,
+              "aantalGeschrapteLijnen": 2,
+              "totaalActief": 0,
+              "totaalGeschrapt": 163.97,
+              "duursteActieveLijn": null,
+              "isLeeg": true
+            }
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "De lijnen van bestelling 2 nog eens schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestelling/2/lijnen"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Er zijn geen actieve bestellijnen om te schrappen."
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "De fiche over alle lijnen samen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "aantalActieveLijnen": 4,
+                "aantalGeschrapteLijnen": 3,
+                "totaalActief": 718.74,
+                "totaalGeschrapt": 253.92,
+                "duursteActieveLijn": {
+                  "id": 1,
+                  "omschrijving": "Moederbord ASUS B650",
+                  "aantal": 1,
+                  "stukPrijs": 249.99,
+                  "isActief": true,
+                  "bestellingId": 1,
+                  "bestelling": null
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.9a",
+          "punt": "6",
+          "uitleg": "Bestelling 2 verwijderen: haar lijnen zijn geschrapt maar bestaan nog",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestelling/2"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze bestelling heeft nog bestellijnen."
+          }
+        },
+        {
+          "id": "6.9b",
+          "punt": "2",
+          "uitleg": "De database weigert zelf bestelling 2 te verwijderen",
+          "sql": "DELETE FROM \"Bestellingen\" WHERE \"Id\" = 2",
+          "verwacht": {
+            "fout": "foreign key"
+          }
+        },
+        {
+          "id": "6.10a",
+          "punt": "6",
+          "uitleg": "Bestelling BB-2026-004 toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling",
+            "body": {
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz"
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 4,
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": null
+            },
+            "location": {
+              "eindigtOp": "/api/bestelling/4"
+            }
+          }
+        },
+        {
+          "id": "6.10b",
+          "punt": "6",
+          "uitleg": "De lege bestelling 4 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestelling/4"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "4.4",
+          "punt": "4",
+          "uitleg": "Een bestelling zonder referentie",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling",
+            "body": {
+              "referentie": "",
+              "klantnaam": "Mehdi Aziz"
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een bestelling moet een referentie hebben."
+          }
+        },
+        {
+          "id": "4.5",
+          "punt": "4",
+          "uitleg": "Een bestelling zonder klantnaam",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling",
+            "body": {
+              "referentie": "BB-2026-005",
+              "klantnaam": ""
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een bestelling moet een klantnaam hebben."
+          }
+        },
+        {
+          "id": "4.6",
+          "punt": "4",
+          "uitleg": "Een onbestaande bestelling verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestelling/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestelling met Id 99."
+          }
+        },
+        {
+          "id": "6.11",
+          "punt": "6",
+          "uitleg": "De lijnen van een onbestaande bestelling schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestelling/99/lijnen"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestelling met Id 99."
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Lijn 7 bijwerken met een andere bestellingId",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/7",
+            "body": {
+              "id": 7,
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 1,
+              "stukPrijs": 109.95,
+              "isActief": true,
+              "bestellingId": 1
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Lijn 7 hoort nog altijd bij bestelling 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/7"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 7,
+                "bestellingId": 3
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "3",
+      "tekst": "`OnModelCreating` is verdeeld in twee methodes: één voor de tabellen en relaties, één voor de startgegevens."
+    },
+    {
+      "punt": "1",
+      "tekst": "`BestandBestellijnRepository` en `bestellijnen.json` zijn uit het project verdwenen."
+    }
+  ]
+}

@@ -1,0 +1,776 @@
+{
+  "formaat": 1,
+  "oefening": "02_03",
+  "titel": "Soft delete en berekeningen",
+  "hoofdstuk": 2,
+  "opgave": "Oefening_02_03.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Punt 3 tot 10: soft delete, herstel en totaal",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Enkel actieve bestellijnen, met de velden uit punt 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "omschrijving": {
+                  "$elk": true
+                },
+                "aantal": {
+                  "$elk": true
+                },
+                "stukPrijs": {
+                  "$elk": true
+                },
+                "isActief": true
+              }
+            }
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Alle bestellijnen, met de velden uit punt 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "omschrijving": {
+                  "$elk": true
+                },
+                "aantal": {
+                  "$elk": true
+                },
+                "stukPrijs": {
+                  "$elk": true
+                },
+                "isActief": {
+                  "$elk": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Een geldige lijn toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Thermische pasta",
+              "aantal": 2,
+              "stukPrijs": 7.5,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "omschrijving": "Thermische pasta",
+              "aantal": 2,
+              "stukPrijs": 7.5,
+              "isActief": true
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/{{lijn}}"
+            }
+          },
+          "bewaar": {
+            "lijn": "id"
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "De nieuwe lijn opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{lijn}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{lijn}}",
+              "omschrijving": "Thermische pasta",
+              "aantal": 2,
+              "stukPrijs": 7.5,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Toevoegen met Id 999 en isActief false: de lijn is toch actief",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "id": 999,
+              "omschrijving": "Kabelbinders",
+              "aantal": 1,
+              "stukPrijs": 3.25,
+              "isActief": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "omschrijving": "Kabelbinders",
+              "aantal": 1,
+              "stukPrijs": 3.25,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Het meegestuurde Id 999 werd overschreven",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id 999."
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Omschrijving leeg",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "",
+              "aantal": 1,
+              "stukPrijs": 5,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een bestellijn moet een omschrijving hebben."
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Aantal 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Schroefjes",
+              "aantal": 0,
+              "stukPrijs": 5,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het aantal moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "Stukprijs 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Schroefjes",
+              "aantal": 1,
+              "stukPrijs": 0,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De stukprijs moet groter zijn dan 0."
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Bijwerken met een lege omschrijving",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/{{lijn}}",
+            "body": {
+              "omschrijving": "",
+              "aantal": 3,
+              "stukPrijs": 8.25,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Bijwerken met aantal 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/{{lijn}}",
+            "body": {
+              "omschrijving": "Thermische pasta MX-6",
+              "aantal": 0,
+              "stukPrijs": 8.25,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "7.3",
+          "punt": "7",
+          "uitleg": "Bijwerken met stukprijs 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/{{lijn}}",
+            "body": {
+              "omschrijving": "Thermische pasta MX-6",
+              "aantal": 3,
+              "stukPrijs": 0,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Een onbestaande lijn bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/999",
+            "body": {
+              "omschrijving": "Thermische pasta MX-6",
+              "aantal": 3,
+              "stukPrijs": 8.25,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "De lijn geldig bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/{{lijn}}",
+            "body": {
+              "omschrijving": "Thermische pasta MX-6",
+              "aantal": 3,
+              "stukPrijs": 8.25,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "7.6",
+          "punt": "7",
+          "uitleg": "De wijziging is bewaard",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{lijn}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{lijn}}",
+              "omschrijving": "Thermische pasta MX-6",
+              "aantal": 3,
+              "stukPrijs": 8.25,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "10.1",
+          "punt": "10",
+          "uitleg": "Totaal voor het schrappen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/totaal"
+          },
+          "verwacht": {
+            "status": 200
+          },
+          "bewaar": {
+            "totaalVoor": ""
+          }
+        },
+        {
+          "id": "8.1",
+          "punt": "8",
+          "uitleg": "De lijn schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn/{{lijn}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "10.2",
+          "punt": "10",
+          "uitleg": "Totaal na het schrappen: 3 × 8,25 lager",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/totaal"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$reken": "{{totaalVoor}} - 24.75"
+            }
+          }
+        },
+        {
+          "id": "8.2",
+          "punt": "8",
+          "uitleg": "Dezelfde lijn nog eens schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn/{{lijn}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan bestellijn met Id {{lijn}} niet schrappen, omdat deze niet gevonden is."
+          }
+        },
+        {
+          "id": "8.3",
+          "punt": "5",
+          "uitleg": "Een geschrapte lijn is niet meer op te vragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{lijn}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id {{lijn}}."
+          }
+        },
+        {
+          "id": "8.4",
+          "punt": "7",
+          "uitleg": "Een geschrapte lijn bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/{{lijn}}",
+            "body": {
+              "omschrijving": "Thermische pasta MX-6",
+              "aantal": 3,
+              "stukPrijs": 8.25,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "8.5",
+          "punt": "8",
+          "uitleg": "De geschrapte lijn staat nog in de lijst, op non-actief",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$heeftElement": {
+                "id": "{{lijn}}",
+                "omschrijving": "Thermische pasta MX-6",
+                "aantal": 3,
+                "stukPrijs": 8.25,
+                "isActief": false
+              }
+            }
+          }
+        },
+        {
+          "id": "8.6",
+          "punt": "3",
+          "uitleg": "De geschrapte lijn staat niet bij de actieve lijnen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$geenElement": {
+                "$bevat": {
+                  "id": "{{lijn}}"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "9.1",
+          "punt": "9",
+          "uitleg": "De geschrapte lijn herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/{{lijn}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "9.2",
+          "punt": "9",
+          "uitleg": "De herstelde lijn is terug, met haar gegevens",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{lijn}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{lijn}}",
+              "omschrijving": "Thermische pasta MX-6",
+              "aantal": 3,
+              "stukPrijs": 8.25,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "9.3",
+          "punt": "9",
+          "uitleg": "Een actieve lijn herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/{{lijn}}"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze bestellijn is niet geschrapt."
+          }
+        },
+        {
+          "id": "9.4",
+          "punt": "9",
+          "uitleg": "Een onbestaande lijn herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/999"
+          },
+          "verwacht": {
+            "status": 404
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "Testscenario punt 11",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "11.1",
+          "punt": "11",
+          "uitleg": "Stap 1: fiche opvragen, met de velden uit punt 11",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": {
+                "$elk": true
+              },
+              "aantalGeschrapteLijnen": {
+                "$elk": true
+              },
+              "totaalActief": {
+                "$elk": true
+              },
+              "totaalGeschrapt": {
+                "$elk": true
+              },
+              "duursteActieveLijn": {
+                "$elk": true
+              },
+              "isLeeg": {
+                "$elk": true
+              }
+            }
+          },
+          "bewaar": {
+            "actief1": "aantalActieveLijnen",
+            "totaal1": "totaalActief"
+          }
+        },
+        {
+          "id": "11.2",
+          "punt": "11",
+          "uitleg": "Stap 2: een lijn toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Serverkast volledig uitgerust",
+              "aantal": 2,
+              "stukPrijs": 50000,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 201
+          },
+          "bewaar": {
+            "nieuw": "id"
+          }
+        },
+        {
+          "id": "11.3",
+          "punt": "11",
+          "uitleg": "Fiche na stap 2: één actieve lijn meer, totaal + 100000, de nieuwe lijn is de duurste",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "aantalActieveLijnen": {
+                  "$reken": "{{actief1}} + 1"
+                },
+                "totaalActief": {
+                  "$reken": "{{totaal1}} + 100000"
+                },
+                "duursteActieveLijn": {
+                  "id": "{{nieuw}}",
+                  "omschrijving": "Serverkast volledig uitgerust",
+                  "aantal": 2,
+                  "stukPrijs": 50000,
+                  "isActief": true
+                },
+                "isLeeg": false
+              }
+            }
+          },
+          "bewaar": {
+            "actief2": "aantalActieveLijnen",
+            "totaal2": "totaalActief",
+            "geschrapt2": "aantalGeschrapteLijnen",
+            "totaalGeschrapt2": "totaalGeschrapt"
+          }
+        },
+        {
+          "id": "11.4",
+          "punt": "11",
+          "uitleg": "Stap 3: die lijn schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn/{{nieuw}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "11.5",
+          "punt": "11",
+          "uitleg": "Fiche na stap 3: één actieve lijn minder, één geschrapte meer, 100000 van actief naar geschrapt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "aantalActieveLijnen": {
+                  "$reken": "{{actief2}} - 1"
+                },
+                "totaalActief": {
+                  "$reken": "{{totaal2}} - 100000"
+                },
+                "aantalGeschrapteLijnen": {
+                  "$reken": "{{geschrapt2}} + 1"
+                },
+                "totaalGeschrapt": {
+                  "$reken": "{{totaalGeschrapt2}} + 100000"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "11.6",
+          "punt": "11",
+          "uitleg": "Stap 4: die lijn herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/{{nieuw}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "11.7",
+          "punt": "11",
+          "uitleg": "Fiche na stap 4: alles weer zoals na stap 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "aantalActieveLijnen": "{{actief2}}",
+                "totaalActief": "{{totaal2}}",
+                "aantalGeschrapteLijnen": "{{geschrapt2}}",
+                "totaalGeschrapt": "{{totaalGeschrapt2}}",
+                "duursteActieveLijn": {
+                  "id": "{{nieuw}}",
+                  "omschrijving": "Serverkast volledig uitgerust",
+                  "aantal": 2,
+                  "stukPrijs": 50000,
+                  "isActief": true
+                },
+                "isLeeg": false
+              }
+            }
+          }
+        },
+        {
+          "id": "11.8",
+          "punt": "11",
+          "uitleg": "Stap 5: de hele bestelling schrappen geeft de bijgewerkte fiche; alle actieve lijnen zijn nu geschrapt",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 0,
+              "aantalGeschrapteLijnen": {
+                "$reken": "{{geschrapt2}} + {{actief2}}"
+              },
+              "totaalActief": 0,
+              "totaalGeschrapt": {
+                "$reken": "{{totaalGeschrapt2}} + {{totaal2}}"
+              },
+              "duursteActieveLijn": null,
+              "isLeeg": true
+            }
+          }
+        },
+        {
+          "id": "11.9",
+          "punt": "11",
+          "uitleg": "Fiche na stap 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 0,
+              "aantalGeschrapteLijnen": {
+                "$reken": "{{geschrapt2}} + {{actief2}}"
+              },
+              "totaalActief": 0,
+              "totaalGeschrapt": {
+                "$reken": "{{totaalGeschrapt2}} + {{totaal2}}"
+              },
+              "duursteActieveLijn": null,
+              "isLeeg": true
+            }
+          }
+        },
+        {
+          "id": "11.10",
+          "punt": "3",
+          "uitleg": "Geen actieve lijnen meer",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "11.11",
+          "punt": "11",
+          "uitleg": "Stap 6: nog eens de hele bestelling schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Er zijn geen actieve bestellijnen om te schrappen."
+          }
+        }
+      ]
+    }
+  ]
+}

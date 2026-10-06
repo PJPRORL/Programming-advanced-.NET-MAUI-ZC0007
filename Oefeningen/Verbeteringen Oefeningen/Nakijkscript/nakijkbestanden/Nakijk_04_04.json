@@ -1,0 +1,447 @@
+{
+  "formaat": 1,
+  "oefening": "04_04",
+  "titel": "Database en migraties",
+  "hoofdstuk": 4,
+  "opgave": "Oefening_04_04.md",
+  "bouwtOpVan": "03_04",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "AsielDb",
+    "opbouwen": "sqlscript"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Database uit punt 5 tot 7 en voorbeeld uit punt 7",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "De tabel Dieren bestaat met de kolommen uit punt 4, geen enkele mag leeg blijven",
+          "sql": "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Dieren' AND column_name <> 'IsGechipt'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "LeeftijdInJaren",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Naam",
+                "character varying",
+                "50",
+                "NO"
+              ],
+              [
+                "Soort",
+                "character varying",
+                "30",
+                "NO"
+              ],
+              [
+                "Verblijfsnummer",
+                "integer",
+                "",
+                "NO"
+              ]
+            ],
+            "volgorde": "vrij"
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Id is de sleutel van Dieren en de database telt zelf op",
+          "sql": "SELECT kcu.column_name, (c.is_identity = 'YES' OR c.column_default LIKE 'nextval%') FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema AND kcu.table_name = tc.table_name JOIN information_schema.columns c ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name WHERE tc.table_schema = 'public' AND tc.table_name = 'Dieren' AND tc.constraint_type = 'PRIMARY KEY'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De zes startdieren staan in de tabel",
+          "sql": "SELECT \"Id\", \"Naam\", \"Soort\", \"LeeftijdInJaren\", \"Verblijfsnummer\" FROM \"Dieren\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Mimi",
+                "kat",
+                "3",
+                "2"
+              ],
+              [
+                "2",
+                "Tommie",
+                "kat",
+                "1",
+                "2"
+              ],
+              [
+                "3",
+                "Rex",
+                "hond",
+                "7",
+                "5"
+              ],
+              [
+                "4",
+                "Bella",
+                "hond",
+                "1",
+                "5"
+              ],
+              [
+                "5",
+                "Flappie",
+                "konijn",
+                "2",
+                "8"
+              ],
+              [
+                "6",
+                "Kiki",
+                "parkiet",
+                "4",
+                "9"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "IsGechipt is een verplichte kolom met ja of nee",
+          "sql": "SELECT data_type, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Dieren' AND column_name = 'IsGechipt'",
+          "verwacht": {
+            "rijen": [
+              [
+                "boolean",
+                "NO"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Elk dier heeft de waarde voor IsGechipt uit de tabel van punt 7",
+          "sql": "SELECT \"Id\", \"IsGechipt\" FROM \"Dieren\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "t"
+              ],
+              [
+                "2",
+                "f"
+              ],
+              [
+                "3",
+                "t"
+              ],
+              [
+                "4",
+                "t"
+              ],
+              [
+                "5",
+                "f"
+              ],
+              [
+                "6",
+                "f"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "7.3",
+          "punt": "7",
+          "uitleg": "De geschiedenis bevat precies DierTabel en ChipToegevoegd",
+          "sql": "SELECT substring(\"MigrationId\" from position('_' in \"MigrationId\") + 1) FROM \"__EFMigrationsHistory\" ORDER BY \"MigrationId\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "DierTabel"
+              ],
+              [
+                "ChipToegevoegd"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Dier 4 opvragen, met IsGechipt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Bella",
+              "soort": "hond",
+              "leeftijdInJaren": 1,
+              "verblijfsnummer": 5,
+              "isGechipt": true
+            }
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "De API toont dezelfde zes dieren als de database",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$verzameling": [
+                {
+                  "id": 1,
+                  "naam": "Mimi",
+                  "soort": "kat",
+                  "leeftijdInJaren": 3,
+                  "verblijfsnummer": 2,
+                  "isGechipt": true
+                },
+                {
+                  "id": 2,
+                  "naam": "Tommie",
+                  "soort": "kat",
+                  "leeftijdInJaren": 1,
+                  "verblijfsnummer": 2,
+                  "isGechipt": false
+                },
+                {
+                  "id": 3,
+                  "naam": "Rex",
+                  "soort": "hond",
+                  "leeftijdInJaren": 7,
+                  "verblijfsnummer": 5,
+                  "isGechipt": true
+                },
+                {
+                  "id": 4,
+                  "naam": "Bella",
+                  "soort": "hond",
+                  "leeftijdInJaren": 1,
+                  "verblijfsnummer": 5,
+                  "isGechipt": true
+                },
+                {
+                  "id": 5,
+                  "naam": "Flappie",
+                  "soort": "konijn",
+                  "leeftijdInJaren": 2,
+                  "verblijfsnummer": 8,
+                  "isGechipt": false
+                },
+                {
+                  "id": 6,
+                  "naam": "Kiki",
+                  "soort": "parkiet",
+                  "leeftijdInJaren": 4,
+                  "verblijfsnummer": 9,
+                  "isGechipt": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "De endpoints uit 03_04 met de vaste startgegevens (punt 1)",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1.1",
+          "punt": "1",
+          "uitleg": "Zoeken op mi vindt Mimi en Tommie",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/zoek/mi"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.2",
+          "punt": "1",
+          "uitleg": "Zoeken op MI geeft hetzelfde",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/zoek/MI"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.3",
+          "punt": "1",
+          "uitleg": "Zoeken op Mi geeft hetzelfde",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/zoek/Mi"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.4",
+          "punt": "1",
+          "uitleg": "Dieren van de soort kat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soort/kat"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.5",
+          "punt": "1",
+          "uitleg": "De jonge dieren",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/jong"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                2,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.6",
+          "punt": "1",
+          "uitleg": "De fiche van dier 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/fiche/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "dier": {
+                "id": 4,
+                "naam": "Bella",
+                "soort": "hond",
+                "leeftijdInJaren": 1,
+                "verblijfsnummer": 5,
+                "isGechipt": true
+              },
+              "isJong": true,
+              "aantalVanDezelfdeSoort": 1,
+              "isOudsteVanDeSoort": false
+            }
+          }
+        },
+        {
+          "id": "1.7",
+          "punt": "1",
+          "uitleg": "Een onbestaand dier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen dier met Id 99."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "De PostgreSQL-database draait in Docker."
+    },
+    {
+      "punt": "3",
+      "tekst": "`appsettings.json` bevat een connectiestring met de naam `PostgresConnection`."
+    },
+    {
+      "punt": "4",
+      "tekst": "Map Data met `AsielContext : DbContext` en `DbSet<Dier> Dieren`; de kolommen staan in `OnModelCreating` met de Fluent API; de context is in Program.cs geregistreerd met `UseNpgsql` en de connectiestring `PostgresConnection`."
+    },
+    {
+      "punt": "6",
+      "tekst": "Het SQL-script met de startgegevens is zelf geschreven, en de startlijst van `InMemoryDierRepository` is gelijk aan de tabel."
+    },
+    {
+      "punt": "7",
+      "tekst": "De migratie `ChipToegevoegd` voegt in `Up` de kolom toe en haalt ze in `Down` weer weg; de student verklaart welke waarde de bestaande dieren na het bijwerken in `IsGechipt` kregen."
+    },
+    {
+      "punt": "7",
+      "tekst": "De kolom `IsGechipt` kwam er via een migratie, niet via een ALTER TABLE."
+    }
+  ]
+}

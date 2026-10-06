@@ -1,0 +1,572 @@
+{
+  "formaat": 1,
+  "oefening": "04_02",
+  "titel": "Twee tabellen, één context",
+  "hoofdstuk": 4,
+  "opgave": "Oefening_04_02.md",
+  "bouwtOpVan": "03_02",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "VentilatorDb",
+    "opbouwen": "sqlscript"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Dezelfde gegevens en testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De API toont dezelfde vier ventilatoren als de tabel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$verzameling": [
+                {
+                  "id": 1,
+                  "merk": "Noctua",
+                  "afmetingInMm": 120,
+                  "verlichting": "geen",
+                  "prijs": 29.9
+                },
+                {
+                  "id": 2,
+                  "merk": "be quiet!",
+                  "afmetingInMm": 140,
+                  "verlichting": "geen",
+                  "prijs": 24.9
+                },
+                {
+                  "id": 3,
+                  "merk": "Corsair",
+                  "afmetingInMm": 120,
+                  "verlichting": "RGB",
+                  "prijs": 34.9
+                },
+                {
+                  "id": 4,
+                  "merk": "Arctic",
+                  "afmetingInMm": 140,
+                  "verlichting": "ARGB",
+                  "prijs": 19.99
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Ventilator 3 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "merk": "Corsair",
+              "afmetingInMm": 120,
+              "verlichting": "RGB",
+              "prijs": 34.9
+            }
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "De vier startventilatoren staan in de tabel",
+          "sql": "SELECT \"Id\", \"Merk\", \"AfmetingInMm\", \"Verlichting\", \"Prijs\" FROM \"Ventilatoren\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Noctua",
+                "120",
+                "geen",
+                "29.90"
+              ],
+              [
+                "2",
+                "be quiet!",
+                "140",
+                "geen",
+                "24.90"
+              ],
+              [
+                "3",
+                "Corsair",
+                "120",
+                "RGB",
+                "34.90"
+              ],
+              [
+                "4",
+                "Arctic",
+                "140",
+                "ARGB",
+                "19.99"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "De tabel Wijzigingen is leeg",
+          "sql": "SELECT \"Id\" FROM \"Wijzigingen\"",
+          "verwacht": {
+            "aantal": 0
+          }
+        },
+        {
+          "id": "6.t1",
+          "punt": "6",
+          "uitleg": "Stap 1: de historiek is leeg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/historiek"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "6.t2",
+          "punt": "6",
+          "uitleg": "Stap 2: een merk van precies 50 tekens",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 25.0
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "merk": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 25.0
+            },
+            "location": {
+              "eindigtOp": "/api/ventilator/5"
+            }
+          }
+        },
+        {
+          "id": "6.t3",
+          "punt": "6",
+          "uitleg": "Stap 3: een merk van 51 tekens",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijA",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 25.0
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het merk mag hoogstens 50 tekens lang zijn."
+          }
+        },
+        {
+          "id": "6.t4a",
+          "punt": "6",
+          "uitleg": "Stap 4: ventilator 1 bijwerken met een verlichting van 21 tekens",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/1",
+            "body": {
+              "id": 1,
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "AbcdefghijAbcdefghijA",
+              "prijs": 29.9
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De verlichting mag hoogstens 20 tekens lang zijn."
+          }
+        },
+        {
+          "id": "6.t4b",
+          "punt": "6",
+          "uitleg": "Stap 4: ventilator 1 is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 29.9
+            }
+          }
+        },
+        {
+          "id": "6.t5",
+          "punt": "6",
+          "uitleg": "Stap 5: de historiek bevat enkel de toevoeging uit stap 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/historiek"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": {
+                  "$elk": true
+                },
+                "actie": "toegevoegd",
+                "ventilatorId": 5
+              }
+            ]
+          }
+        },
+        {
+          "id": "6.t6a",
+          "punt": "6",
+          "uitleg": "Stap 6: de geschiedenis bevat precies VentilatorTabel en WijzigingTabel",
+          "sql": "SELECT substring(\"MigrationId\" from position('_' in \"MigrationId\") + 1) FROM \"__EFMigrationsHistory\" ORDER BY \"MigrationId\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "VentilatorTabel"
+              ],
+              [
+                "WijzigingTabel"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "De tabel Ventilatoren heeft de kolommen uit punt 3, geen enkele mag leeg blijven",
+          "sql": "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Ventilatoren'",
+          "verwacht": {
+            "rijen": [
+              [
+                "AfmetingInMm",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Id",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Merk",
+                "character varying",
+                "50",
+                "NO"
+              ],
+              [
+                "Prijs",
+                "numeric",
+                "",
+                "NO"
+              ],
+              [
+                "Verlichting",
+                "character varying",
+                "20",
+                "NO"
+              ]
+            ],
+            "volgorde": "vrij"
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "Prijs heeft 8 cijfers, waarvan 2 na de komma",
+          "sql": "SELECT numeric_precision, numeric_scale FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Ventilatoren' AND column_name = 'Prijs'",
+          "verwacht": {
+            "rijen": [
+              [
+                "8",
+                "2"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "3.3",
+          "punt": "3",
+          "uitleg": "Id is de sleutel van Ventilatoren en de database telt zelf op",
+          "sql": "SELECT kcu.column_name, (c.is_identity = 'YES' OR c.column_default LIKE 'nextval%') FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema AND kcu.table_name = tc.table_name JOIN information_schema.columns c ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name WHERE tc.table_schema = 'public' AND tc.table_name = 'Ventilatoren' AND tc.constraint_type = 'PRIMARY KEY'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "De tabel Wijzigingen heeft de kolommen uit punt 4, geen enkele mag leeg blijven",
+          "sql": "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Wijzigingen'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Actie",
+                "character varying",
+                "20",
+                "NO"
+              ],
+              [
+                "Id",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "VentilatorId",
+                "integer",
+                "",
+                "NO"
+              ]
+            ],
+            "volgorde": "vrij"
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Id is de sleutel van Wijzigingen en de database telt zelf op",
+          "sql": "SELECT kcu.column_name, (c.is_identity = 'YES' OR c.column_default LIKE 'nextval%') FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema AND kcu.table_name = tc.table_name JOIN information_schema.columns c ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name WHERE tc.table_schema = 'public' AND tc.table_name = 'Wijzigingen' AND tc.constraint_type = 'PRIMARY KEY'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Er is geen relatie tussen Wijzigingen en Ventilatoren",
+          "sql": "SELECT constraint_name FROM information_schema.table_constraints WHERE table_schema = 'public' AND table_name = 'Wijzigingen' AND constraint_type = 'FOREIGN KEY'",
+          "verwacht": {
+            "aantal": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "Dezelfde regels bij toevoegen, bijwerken en vervangen (punt 6)",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "R1",
+          "punt": "6",
+          "uitleg": "Toevoegen met een verlichting van 21 tekens",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "AbcdefghijAbcdefghijA",
+              "prijs": 25.0
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De verlichting mag hoogstens 20 tekens lang zijn."
+          }
+        },
+        {
+          "id": "R2",
+          "punt": "6",
+          "uitleg": "Ventilator 2 bijwerken met een merk van 51 tekens",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/2",
+            "body": {
+              "id": 2,
+              "merk": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijA",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 24.9
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het merk mag hoogstens 50 tekens lang zijn."
+          }
+        },
+        {
+          "id": "R3",
+          "punt": "6",
+          "uitleg": "Ventilator 2 vervangen door een met een merk van 51 tekens",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/2",
+            "body": {
+              "merk": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijA",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 24.9
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het merk mag hoogstens 50 tekens lang zijn."
+          }
+        },
+        {
+          "id": "R4",
+          "punt": "6",
+          "uitleg": "Ventilator 2 vervangen door een met een verlichting van 21 tekens",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/2",
+            "body": {
+              "merk": "be quiet!",
+              "afmetingInMm": 140,
+              "verlichting": "AbcdefghijAbcdefghijA",
+              "prijs": 24.9
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De verlichting mag hoogstens 20 tekens lang zijn."
+          }
+        },
+        {
+          "id": "R5",
+          "punt": "6",
+          "uitleg": "Ventilator 2 is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "merk": "be quiet!",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 24.9
+            }
+          }
+        },
+        {
+          "id": "R6",
+          "punt": "6",
+          "uitleg": "Een lege verlichting blijft toegelaten",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "merk": "Arctic",
+              "afmetingInMm": 120,
+              "verlichting": "",
+              "prijs": 12.99
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "merk": "Arctic",
+              "afmetingInMm": 120,
+              "verlichting": "",
+              "prijs": 12.99
+            },
+            "location": {
+              "eindigtOp": "/api/ventilator/5"
+            }
+          }
+        },
+        {
+          "id": "R7",
+          "punt": "6",
+          "uitleg": "Enkel de geslaagde toevoeging staat in de historiek",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/historiek"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": {
+                  "$elk": true
+                },
+                "actie": "toegevoegd",
+                "ventilatorId": 5
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "De PostgreSQL-database draait in Docker."
+    },
+    {
+      "punt": "3",
+      "tekst": "`appsettings.json` bevat een connectiestring met de naam `PostgresConnection`."
+    },
+    {
+      "punt": "2",
+      "tekst": "Map Data met `VentilatorContext : DbContext`, geregistreerd in Program.cs met `UseNpgsql` en de connectiestring `PostgresConnection`; `DbSet<Ventilator> Ventilatoren` en `DbSet<Wijziging> Wijzigingen` met de Fluent API in `OnModelCreating`."
+    },
+    {
+      "punt": "4",
+      "tekst": "De migratie `WijzigingTabel` gaat enkel over de tabel `Wijzigingen`."
+    },
+    {
+      "punt": "5",
+      "tekst": "Het SQL-script met de startgegevens is zelf geschreven; de startlijst van `InMemoryVentilatorRepository` is gelijk aan de tabel."
+    }
+  ]
+}

@@ -1,0 +1,422 @@
+{
+  "formaat": 1,
+  "oefening": "08_03",
+  "titel": "Include over een hele lijst",
+  "hoofdstuk": 8,
+  "opgave": "Oefening_08_03.md",
+  "bouwtOpVan": "07_03",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "BestellijnDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "JSON uit punt 3 en 4, testscenario punt 6 en regel uit punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1a",
+          "punt": "6",
+          "uitleg": "Lijn 2 met haar bestelling: JSON uit punt 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "omschrijving": "DDR5 32 GB kit",
+              "aantal": 2,
+              "stukPrijs": 109.9,
+              "isActief": true,
+              "bestellingId": 1,
+              "bestelling": {
+                "id": 1,
+                "referentie": "BB-2026-001",
+                "klantnaam": "An Vermeulen",
+                "bestellijnen": [
+                  null
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.1b",
+          "punt": "6",
+          "uitleg": "Bestelling 2 met haar lijnen: JSON uit punt 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "referentie": "BB-2026-002",
+              "klantnaam": "Pieter De Wilde",
+              "bestellijnen": {
+                "$verzameling": [
+                  {
+                    "id": 5,
+                    "omschrijving": "Voeding 750 W",
+                    "aantal": 1,
+                    "stukPrijs": 119.0,
+                    "isActief": true,
+                    "bestellingId": 2,
+                    "bestelling": null
+                  },
+                  {
+                    "id": 6,
+                    "omschrijving": "Casefan 120 mm",
+                    "aantal": 3,
+                    "stukPrijs": 14.99,
+                    "isActief": true,
+                    "bestellingId": 2,
+                    "bestelling": null
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.2a",
+          "punt": "6",
+          "uitleg": "Details van de geschrapte lijn 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/4/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id 4."
+          }
+        },
+        {
+          "id": "6.2b",
+          "punt": "6",
+          "uitleg": "Bestelling 1 met alle vier haar lijnen, ook de geschrapte lijn 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "bestellijnen": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 2
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 3
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 4,
+                        "isActief": false
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.3a",
+          "punt": "6",
+          "uitleg": "Bestelling 3 zonder lijnen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "bestellijnen": []
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.3b",
+          "punt": "6",
+          "uitleg": "Details van een onbestaande bestelling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestelling met Id 99."
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Het bestaande endpoint toont nog altijd geen lijnen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "bestellijnen": null
+              }
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "De volledige bestelling uit punt 4 van 07_03 plaatsen: nu met haar lijnen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Processor Ryzen 7 7800X3D",
+                  "aantal": 1,
+                  "stukPrijs": 389.0
+                },
+                {
+                  "omschrijving": "Koelpasta",
+                  "aantal": 2,
+                  "stukPrijs": 7.99
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "$bevat": {
+                "id": 4,
+                "bestellijnen": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 7,
+                        "isActief": true,
+                        "bestellingId": 4,
+                        "bestelling": null
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 8,
+                        "isActief": true,
+                        "bestellingId": 4,
+                        "bestelling": null
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "location": {
+              "eindigtOp": "/api/bestelling/4"
+            }
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "Nog een volledige bestelling voor An Vermeulen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-005",
+              "klantnaam": "An Vermeulen",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Voeding 850 W",
+                  "aantal": 1,
+                  "stukPrijs": 139.0
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "$bevat": {
+                "id": 5,
+                "bestellijnen": [
+                  {
+                    "$bevat": {
+                      "id": 9
+                    }
+                  }
+                ]
+              }
+            },
+            "location": {
+              "eindigtOp": "/api/bestelling/5"
+            }
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "Alle bestellingen van An Vermeulen, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/klant/An Vermeulen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1,
+                  "bestellijnen": {
+                    "$ids": [
+                      1,
+                      2,
+                      3,
+                      4
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 5,
+                  "bestellijnen": {
+                    "$ids": [
+                      9
+                    ]
+                  }
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "Hoofdletters tellen niet bij de klantnaam",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/klant/an vermeulen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1,
+                  "bestellijnen": {
+                    "$ids": [
+                      1,
+                      2,
+                      3,
+                      4
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 5,
+                  "bestellijnen": {
+                    "$ids": [
+                      9
+                    ]
+                  }
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "Lotte Jacobs: bestelling 3 zonder lijnen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/klant/Lotte Jacobs"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 3,
+                  "bestellijnen": []
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.10",
+          "punt": "6",
+          "uitleg": "Een klant zonder bestellingen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/klant/Jan Peeters"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestellingen voor Jan Peeters."
+          }
+        },
+        {
+          "id": "6.r1",
+          "punt": "6",
+          "uitleg": "Een klantnaam komt enkel overeen als hij gelijk is, niet als stukje",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/klant/An"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestellingen voor An."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "Open `ERD.md` in de projectmap: staat de relatie tussen `Bestelling` en `Bestellijn` erin, op één regel met een korte uitleg, met aan beide kanten de juiste cardinaliteit (een bestelling heeft nul of meer bestellijnen, een bestellijn hoort bij precies één bestelling)?"
+    }
+  ]
+}

@@ -1,0 +1,179 @@
+{
+  "formaat": 1,
+  "oefening": "01_02",
+  "titel": "Controller en routeparameters",
+  "hoofdstuk": 1,
+  "opgave": "Oefening_01_02.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "",
+    "probeer": [
+      "api/"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden en regels uit punt 1 tot 5",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1",
+          "punt": "1",
+          "uitleg": "Openingsbericht",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen"
+          },
+          "verwacht": {
+            "tekst": "Welkom bij de onderdelenbalie van Bit & Byte."
+          }
+        },
+        {
+          "id": "2a",
+          "punt": "2",
+          "uitleg": "Uitleg over een moederbord",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/soort/moederbord"
+          },
+          "verwacht": {
+            "tekst": "Het moederbord verbindt alle onderdelen met elkaar."
+          }
+        },
+        {
+          "id": "2b",
+          "punt": "2",
+          "uitleg": "Uitleg over een processor",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/soort/processor"
+          },
+          "verwacht": {
+            "tekst": "De processor voert alle berekeningen uit."
+          }
+        },
+        {
+          "id": "2c",
+          "punt": "2",
+          "uitleg": "Uitleg over een videokaart",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/soort/videokaart"
+          },
+          "verwacht": {
+            "tekst": "De videokaart tekent het beeld voor je scherm."
+          }
+        },
+        {
+          "id": "2d",
+          "punt": "2",
+          "uitleg": "Onbekende soort",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/soort/voeding"
+          },
+          "verwacht": {
+            "tekst": "Sorry, dit soort onderdeel verkopen wij niet."
+          }
+        },
+        {
+          "id": "3a",
+          "punt": "3",
+          "uitleg": "Voorraad 0",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/voorraad/0"
+          },
+          "verwacht": {
+            "tekst": "Niet op voorraad, bestel bij de leverancier."
+          }
+        },
+        {
+          "id": "3b",
+          "punt": "3",
+          "uitleg": "Voorraad 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/voorraad/3"
+          },
+          "verwacht": {
+            "tekst": "Beperkt op voorraad, hou dit in het oog."
+          }
+        },
+        {
+          "id": "3c",
+          "punt": "3",
+          "uitleg": "Voorraad 12",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/voorraad/12"
+          },
+          "verwacht": {
+            "tekst": "Ruim op voorraad."
+          }
+        },
+        {
+          "id": "4a",
+          "punt": "4",
+          "uitleg": "Artikelcode in hoofdletters met aantal tekens",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/code/mb-b650-01"
+          },
+          "verwacht": {
+            "tekst": "Artikelcode MB-B650-01 telt 10 tekens."
+          }
+        },
+        {
+          "id": "4b",
+          "punt": "4",
+          "uitleg": "Een andere code: niet hardgecodeerd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/code/cpu-7600x-01"
+          },
+          "verwacht": {
+            "tekst": "Artikelcode CPU-7600X-01 telt 12 tekens."
+          }
+        },
+        {
+          "id": "5a",
+          "punt": "5",
+          "uitleg": "Fiche van de processor",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/fiche/processor"
+          },
+          "verwacht": {
+            "tekst": "De processor voert alle berekeningen uit. Beperkt op voorraad, hou dit in het oog. Artikelcode CPU-7600X-01 telt 12 tekens."
+          }
+        },
+        {
+          "id": "5b",
+          "punt": "5",
+          "uitleg": "Fiche van de videokaart",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/fiche/videokaart"
+          },
+          "verwacht": {
+            "tekst": "De videokaart tekent het beeld voor je scherm. Niet op voorraad, bestel bij de leverancier. Artikelcode GPU-4070-01 telt 11 tekens."
+          }
+        },
+        {
+          "id": "5c",
+          "punt": "5",
+          "uitleg": "Fiche van een onbekende soort",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "onderdelen/fiche/voeding"
+          },
+          "verwacht": {
+            "tekst": "Sorry, dit soort onderdeel verkopen wij niet."
+          }
+        }
+      ]
+    }
+  ]
+}

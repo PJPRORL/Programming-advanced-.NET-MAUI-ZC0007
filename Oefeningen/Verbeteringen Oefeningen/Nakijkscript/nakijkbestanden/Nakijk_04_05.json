@@ -1,0 +1,503 @@
+{
+  "formaat": 1,
+  "oefening": "04_05",
+  "titel": "Twee tabellen, één context",
+  "hoofdstuk": 4,
+  "opgave": "Oefening_04_05.md",
+  "bouwtOpVan": "03_05",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "FietsverhuurDb",
+    "opbouwen": "sqlscript"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Dezelfde gegevens en testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De API toont dezelfde vier fietsen als de tabel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$verzameling": [
+                {
+                  "id": 1,
+                  "type": "stadsfiets",
+                  "framemaat": 54,
+                  "prijsPerDag": 12.5,
+                  "isBeschikbaar": true
+                },
+                {
+                  "id": 2,
+                  "type": "mountainbike",
+                  "framemaat": 48,
+                  "prijsPerDag": 18.0,
+                  "isBeschikbaar": true
+                },
+                {
+                  "id": 3,
+                  "type": "e-bike",
+                  "framemaat": 56,
+                  "prijsPerDag": 25.0,
+                  "isBeschikbaar": false
+                },
+                {
+                  "id": 4,
+                  "type": "bakfiets",
+                  "framemaat": 52,
+                  "prijsPerDag": 30.0,
+                  "isBeschikbaar": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Fiets 3 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "type": "e-bike",
+              "framemaat": 56,
+              "prijsPerDag": 25.0,
+              "isBeschikbaar": false
+            }
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "De vier startfietsen staan in de tabel",
+          "sql": "SELECT \"Id\", \"Type\", \"Framemaat\", \"PrijsPerDag\", \"IsBeschikbaar\" FROM \"Fietsen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "stadsfiets",
+                "54",
+                "12.50",
+                "t"
+              ],
+              [
+                "2",
+                "mountainbike",
+                "48",
+                "18.00",
+                "t"
+              ],
+              [
+                "3",
+                "e-bike",
+                "56",
+                "25.00",
+                "f"
+              ],
+              [
+                "4",
+                "bakfiets",
+                "52",
+                "30.00",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "De tabel Verhuringen is leeg",
+          "sql": "SELECT \"Id\" FROM \"Verhuringen\"",
+          "verwacht": {
+            "aantal": 0
+          }
+        },
+        {
+          "id": "6.t1",
+          "punt": "6",
+          "uitleg": "Stap 1: de verhuringen zijn leeg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/verhuringen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "6.t2",
+          "punt": "6",
+          "uitleg": "Stap 2: een type van precies 30 tekens; de nieuwe fiets is beschikbaar",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "AbcdefghijAbcdefghijAbcdefghij",
+              "framemaat": 54,
+              "prijsPerDag": 15.0,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "type": "AbcdefghijAbcdefghijAbcdefghij",
+              "framemaat": 54,
+              "prijsPerDag": 15.0,
+              "isBeschikbaar": true
+            },
+            "location": {
+              "eindigtOp": "/api/fiets/5"
+            }
+          }
+        },
+        {
+          "id": "6.t3",
+          "punt": "6",
+          "uitleg": "Stap 3: een type van 31 tekens",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "type": "AbcdefghijAbcdefghijAbcdefghijA",
+              "framemaat": 54,
+              "prijsPerDag": 15.0,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het type mag hoogstens 30 tekens lang zijn."
+          }
+        },
+        {
+          "id": "6.t4a",
+          "punt": "6",
+          "uitleg": "Stap 4: fiets 1 bijwerken met een type van 31 tekens",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/1",
+            "body": {
+              "id": 1,
+              "type": "AbcdefghijAbcdefghijAbcdefghijA",
+              "framemaat": 54,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het type mag hoogstens 30 tekens lang zijn."
+          }
+        },
+        {
+          "id": "6.t4b",
+          "punt": "6",
+          "uitleg": "Stap 4: fiets 1 is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "type": "stadsfiets",
+              "framemaat": 54,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true
+            }
+          }
+        },
+        {
+          "id": "6.t5a",
+          "punt": "6",
+          "uitleg": "Stap 5: fiets 1 verhuren",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/verhuur/1"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.t5b",
+          "punt": "6",
+          "uitleg": "Stap 5: de verhuringen bevatten één regel `verhuurd`",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/verhuringen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": {
+                  "$elk": true
+                },
+                "actie": "verhuurd",
+                "fietsId": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "6.t6",
+          "punt": "6",
+          "uitleg": "Stap 6: de e-bike is al verhuurd",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/verhuur/3"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze fiets is al verhuurd."
+          }
+        },
+        {
+          "id": "6.t7",
+          "punt": "6",
+          "uitleg": "Stap 7: de geschiedenis bevat precies FietsTabel en VerhuringTabel",
+          "sql": "SELECT substring(\"MigrationId\" from position('_' in \"MigrationId\") + 1) FROM \"__EFMigrationsHistory\" ORDER BY \"MigrationId\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "FietsTabel"
+              ],
+              [
+                "VerhuringTabel"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "De tabel Fietsen heeft de kolommen uit punt 3, geen enkele mag leeg blijven",
+          "sql": "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Fietsen'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Framemaat",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Id",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "IsBeschikbaar",
+                "boolean",
+                "",
+                "NO"
+              ],
+              [
+                "PrijsPerDag",
+                "numeric",
+                "",
+                "NO"
+              ],
+              [
+                "Type",
+                "character varying",
+                "30",
+                "NO"
+              ]
+            ],
+            "volgorde": "vrij"
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "PrijsPerDag heeft 6 cijfers, waarvan 2 na de komma",
+          "sql": "SELECT numeric_precision, numeric_scale FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Fietsen' AND column_name = 'PrijsPerDag'",
+          "verwacht": {
+            "rijen": [
+              [
+                "6",
+                "2"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "3.3",
+          "punt": "3",
+          "uitleg": "Id is de sleutel van Fietsen en de database telt zelf op",
+          "sql": "SELECT kcu.column_name, (c.is_identity = 'YES' OR c.column_default LIKE 'nextval%') FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema AND kcu.table_name = tc.table_name JOIN information_schema.columns c ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name WHERE tc.table_schema = 'public' AND tc.table_name = 'Fietsen' AND tc.constraint_type = 'PRIMARY KEY'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "De tabel Verhuringen heeft de kolommen uit punt 4, geen enkele mag leeg blijven",
+          "sql": "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Verhuringen'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Actie",
+                "character varying",
+                "20",
+                "NO"
+              ],
+              [
+                "FietsId",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Id",
+                "integer",
+                "",
+                "NO"
+              ]
+            ],
+            "volgorde": "vrij"
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Id is de sleutel van Verhuringen en de database telt zelf op",
+          "sql": "SELECT kcu.column_name, (c.is_identity = 'YES' OR c.column_default LIKE 'nextval%') FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema AND kcu.table_name = tc.table_name JOIN information_schema.columns c ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name WHERE tc.table_schema = 'public' AND tc.table_name = 'Verhuringen' AND tc.constraint_type = 'PRIMARY KEY'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Er is geen relatie tussen Verhuringen en Fietsen",
+          "sql": "SELECT constraint_name FROM information_schema.table_constraints WHERE table_schema = 'public' AND table_name = 'Verhuringen' AND constraint_type = 'FOREIGN KEY'",
+          "verwacht": {
+            "aantal": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "Dezelfde regels bij vervangen (punt 6)",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "R1",
+          "punt": "6",
+          "uitleg": "Fiets 2 vervangen door een met een type van 31 tekens",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/2",
+            "body": {
+              "type": "AbcdefghijAbcdefghijAbcdefghijA",
+              "framemaat": 48,
+              "prijsPerDag": 18.0,
+              "isBeschikbaar": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het type mag hoogstens 30 tekens lang zijn."
+          }
+        },
+        {
+          "id": "R2",
+          "punt": "6",
+          "uitleg": "Fiets 2 is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "type": "mountainbike",
+              "framemaat": 48,
+              "prijsPerDag": 18.0,
+              "isBeschikbaar": true
+            }
+          }
+        },
+        {
+          "id": "R3",
+          "punt": "6",
+          "uitleg": "De geweigerde acties lieten geen spoor na in de verhuringen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/verhuringen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "De PostgreSQL-database draait in Docker."
+    },
+    {
+      "punt": "3",
+      "tekst": "`appsettings.json` bevat een connectiestring met de naam `PostgresConnection`."
+    },
+    {
+      "punt": "2",
+      "tekst": "Map Data met `FietsverhuurContext : DbContext`, geregistreerd in Program.cs met `UseNpgsql` en de connectiestring `PostgresConnection`; `DbSet<Fiets> Fietsen` en `DbSet<Verhuring> Verhuringen` met de Fluent API in `OnModelCreating`."
+    },
+    {
+      "punt": "4",
+      "tekst": "De migratie `VerhuringTabel` gaat enkel over de tabel `Verhuringen`."
+    },
+    {
+      "punt": "5",
+      "tekst": "Het SQL-script met de startgegevens is zelf geschreven; de startlijst van `InMemoryFietsRepository` is gelijk aan de tabel."
+    }
+  ]
+}

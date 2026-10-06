@@ -1,0 +1,300 @@
+{
+  "formaat": 1,
+  "oefening": "08_01",
+  "titel": "Gerelateerde gegevens ophalen met Include",
+  "hoofdstuk": 8,
+  "opgave": "Oefening_08_01.md",
+  "bouwtOpVan": "07_01",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ArtikelDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "JSON uit punt 4 en 5 en testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1a",
+          "punt": "6",
+          "uitleg": "Artikel 4 met zijn leverancier: JSON uit punt 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/4/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Ryzen 7 7800X3D",
+              "merk": "AMD",
+              "soort": "processor",
+              "prijs": 389.0,
+              "aantalOpVoorraad": 0,
+              "garantiejaren": 3,
+              "leverancierId": 3,
+              "leverancier": {
+                "id": 3,
+                "naam": "ChipCentraal",
+                "land": "Duitsland",
+                "artikelen": [
+                  null
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.1b",
+          "punt": "6",
+          "uitleg": "Leverancier 3 met zijn artikelen: JSON uit punt 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "ChipCentraal",
+              "land": "Duitsland",
+              "artikelen": {
+                "$verzameling": [
+                  {
+                    "id": 3,
+                    "naam": "Ryzen 5 7600X",
+                    "merk": "AMD",
+                    "soort": "processor",
+                    "prijs": 229.5,
+                    "aantalOpVoorraad": 3,
+                    "garantiejaren": 3,
+                    "leverancierId": 3,
+                    "leverancier": null
+                  },
+                  {
+                    "id": 4,
+                    "naam": "Ryzen 7 7800X3D",
+                    "merk": "AMD",
+                    "soort": "processor",
+                    "prijs": 389.0,
+                    "aantalOpVoorraad": 0,
+                    "garantiejaren": 3,
+                    "leverancierId": 3,
+                    "leverancier": null
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Leverancier 4 zonder artikelen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/4/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 4,
+                "artikelen": []
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.3a",
+          "punt": "6",
+          "uitleg": "Details van een onbestaand artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 99."
+          }
+        },
+        {
+          "id": "6.3b",
+          "punt": "6",
+          "uitleg": "Details van een onbestaande leverancier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen leverancier met Id 99."
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Het bestaande endpoint toont nog altijd geen leverancier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "leverancier": null
+              }
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Alle leveranciers met hun artikelen, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1,
+                  "artikelen": {
+                    "$ids": [
+                      1,
+                      5
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 2,
+                  "artikelen": {
+                    "$ids": [
+                      2,
+                      6
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 3,
+                  "artikelen": {
+                    "$ids": [
+                      3,
+                      4
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 4,
+                  "artikelen": []
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "Artikel 4 onderbrengen bij leverancier 4 (endpoint uit 07_01)",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "artikel/4/leverancier/4"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "Leverancier 3 levert enkel nog artikel 3, leverancier 4 artikel 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 2
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 3,
+                  "artikelen": {
+                    "$ids": [
+                      3
+                    ]
+                  }
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 4,
+                  "artikelen": {
+                    "$ids": [
+                      4
+                    ]
+                  }
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "Het bestaande endpoint: enkel artikel 3, zonder leverancier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/3/artikelen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 3,
+                  "leverancier": null
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "Open `ERD.md` in de projectmap: staat de relatie tussen `Leverancier` en `Artikel` erin, op één regel met een korte uitleg, met aan beide kanten de juiste cardinaliteit (een leverancier levert nul of meer artikelen, een artikel komt van precies één leverancier)?"
+    }
+  ]
+}

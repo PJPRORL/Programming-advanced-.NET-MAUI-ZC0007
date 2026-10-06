@@ -1,0 +1,473 @@
+{
+  "formaat": 1,
+  "oefening": "08_05",
+  "titel": "Twee niveaus diep met ThenInclude",
+  "hoofdstuk": 8,
+  "opgave": "Oefening_08_05.md",
+  "bouwtOpVan": "07_05",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "FietsverhuurDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "JSON uit punt 3 en 4 en testscenario punt 5",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "5.1a",
+          "punt": "5",
+          "uitleg": "Koppeling 5 met haar twee kanten: JSON uit punt 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fietsaccessoire/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 5,
+              "fietsId": 4,
+              "fiets": {
+                "id": 4,
+                "type": "bakfiets",
+                "framemaat": 52,
+                "prijsPerDag": 30.0,
+                "isBeschikbaar": true,
+                "fietsAccessoires": [
+                  null
+                ]
+              },
+              "accessoireId": 3,
+              "accessoire": {
+                "id": 3,
+                "naam": "kinderzitje",
+                "fietsAccessoires": [
+                  null
+                ]
+              },
+              "aantal": 2
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.1b",
+          "punt": "5",
+          "uitleg": "Accessoire 1 met zijn fietsen: JSON uit punt 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "naam": "fietsslot",
+              "fietsAccessoires": {
+                "$verzameling": [
+                  {
+                    "id": 1,
+                    "fietsId": 1,
+                    "accessoireId": 1,
+                    "accessoire": null,
+                    "aantal": 1,
+                    "fiets": {
+                      "id": 1,
+                      "type": "stadsfiets",
+                      "framemaat": 54,
+                      "prijsPerDag": 12.5,
+                      "isBeschikbaar": true,
+                      "fietsAccessoires": [
+                        null
+                      ]
+                    }
+                  },
+                  {
+                    "id": 3,
+                    "fietsId": 2,
+                    "accessoireId": 1,
+                    "accessoire": null,
+                    "aantal": 1,
+                    "fiets": {
+                      "id": 2,
+                      "type": "mountainbike",
+                      "framemaat": 48,
+                      "prijsPerDag": 18.0,
+                      "isBeschikbaar": true,
+                      "fietsAccessoires": [
+                        null
+                      ]
+                    }
+                  },
+                  {
+                    "id": 6,
+                    "fietsId": 4,
+                    "accessoireId": 1,
+                    "accessoire": null,
+                    "aantal": 1,
+                    "fiets": {
+                      "id": 4,
+                      "type": "bakfiets",
+                      "framemaat": 52,
+                      "prijsPerDag": 30.0,
+                      "isBeschikbaar": true,
+                      "fietsAccessoires": [
+                        null
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.2a",
+          "punt": "5",
+          "uitleg": "Fiets 1 met haar uitrusting, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "fietsAccessoires": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1,
+                        "fiets": null,
+                        "aantal": 1,
+                        "accessoire": {
+                          "$bevat": {
+                            "id": 1,
+                            "naam": "fietsslot",
+                            "fietsAccessoires": [
+                              null
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 2,
+                        "fiets": null,
+                        "aantal": 2,
+                        "accessoire": {
+                          "$bevat": {
+                            "id": 4,
+                            "naam": "fietstas",
+                            "fietsAccessoires": [
+                              null
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.2b",
+          "punt": "5",
+          "uitleg": "Fiets 3 zonder accessoires",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "fietsAccessoires": []
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.3a",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande koppeling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fietsaccessoire/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen koppeling met Id 99."
+          }
+        },
+        {
+          "id": "5.3b",
+          "punt": "5",
+          "uitleg": "Details van een onbestaand accessoire",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen accessoire met Id 99."
+          }
+        },
+        {
+          "id": "5.3c",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande fiets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen fiets met Id 99."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Het bestaande endpoint toont nog altijd geen koppelingen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "fietsAccessoires": null
+              }
+            }
+          }
+        },
+        {
+          "id": "5.5a",
+          "punt": "5",
+          "uitleg": "Fiets 1 vervangen door de fiets uit stap 6 van 06_05",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/1",
+            "body": {
+              "type": "stadsfiets",
+              "framemaat": 56,
+              "prijsPerDag": 13.5
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "type": "stadsfiets",
+              "framemaat": 56,
+              "prijsPerDag": 13.5,
+              "isBeschikbaar": true,
+              "fietsAccessoires": null
+            },
+            "location": {
+              "eindigtOp": "/api/fiets/5"
+            }
+          }
+        },
+        {
+          "id": "5.5b",
+          "punt": "5",
+          "uitleg": "Fiets 5 heeft de koppelingen 1 en 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "fietsAccessoires": {
+                  "$ids": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.6",
+          "punt": "5",
+          "uitleg": "Accessoire 1: koppelingen 1, 3 en 6, met de fietsen 5, 2 en 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "fietsAccessoires": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1,
+                        "fiets": {
+                          "$bevat": {
+                            "id": 5
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 3,
+                        "fiets": {
+                          "$bevat": {
+                            "id": 2
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 6,
+                        "fiets": {
+                          "$bevat": {
+                            "id": 4
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.7a",
+          "punt": "5",
+          "uitleg": "Koppeling 6 weghalen (endpoint uit 07_05)",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "fietsaccessoire/6"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.7b",
+          "punt": "5",
+          "uitleg": "Details van de weggehaalde koppeling 6",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fietsaccessoire/6/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen koppeling met Id 6."
+          }
+        },
+        {
+          "id": "5.7c",
+          "punt": "5",
+          "uitleg": "Fiets 4: enkel koppeling 5, met accessoire 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/4/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "fietsAccessoires": [
+                  {
+                    "$bevat": {
+                      "id": 5,
+                      "accessoire": {
+                        "$bevat": {
+                          "id": 3
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.8a",
+          "punt": "5",
+          "uitleg": "Accessoire 2 uit het assortiment halen (endpoint uit 07_05)",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "accessoire/2"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.8b",
+          "punt": "5",
+          "uitleg": "Details van het verwijderde accessoire 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/2/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen accessoire met Id 2."
+          }
+        },
+        {
+          "id": "5.8c",
+          "punt": "5",
+          "uitleg": "Fiets 2 heeft enkel nog koppeling 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "fietsAccessoires": [
+                  {
+                    "$bevat": {
+                      "id": 3
+                    }
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "Open `ERD.md` in de projectmap: staan de relaties `Fiets`–`FietsAccessoire` en `Accessoire`–`FietsAccessoire` erin, elk op één regel met een korte uitleg en aan beide kanten de juiste cardinaliteit (een fiets en een accessoire hebben elk nul of meer koppelingen, een koppeling hoort bij precies één fiets en één accessoire), en staat erbij dat `Verhuring` los staat?"
+    }
+  ]
+}

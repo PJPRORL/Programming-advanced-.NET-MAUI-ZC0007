@@ -1,0 +1,520 @@
+{
+  "formaat": 1,
+  "oefening": "09_05",
+  "titel": "DTO's, Mapster en een tussentabel platslaan",
+  "hoofdstuk": 9,
+  "opgave": "Oefening_09_05.md",
+  "bouwtOpVan": "08_05",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "FietsverhuurDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 6, met de voorbeelden uit punt 3 en 5",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Koppeling 5 als read-DTO",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fietsaccessoire/5"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 5,
+              "fietsId": 4,
+              "accessoireId": 3,
+              "aantal": 2
+            }
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Koppeling 5 plat, zonder tussentabel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fietsaccessoire/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 5,
+              "aantal": 2,
+              "fietsId": 4,
+              "fietsType": "bakfiets",
+              "accessoireId": 3,
+              "accessoireNaam": "kinderzitje"
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Accessoire 1 met de fietsen waar het bij hoort",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "naam": "fietsslot",
+              "fietsen": {
+                "$verzameling": [
+                  {
+                    "fietsId": 1,
+                    "type": "stadsfiets",
+                    "framemaat": 54,
+                    "aantal": 1
+                  },
+                  {
+                    "fietsId": 2,
+                    "type": "mountainbike",
+                    "framemaat": 48,
+                    "aantal": 1
+                  },
+                  {
+                    "fietsId": 4,
+                    "type": "bakfiets",
+                    "framemaat": 52,
+                    "aantal": 1
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Fiets 1 met haar uitrusting en aantalStuks, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "type": "stadsfiets",
+              "framemaat": 54,
+              "prijsPerDag": 12.5,
+              "isBeschikbaar": true,
+              "aantalStuks": 3,
+              "uitrusting": {
+                "$verzameling": [
+                  {
+                    "accessoireId": 1,
+                    "naam": "fietsslot",
+                    "aantal": 1
+                  },
+                  {
+                    "accessoireId": 4,
+                    "naam": "fietstas",
+                    "aantal": 2
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.2a",
+          "punt": "6",
+          "uitleg": "Fiets 2 zonder veld fietsAccessoires",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "type": "mountainbike",
+              "framemaat": 48,
+              "prijsPerDag": 18.0,
+              "isBeschikbaar": true,
+              "fietsAccessoires": {
+                "$ontbreekt": true
+              }
+            }
+          }
+        },
+        {
+          "id": "6.2b",
+          "punt": "6",
+          "uitleg": "Bij fiets 4 horen 3 stuks",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/4/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 4,
+                "aantalStuks": 3
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.3a",
+          "punt": "6",
+          "uitleg": "Fiets toevoegen; Id, isBeschikbaar en fietsAccessoires in de body worden genegeerd",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fiets",
+            "body": {
+              "id": 99,
+              "type": "stadsfiets",
+              "framemaat": 50,
+              "prijsPerDag": 11.0,
+              "isBeschikbaar": false,
+              "fietsAccessoires": [
+                {
+                  "accessoireId": 1,
+                  "aantal": 1
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "type": "stadsfiets",
+              "framemaat": 50,
+              "prijsPerDag": 11.0,
+              "isBeschikbaar": true,
+              "fietsAccessoires": {
+                "$ontbreekt": true
+              }
+            },
+            "location": {
+              "eindigtOp": "/api/fiets/5"
+            }
+          }
+        },
+        {
+          "id": "6.3b",
+          "punt": "6",
+          "uitleg": "De verhuringen zijn nog altijd leeg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/verhuringen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "6.4a",
+          "punt": "6",
+          "uitleg": "Bij fiets 5 hoort niets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 5,
+                "aantalStuks": 0,
+                "uitrusting": []
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.4b",
+          "punt": "6",
+          "uitleg": "Accessoire 1 hoort nog altijd bij drie fietsen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "fietsen": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "fietsId": 1
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "fietsId": 2
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "fietsId": 4
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.5a",
+          "punt": "6",
+          "uitleg": "Accessoire 2 koppelen aan fiets 5",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "fietsaccessoire",
+            "body": {
+              "fietsId": 5,
+              "accessoireId": 2,
+              "aantal": 1
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "fietsId": 5,
+              "accessoireId": 2,
+              "aantal": 1
+            },
+            "location": {
+              "eindigtOp": "/api/fietsaccessoire/7"
+            }
+          }
+        },
+        {
+          "id": "6.5b",
+          "punt": "6",
+          "uitleg": "Bij fiets 5 hoort nu 1 stuk",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 5,
+                "aantalStuks": 1
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "Fiets 1 vervangen door de fiets uit stap 6 van 06_05",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/vervang/1",
+            "body": {
+              "type": "stadsfiets",
+              "framemaat": 56,
+              "prijsPerDag": 13.5
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 6,
+              "type": "stadsfiets",
+              "framemaat": 56,
+              "prijsPerDag": 13.5,
+              "isBeschikbaar": true
+            },
+            "location": {
+              "eindigtOp": "/api/fiets/6"
+            }
+          }
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "Fiets 6 heeft de accessoires 1 en 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/6/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 6,
+                "uitrusting": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "accessoireId": 1,
+                        "aantal": 1
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "accessoireId": 4,
+                        "aantal": 2
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.7a",
+          "punt": "6",
+          "uitleg": "Fiets 2 bijwerken met isBeschikbaar false",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/2",
+            "body": {
+              "type": "mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 19.0,
+              "isBeschikbaar": false
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.7b",
+          "punt": "6",
+          "uitleg": "Fiets 2 bijgewerkt en nog altijd beschikbaar",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "type": "mountainbike",
+              "framemaat": 50,
+              "prijsPerDag": 19.0,
+              "isBeschikbaar": true
+            }
+          }
+        },
+        {
+          "id": "6.8a",
+          "punt": "6",
+          "uitleg": "Fiets 2 verhuren",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "fiets/verhuur/2"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.8b",
+          "punt": "6",
+          "uitleg": "Eén verhuring",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/verhuringen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "actie": "verhuurd",
+                "fietsId": 2
+              }
+            ]
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande koppeling: bericht uit 08_05",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fietsaccessoire/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen koppeling met Id 99."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Details van een onbestaand accessoire: bericht uit 08_05",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "accessoire/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen accessoire met Id 99."
+          }
+        },
+        {
+          "id": "5.5",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande fiets: bericht uit 08_05",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "fiets/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen fiets met Id 99."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "1",
+      "tekst": "`IgnoreCycles` staat niet meer in Program.cs."
+    },
+    {
+      "punt": "2",
+      "tekst": "Mapster is geïnstalleerd. Er is een map `DTOs` met een map per model, en een map `Configuration` met een klasse `MapperProfile`, zoals in les 09. Mapster vindt de `MapperProfile` bij het opstarten."
+    },
+    {
+      "punt": "2",
+      "tekst": "Geen enkele DTO bevat een model, en geen enkel model een DTO. Een DTO in een DTO verwijst niet terug."
+    },
+    {
+      "punt": "3",
+      "tekst": "Alle vier de modellen hebben een read-DTO, ook `Verhuring`."
+    },
+    {
+      "punt": "4",
+      "tekst": "De write-DTO's bevatten enkel de velden uit de tabel van punt 4, zonder data annotations voor de controles."
+    }
+  ]
+}

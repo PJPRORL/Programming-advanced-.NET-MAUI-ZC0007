@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProgrammingAdvancedOefeningen.Models;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ProgrammingAdvancedOefeningen.Controllers
 {
@@ -25,6 +26,12 @@ namespace ProgrammingAdvancedOefeningen.Controllers
             return Ok(Artikelen);
         }
 
+        [HttpGet("artikel/{id}")]
+        public ActionResult<Artikel> GetArtikelId(int id)
+        {
+            Artikel artikel = Artikelen.FirstOrDefault(artikel => artikel.Id == id);
 
+            return artikel;
+        }
     }
 }

@@ -1,0 +1,557 @@
+{
+  "formaat": 1,
+  "oefening": "09_03",
+  "titel": "DTO's voor lezen, toevoegen en bijwerken",
+  "hoofdstuk": 9,
+  "opgave": "Oefening_09_03.md",
+  "bouwtOpVan": "08_03",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "BestellijnDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 6, met de voorbeelden uit punt 3 en 5",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Bestellijn 2 als read-DTO",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "omschrijving": "DDR5 32 GB kit",
+              "aantal": 2,
+              "stukPrijs": 109.9,
+              "isActief": true,
+              "bestellingId": 1
+            }
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Bestellijn 2 met referentie en klantnaam, plat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "omschrijving": "DDR5 32 GB kit",
+              "aantal": 2,
+              "stukPrijs": 109.9,
+              "isActief": true,
+              "bestellingId": 1,
+              "referentie": "BB-2026-001",
+              "klantnaam": "An Vermeulen"
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Bestelling 2 met totaalActief en haar lijnen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "referentie": "BB-2026-002",
+              "klantnaam": "Pieter De Wilde",
+              "totaalActief": 163.97,
+              "lijnen": {
+                "$verzameling": [
+                  {
+                    "id": 5,
+                    "omschrijving": "Voeding 750 W",
+                    "aantal": 1,
+                    "stukPrijs": 119.0,
+                    "isActief": true
+                  },
+                  {
+                    "id": 6,
+                    "omschrijving": "Casefan 120 mm",
+                    "aantal": 3,
+                    "stukPrijs": 14.99,
+                    "isActief": true
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Het overzicht van Pieter De Wilde, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/klant/Pieter De Wilde"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "klantnaam": "Pieter De Wilde",
+              "aantalBestellingen": 1,
+              "totaalActief": 163.97,
+              "lijnen": {
+                "$verzameling": [
+                  {
+                    "referentie": "BB-2026-002",
+                    "omschrijving": "Voeding 750 W",
+                    "aantal": 1,
+                    "stukPrijs": 119.0,
+                    "isActief": true
+                  },
+                  {
+                    "referentie": "BB-2026-002",
+                    "omschrijving": "Casefan 120 mm",
+                    "aantal": 3,
+                    "stukPrijs": 14.99,
+                    "isActief": true
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "Bestelling 1 als read-DTO",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 1,
+              "referentie": "BB-2026-001",
+              "klantnaam": "An Vermeulen"
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "De fiche over alle lijnen, met lijn 1 als duurste, zonder veld bestelling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "totaalActief": 772.76,
+                "duursteActieveLijn": {
+                  "id": 1,
+                  "omschrijving": "Moederbord ASUS B650",
+                  "aantal": 1,
+                  "stukPrijs": 249.99,
+                  "isActief": true,
+                  "bestellingId": 1,
+                  "bestelling": {
+                    "$ontbreekt": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.3a",
+          "punt": "6",
+          "uitleg": "Lijn toevoegen; Id, isActief en bestelling in de body worden genegeerd",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "id": 99,
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 1,
+              "stukPrijs": 109.95,
+              "isActief": false,
+              "bestellingId": 3,
+              "bestelling": {
+                "referentie": "BB-2026-999",
+                "klantnaam": "Niemand"
+              }
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 1,
+              "stukPrijs": 109.95,
+              "isActief": true,
+              "bestellingId": 3
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/7"
+            }
+          }
+        },
+        {
+          "id": "6.3b",
+          "punt": "6",
+          "uitleg": "Nog altijd de bestellingen 1, 2 en 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.4a",
+          "punt": "6",
+          "uitleg": "Lijn 7 bijwerken met aantal 2, bestellingId 1 en isActief false",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/7",
+            "body": {
+              "id": 99,
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 2,
+              "stukPrijs": 109.95,
+              "isActief": false,
+              "bestellingId": 1,
+              "bestelling": {
+                "referentie": "BB-2026-999",
+                "klantnaam": "Niemand"
+              }
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.4b",
+          "punt": "6",
+          "uitleg": "Lijn 7: aantal 2, nog actief, nog bij bestelling 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/7"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 7,
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 2,
+              "stukPrijs": 109.95,
+              "isActief": true,
+              "bestellingId": 3
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Bestelling 3 met enkel lijn 7",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 3,
+                "totaalActief": 219.9,
+                "lijnen": {
+                  "$ids": [
+                    7
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "De volledige bestelling uit punt 4 van 07_03",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Processor Ryzen 7 7800X3D",
+                  "aantal": 1,
+                  "stukPrijs": 389.0
+                },
+                {
+                  "omschrijving": "Koelpasta",
+                  "aantal": 2,
+                  "stukPrijs": 7.99
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 4,
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz",
+              "totaalActief": 404.98,
+              "lijnen": {
+                "$verzameling": [
+                  {
+                    "$bevat": {
+                      "id": 8,
+                      "isActief": true
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "id": 9,
+                      "isActief": true
+                    }
+                  }
+                ]
+              }
+            },
+            "location": {
+              "eindigtOp": "/api/bestelling/4"
+            }
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "De volledige bestelling uit stap 6 van 08_03",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-005",
+              "klantnaam": "An Vermeulen",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Voeding 850 W",
+                  "aantal": 1,
+                  "stukPrijs": 139.0
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "referentie": "BB-2026-005",
+              "klantnaam": "An Vermeulen",
+              "totaalActief": 139.0,
+              "lijnen": [
+                {
+                  "id": 10,
+                  "omschrijving": "Voeding 850 W",
+                  "aantal": 1,
+                  "stukPrijs": 139.0,
+                  "isActief": true
+                }
+              ]
+            },
+            "location": {
+              "eindigtOp": "/api/bestelling/5"
+            }
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "Het overzicht van an vermeulen, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/klant/an vermeulen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "klantnaam": "An Vermeulen",
+              "aantalBestellingen": 2,
+              "totaalActief": 747.79,
+              "lijnen": {
+                "$verzameling": [
+                  {
+                    "$bevat": {
+                      "referentie": "BB-2026-001",
+                      "isActief": true
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "referentie": "BB-2026-001",
+                      "isActief": true
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "referentie": "BB-2026-001",
+                      "isActief": true
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "referentie": "BB-2026-001",
+                      "isActief": false
+                    }
+                  },
+                  {
+                    "$bevat": {
+                      "referentie": "BB-2026-005"
+                    }
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "Een klant zonder bestellingen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/klant/Jan Peeters"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestellingen voor Jan Peeters."
+          }
+        },
+        {
+          "id": "6.10a",
+          "punt": "6",
+          "uitleg": "Volledige bestelling met een lijn met stukprijs 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-006",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Koelpasta",
+                  "aantal": 2,
+                  "stukPrijs": 0
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De stukprijs moet groter zijn dan 0."
+          }
+        },
+        {
+          "id": "6.10b",
+          "punt": "6",
+          "uitleg": "Nog altijd vijf bestellingen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Details van een geschrapte lijn: bericht uit 08_03",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/4/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id 4."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande bestelling: bericht uit 08_03",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen bestelling met Id 99."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "1",
+      "tekst": "`IgnoreCycles` staat niet meer in Program.cs."
+    },
+    {
+      "punt": "2",
+      "tekst": "Mapster is geïnstalleerd. Er is een map `DTOs` met een map per model, en een map `Configuration` met een klasse `MapperProfile`, zoals in les 09. Mapster vindt de `MapperProfile` bij het opstarten."
+    },
+    {
+      "punt": "2",
+      "tekst": "Geen enkele DTO bevat een model, en geen enkel model een DTO. Een DTO in een DTO verwijst niet terug."
+    },
+    {
+      "punt": "3",
+      "tekst": "`BestelFiche` staat in de map `DTOs`; `duursteActieveLijn` is de read-DTO van een bestellijn, niet het model."
+    },
+    {
+      "punt": "4",
+      "tekst": "Aparte write-DTO's om toe te voegen en bij te werken, met enkel de velden uit de tabel van punt 4, zonder data annotations voor de controles."
+    }
+  ]
+}

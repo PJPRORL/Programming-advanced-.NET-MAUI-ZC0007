@@ -1,0 +1,221 @@
+{
+  "formaat": 1,
+  "oefening": "03_01",
+  "titel": "Repository en dependency injection",
+  "hoofdstuk": 3,
+  "opgave": "Oefening_03_01.md",
+  "bouwtOpVan": "02_01",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Endpoints uit punt 1, merk uit punt 6 en fiche uit punt 7",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1.1",
+          "punt": "1",
+          "uitleg": "De volledige lijst; het eerste artikel wordt onthouden",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel"
+          },
+          "verwacht": {
+            "status": 200
+          },
+          "bewaar": {
+            "id": "[0].id",
+            "soort": "[0].soort",
+            "merk": "[0].merk"
+          }
+        },
+        {
+          "id": "1.2",
+          "punt": "1",
+          "uitleg": "Eén artikel opvragen; de JSON heeft dezelfde velden als in 02_01",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/{{id}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{id}}",
+              "naam": {
+                "$elk": true
+              },
+              "merk": "{{merk}}",
+              "soort": "{{soort}}",
+              "prijs": {
+                "$elk": true
+              },
+              "aantalOpVoorraad": {
+                "$elk": true
+              }
+            }
+          }
+        },
+        {
+          "id": "1.3",
+          "punt": "1",
+          "uitleg": "Een onbestaand artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 999."
+          }
+        },
+        {
+          "id": "1.4",
+          "punt": "1",
+          "uitleg": "Artikelen van de soort van het eerste artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/soort/{{soort}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "$bevat": {
+                  "soort": "{{soort}}"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "1.5",
+          "punt": "1",
+          "uitleg": "Een soort die niet in de lijst staat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/soort/koelkast"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikelen van de soort koelkast."
+          }
+        },
+        {
+          "id": "1.6",
+          "punt": "1",
+          "uitleg": "Artikelen op voorraad: altijd 200, ook bij een lege lijst",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/voorradig"
+          },
+          "verwacht": {
+            "status": 200
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Artikelen van het merk van het eerste artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/merk/{{merk}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "$bevat": {
+                  "merk": "{{merk}}"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Een merk dat niet in de lijst staat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/merk/onbekend"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikelen van het merk onbekend."
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "De fiche van het eerste artikel, met de vier gegevens uit 02_01",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/fiche/{{id}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "artikel": {
+                "$bevat": {
+                  "id": "{{id}}"
+                }
+              },
+              "isVoorradig": {
+                "$elk": true
+              },
+              "aantalVanDezelfdeSoort": {
+                "$elk": true
+              },
+              "isGoedkoopsteVanDeSoort": {
+                "$elk": true
+              }
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "De fiche van een onbestaand artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/fiche/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 999."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "Map Repositories met de interface `IArtikelRepository`: enkel methodekoppen voor alle artikelen, één artikel op Id (of niets), per soort, op voorraad en per merk."
+    },
+    {
+      "punt": "3",
+      "tekst": "`InMemoryArtikelRepository` implementeert `IArtikelRepository` en bevat de lijst; in de ArtikelController staat geen lijst met artikelen meer."
+    },
+    {
+      "punt": "4",
+      "tekst": "De ArtikelController krijgt `IArtikelRepository` via zijn constructor en bewaart die in een privaat veld; nergens `new` voor een repository; Program.cs legt vast welke klasse geleverd wordt."
+    },
+    {
+      "punt": "5",
+      "tekst": "De controller krijgt `ILogger<ArtikelController>` via zijn constructor; elk verzoek logt een regel op Information, elke 404 een regel op Warning."
+    },
+    {
+      "punt": "6",
+      "tekst": "Een merk uit de eigen lijst in kleine letters en in hoofdletters geeft twee keer dezelfde artikelen (de startgegevens liggen in hoofdstuk 03 niet vast); het filteren gebeurt in de repository."
+    },
+    {
+      "punt": "7",
+      "tekst": "De fiches van drie artikelen tonen dezelfde gegevens als in 02_01; `AantalVanDezelfdeSoort` is 0 bij een artikel dat als enige van zijn soort in de lijst zit; bij twee artikelen van dezelfde soort met een verschillende prijs staat `IsGoedkoopsteVanDeSoort` maar bij één op ja; een onbestaande fiche zet een Warning in de log."
+    }
+  ]
+}

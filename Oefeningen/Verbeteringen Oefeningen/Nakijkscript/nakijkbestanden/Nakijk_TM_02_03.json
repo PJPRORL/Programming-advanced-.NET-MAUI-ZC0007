@@ -1,0 +1,186 @@
+{
+  "formaat": 1,
+  "oefening": "TM_02_03",
+  "titel": "De Gouden Oesters: bestellingen, GET + PUT + DELETE",
+  "hoofdstuk": 2,
+  "opgave": "Oefening2_3_TM.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "",
+    "probeer": [
+      "api/"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden uit punt 1 tot 4",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1.1",
+          "punt": "1",
+          "uitleg": "Alle bestellingen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellingen"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "naam": "Anna Jansen",
+                "tafelnummer": 4,
+                "gerechten": "Lasagne-Salade",
+                "status": "Gereed"
+              },
+              {
+                "id": 2,
+                "naam": "Youssef Benali",
+                "tafelnummer": 7,
+                "gerechten": "Risotto-Gegrilde Groenten",
+                "status": "Bereiden"
+              },
+              {
+                "id": 3,
+                "naam": "Maria De Smet",
+                "tafelnummer": 2,
+                "gerechten": "Pasta Carbonara",
+                "status": "Gereed"
+              }
+            ]
+          }
+        },
+        {
+          "id": "2.1",
+          "punt": "2",
+          "uitleg": "Bestelling 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellingen/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "naam": "Youssef Benali",
+              "tafelnummer": 7,
+              "gerechten": "Risotto-Gegrilde Groenten",
+              "status": "Bereiden"
+            }
+          }
+        },
+        {
+          "id": "2.2",
+          "punt": "2",
+          "uitleg": "Onbestaande bestelling: 404 zonder body",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellingen/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        },
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Bestelling 2 bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellingen/2",
+            "body": {
+              "id": 2,
+              "naam": "Youssef Benali",
+              "tafelnummer": 7,
+              "gerechten": "Risotto-Gegrilde Groenten",
+              "status": "Gereed"
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "Bestelling 2 heeft nu de status Gereed",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellingen/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "naam": "Youssef Benali",
+              "tafelnummer": 7,
+              "gerechten": "Risotto-Gegrilde Groenten",
+              "status": "Gereed"
+            }
+          }
+        },
+        {
+          "id": "3.3",
+          "punt": "3",
+          "uitleg": "Onbestaande bestelling bijwerken: 404 zonder body",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellingen/99",
+            "body": {
+              "id": 99,
+              "naam": "Youssef Benali",
+              "tafelnummer": 7,
+              "gerechten": "Risotto-Gegrilde Groenten",
+              "status": "Gereed"
+            }
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Bestelling 1 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellingen/1"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Bestelling 1 bestaat niet meer",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellingen/1"
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Onbestaande bestelling verwijderen: 404 zonder body",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellingen/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        }
+      ]
+    }
+  ]
+}

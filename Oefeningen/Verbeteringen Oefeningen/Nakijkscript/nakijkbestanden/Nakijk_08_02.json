@@ -1,0 +1,460 @@
+{
+  "formaat": 1,
+  "oefening": "08_02",
+  "titel": "Twee niveaus diep met ThenInclude",
+  "hoofdstuk": 8,
+  "opgave": "Oefening_08_02.md",
+  "bouwtOpVan": "07_02",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "VentilatorDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "JSON uit punt 3 en 4 en testscenario punt 5",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "5.1a",
+          "punt": "5",
+          "uitleg": "Compatibiliteit 4 met haar twee kanten: JSON uit punt 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/4/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "behuizingId": 2,
+              "behuizing": {
+                "id": 2,
+                "naam": "Airflow Mini",
+                "formaat": "mini tower",
+                "compatibiliteiten": [
+                  null
+                ]
+              },
+              "ventilatorId": 3,
+              "ventilator": {
+                "id": 3,
+                "merk": "Corsair",
+                "afmetingInMm": 120,
+                "verlichting": "RGB",
+                "prijs": 34.9,
+                "compatibiliteiten": [
+                  null
+                ]
+              },
+              "aantalPlaatsen": 2
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.1b",
+          "punt": "5",
+          "uitleg": "Ventilator 2 met zijn behuizingen: JSON uit punt 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/2/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "merk": "be quiet!",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 24.9,
+              "compatibiliteiten": {
+                "$verzameling": [
+                  {
+                    "id": 2,
+                    "behuizingId": 1,
+                    "ventilatorId": 2,
+                    "ventilator": null,
+                    "aantalPlaatsen": 2,
+                    "behuizing": {
+                      "id": 1,
+                      "naam": "Silent Base",
+                      "formaat": "midi tower",
+                      "compatibiliteiten": [
+                        null
+                      ]
+                    }
+                  },
+                  {
+                    "id": 5,
+                    "behuizingId": 3,
+                    "ventilatorId": 2,
+                    "ventilator": null,
+                    "aantalPlaatsen": 4,
+                    "behuizing": {
+                      "id": 3,
+                      "naam": "Studio XL",
+                      "formaat": "big tower",
+                      "compatibiliteiten": [
+                        null
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Behuizing 1 met haar ventilatoren, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "compatibiliteiten": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1,
+                        "behuizing": null,
+                        "aantalPlaatsen": 3,
+                        "ventilator": {
+                          "$bevat": {
+                            "id": 1,
+                            "merk": "Noctua",
+                            "compatibiliteiten": [
+                              null
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 2,
+                        "behuizing": null,
+                        "aantalPlaatsen": 2,
+                        "ventilator": {
+                          "$bevat": {
+                            "id": 2,
+                            "merk": "be quiet!",
+                            "compatibiliteiten": [
+                              null
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.3a",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande compatibiliteit",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen compatibiliteit met Id 99."
+          }
+        },
+        {
+          "id": "5.3b",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande ventilator",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen ventilator met Id 99."
+          }
+        },
+        {
+          "id": "5.3c",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande behuizing",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen behuizing met Id 99."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Het bestaande endpoint toont nog altijd geen compatibiliteiten",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "compatibiliteiten": null
+              }
+            }
+          }
+        },
+        {
+          "id": "5.5a",
+          "punt": "5",
+          "uitleg": "Ventilator 1 vervangen door de ventilator uit stap 5 van 06_02",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/1",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 31.9
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 31.9,
+              "compatibiliteiten": null
+            },
+            "location": {
+              "eindigtOp": "/api/ventilator/5"
+            }
+          }
+        },
+        {
+          "id": "5.5b",
+          "punt": "5",
+          "uitleg": "Behuizing 1 toont nu ventilator 5 in compatibiliteit 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "compatibiliteiten": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1,
+                        "ventilatorId": 5,
+                        "ventilator": {
+                          "$bevat": {
+                            "id": 5
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 2
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.6",
+          "punt": "5",
+          "uitleg": "Ventilator 5: compatibiliteiten 1 en 3, met behuizing 1 en 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "compatibiliteiten": {
+                  "$verzameling": [
+                    {
+                      "$bevat": {
+                        "id": 1,
+                        "behuizing": {
+                          "$bevat": {
+                            "id": 1
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "$bevat": {
+                        "id": 3,
+                        "behuizing": {
+                          "$bevat": {
+                            "id": 2
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.7a",
+          "punt": "5",
+          "uitleg": "Compatibiliteit 6 weghalen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "compatibiliteit/6"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.7b",
+          "punt": "5",
+          "uitleg": "Ventilator 4 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ventilator/4"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.7c",
+          "punt": "5",
+          "uitleg": "Details van de verwijderde ventilator 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/4/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen ventilator met Id 4."
+          }
+        },
+        {
+          "id": "5.7d",
+          "punt": "5",
+          "uitleg": "Behuizing 3: enkel compatibiliteit 5, met ventilator 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "compatibiliteiten": [
+                  {
+                    "$bevat": {
+                      "id": 5,
+                      "ventilator": {
+                        "$bevat": {
+                          "id": 2
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.8a",
+          "punt": "5",
+          "uitleg": "Behuizing 2 uit het gamma halen (endpoint uit 07_02)",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "behuizing/2"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "5.8b",
+          "punt": "5",
+          "uitleg": "Ventilator 5 heeft enkel nog compatibiliteit 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "compatibiliteiten": [
+                  {
+                    "$bevat": {
+                      "id": 1
+                    }
+                  }
+                ]
+              }
+            },
+            "queries": 1
+          }
+        },
+        {
+          "id": "5.8c",
+          "punt": "5",
+          "uitleg": "Ventilator 3 past nergens meer in",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "compatibiliteiten": []
+              }
+            },
+            "queries": 1
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "Open `ERD.md` in de projectmap: staan de relaties `Behuizing`–`Compatibiliteit` en `Ventilator`–`Compatibiliteit` erin, elk op één regel met een korte uitleg en aan beide kanten de juiste cardinaliteit (een behuizing en een ventilator hebben elk nul of meer compatibiliteiten, een compatibiliteit hoort bij precies één behuizing en één ventilator), en staat erbij dat `Wijziging` los staat?"
+    }
+  ]
+}

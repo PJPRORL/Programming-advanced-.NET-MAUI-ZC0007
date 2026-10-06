@@ -1,0 +1,767 @@
+{
+  "formaat": 1,
+  "oefening": "03_03",
+  "titel": "Twee repositories, één contract",
+  "hoofdstuk": 3,
+  "opgave": "Oefening_03_03.md",
+  "bouwtOpVan": "02_03",
+  "soort": "bestand",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "bestanden": [
+    "bestellijnen.json"
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 6, met de bestandsrepository",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "6.0",
+          "punt": "6",
+          "uitleg": "Voorbereiding: een actieve lijn van 2 x 12.50 toevoegen, die in stap 2 geschrapt wordt",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Testlijn A",
+              "aantal": 2,
+              "stukPrijs": 12.5,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "omschrijving": "Testlijn A",
+              "aantal": 2,
+              "stukPrijs": 12.5,
+              "isActief": true
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/{{x}}"
+            }
+          },
+          "bewaar": {
+            "x": "id"
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Stap 1: de fiche opvragen en noteren",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": {
+                "$elk": true
+              },
+              "aantalGeschrapteLijnen": {
+                "$elk": true
+              },
+              "totaalActief": {
+                "$elk": true
+              },
+              "totaalGeschrapt": {
+                "$elk": true
+              },
+              "duursteActieveLijn": {
+                "$elk": true
+              },
+              "isLeeg": false
+            }
+          },
+          "bewaar": {
+            "a1": "aantalActieveLijnen",
+            "g1": "aantalGeschrapteLijnen",
+            "ta1": "totaalActief",
+            "tg1": "totaalGeschrapt"
+          }
+        },
+        {
+          "id": "6.2a",
+          "punt": "6",
+          "uitleg": "Stap 2: een geldige lijn van 2 x 20.00 toevoegen, met haar adres",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Testlijn B",
+              "aantal": 2,
+              "stukPrijs": 20.0,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "omschrijving": "Testlijn B",
+              "aantal": 2,
+              "stukPrijs": 20.0,
+              "isActief": true
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/{{n}}"
+            }
+          },
+          "bewaar": {
+            "n": "id"
+          }
+        },
+        {
+          "id": "6.2b",
+          "punt": "6",
+          "uitleg": "Stap 2: een andere actieve lijn schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn/{{x}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Stap 3: evenveel actieve lijnen, één geschrapte meer, TotaalActief +40.00 -25.00, TotaalGeschrapt +25.00",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": "{{a1}}",
+              "aantalGeschrapteLijnen": {
+                "$reken": "{{g1}} + 1"
+              },
+              "totaalActief": {
+                "$reken": "{{ta1}} + 40.00 - 25.00"
+              },
+              "totaalGeschrapt": {
+                "$reken": "{{tg1}} + 25.00"
+              },
+              "duursteActieveLijn": {
+                "$elk": true
+              },
+              "isLeeg": false
+            }
+          },
+          "bewaar": {
+            "a3": "aantalActieveLijnen",
+            "g3": "aantalGeschrapteLijnen",
+            "ta3": "totaalActief",
+            "tg3": "totaalGeschrapt",
+            "d3": "duursteActieveLijn.id"
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Stap 4: de API stoppen en opnieuw starten",
+          "actie": "herstart"
+        },
+        {
+          "id": "6.5a",
+          "punt": "6",
+          "uitleg": "Stap 5: de fiche is exact die van stap 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": "{{a3}}",
+              "aantalGeschrapteLijnen": "{{g3}}",
+              "totaalActief": "{{ta3}}",
+              "totaalGeschrapt": "{{tg3}}",
+              "duursteActieveLijn": {
+                "$bevat": {
+                  "id": "{{d3}}"
+                }
+              },
+              "isLeeg": false
+            }
+          }
+        },
+        {
+          "id": "6.5b",
+          "punt": "6",
+          "uitleg": "Stap 5: de geschrapte lijn staat nog in alle bestellijnen, als geschrapt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$heeftElement": {
+                "id": "{{x}}",
+                "omschrijving": "Testlijn A",
+                "aantal": 2,
+                "stukPrijs": 12.5,
+                "isActief": false
+              }
+            }
+          }
+        },
+        {
+          "id": "6.5c",
+          "punt": "6",
+          "uitleg": "Stap 5: de geschrapte lijn is nog altijd geschrapt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{x}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id {{x}}."
+          }
+        },
+        {
+          "id": "6.5d",
+          "punt": "6",
+          "uitleg": "Stap 5: de nieuwe lijn uit stap 2 is er nog",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{n}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{n}}",
+              "omschrijving": "Testlijn B",
+              "aantal": 2,
+              "stukPrijs": 20.0,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "Stap 6: nog een lijn toevoegen, met haar adres",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Testlijn C",
+              "aantal": 3,
+              "stukPrijs": 4.0,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "omschrijving": "Testlijn C",
+              "aantal": 3,
+              "stukPrijs": 4.0,
+              "isActief": true
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/{{m}}"
+            }
+          },
+          "bewaar": {
+            "m": "id"
+          }
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "Stap 6: de nieuwe lijn is op haar eigen Id op te vragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{m}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{m}}",
+              "omschrijving": "Testlijn C",
+              "aantal": 3,
+              "stukPrijs": 4.0,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "6.6c",
+          "punt": "6",
+          "uitleg": "Stap 6: de lijn uit stap 2 deelt haar Id niet",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{n}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{n}}",
+              "omschrijving": "Testlijn B",
+              "aantal": 2,
+              "stukPrijs": 20.0,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "6.6d",
+          "punt": "6",
+          "uitleg": "Stap 6: de geschrapte lijn deelt haar Id niet",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{x}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id {{x}}."
+          }
+        },
+        {
+          "id": "6.7a",
+          "punt": "6",
+          "uitleg": "Stap 7: de lijn uit stap 2 herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/{{x}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.7b",
+          "punt": "6",
+          "uitleg": "Stap 7: de hele bestelling schrappen; `isLeeg` staat op ja",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 0,
+              "aantalGeschrapteLijnen": {
+                "$elk": true
+              },
+              "totaalActief": 0,
+              "totaalGeschrapt": {
+                "$elk": true
+              },
+              "duursteActieveLijn": null,
+              "isLeeg": true
+            }
+          },
+          "bewaar": {
+            "tg7": "totaalGeschrapt"
+          }
+        },
+        {
+          "id": "6.8a",
+          "punt": "6",
+          "uitleg": "Stap 8: opnieuw herstarten",
+          "actie": "herstart"
+        },
+        {
+          "id": "6.8b",
+          "punt": "6",
+          "uitleg": "Stap 8: de fiche is nog altijd leeg, en AantalGeschrapteLijnen telt alle lijnen (stap 1 + 2 nieuwe)",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 0,
+              "aantalGeschrapteLijnen": {
+                "$reken": "{{a1}} + {{g1}} + 2"
+              },
+              "totaalActief": 0,
+              "totaalGeschrapt": "{{tg7}}",
+              "duursteActieveLijn": null,
+              "isLeeg": true
+            }
+          }
+        },
+        {
+          "id": "6.8c",
+          "punt": "6",
+          "uitleg": "Stap 8: geen enkele actieve lijn meer: alle lijnen zijn geschrapt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "Regels uit punt 1",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "R1",
+          "punt": "1",
+          "uitleg": "Een onbestaande bestellijn opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id 999."
+          }
+        },
+        {
+          "id": "R2",
+          "punt": "1",
+          "uitleg": "Toevoegen zonder omschrijving",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "",
+              "aantal": 1,
+              "stukPrijs": 9.99,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een bestellijn moet een omschrijving hebben."
+          }
+        },
+        {
+          "id": "R3",
+          "punt": "1",
+          "uitleg": "Toevoegen met aantal 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Testlijn D",
+              "aantal": 0,
+              "stukPrijs": 9.99,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het aantal moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "R4",
+          "punt": "1",
+          "uitleg": "Toevoegen met stukprijs 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Testlijn D",
+              "aantal": 1,
+              "stukPrijs": 0,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De stukprijs moet groter zijn dan 0."
+          }
+        },
+        {
+          "id": "R5",
+          "punt": "1",
+          "uitleg": "Een nieuwe lijn is altijd actief, ook als de client nee meestuurt",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Testlijn D",
+              "aantal": 1,
+              "stukPrijs": 9.99,
+              "isActief": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "omschrijving": "Testlijn D",
+              "aantal": 1,
+              "stukPrijs": 9.99,
+              "isActief": true
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/{{y}}"
+            }
+          },
+          "bewaar": {
+            "y": "id"
+          }
+        },
+        {
+          "id": "R6",
+          "punt": "1",
+          "uitleg": "Bijwerken met aantal 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/{{y}}",
+            "body": {
+              "omschrijving": "Testlijn D",
+              "aantal": 0,
+              "stukPrijs": 9.99,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het aantal moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "R7",
+          "punt": "1",
+          "uitleg": "Geldig bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/{{y}}",
+            "body": {
+              "omschrijving": "Testlijn D",
+              "aantal": 2,
+              "stukPrijs": 9.99,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "R8",
+          "punt": "1",
+          "uitleg": "De bijgewerkte lijn heeft de nieuwe gegevens",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{y}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{y}}",
+              "omschrijving": "Testlijn D",
+              "aantal": 2,
+              "stukPrijs": 9.99,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "R9",
+          "punt": "1",
+          "uitleg": "Een actieve lijn herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/{{y}}"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze bestellijn is niet geschrapt."
+          }
+        },
+        {
+          "id": "R10",
+          "punt": "1",
+          "uitleg": "De lijn schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn/{{y}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "R11",
+          "punt": "1",
+          "uitleg": "Dezelfde lijn een tweede keer schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn/{{y}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan bestellijn met Id {{y}} niet schrappen, omdat deze niet gevonden is."
+          }
+        },
+        {
+          "id": "R12",
+          "punt": "1",
+          "uitleg": "Een geschrapte lijn opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{y}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id {{y}}."
+          }
+        },
+        {
+          "id": "R13",
+          "punt": "1",
+          "uitleg": "Een geschrapte lijn bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/{{y}}",
+            "body": {
+              "omschrijving": "Testlijn D",
+              "aantal": 2,
+              "stukPrijs": 9.99,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "R14",
+          "punt": "1",
+          "uitleg": "Een onbestaande lijn herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/999"
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "R15",
+          "punt": "1",
+          "uitleg": "De geschrapte lijn herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/{{y}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "R16",
+          "punt": "1",
+          "uitleg": "De herstelde lijn is weer actief",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/{{y}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{y}}",
+              "omschrijving": "Testlijn D",
+              "aantal": 2,
+              "stukPrijs": 9.99,
+              "isActief": true
+            }
+          }
+        },
+        {
+          "id": "R17",
+          "punt": "1",
+          "uitleg": "Een onbestaande lijn schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan bestellijn met Id 999 niet schrappen, omdat deze niet gevonden is."
+          }
+        },
+        {
+          "id": "R18",
+          "punt": "1",
+          "uitleg": "De hele bestelling schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "aantalActieveLijnen": 0,
+                "totaalActief": 0,
+                "duursteActieveLijn": null,
+                "isLeeg": true
+              }
+            }
+          }
+        },
+        {
+          "id": "R19",
+          "punt": "1",
+          "uitleg": "De hele bestelling nog eens schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Er zijn geen actieve bestellijnen om te schrappen."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "`IBestellijnRepository` bevat enkel methodes die gegevens ophalen of bewaren; geldigheid en statuscodes beslist de controller."
+    },
+    {
+      "punt": "3",
+      "tekst": "`InMemoryBestellijnRepository` bevat de lijst; constructor injection van `IBestellijnRepository` en `ILogger<BestellijnController>`; Information per verzoek, Warning bij elke 400 en 404; schrappen blijft een soft delete."
+    },
+    {
+      "punt": "4",
+      "tekst": "`BestandBestellijnRepository` leest `bestellijnen.json` bij de start, schrijft de startlijst weg als het bestand niet bestaat, en schrijft na elke wijziging; het bestand bevat leesbare JSON met `IsActief`."
+    },
+    {
+      "punt": "5",
+      "tekst": "Wisselen in Program.cs zonder iets aan de BestellijnController te veranderen. Het script test met de bestandsrepository."
+    },
+    {
+      "punt": "6",
+      "tekst": "Stap 9: met de in-memory repository stap 1 tot en met 4 doorlopen; na de herstart staan de fiche en alle bestellijnen weer zoals in de startlijst."
+    }
+  ]
+}

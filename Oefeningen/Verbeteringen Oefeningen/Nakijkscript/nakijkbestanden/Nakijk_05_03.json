@@ -1,0 +1,320 @@
+{
+  "formaat": 1,
+  "oefening": "05_03",
+  "titel": "Bestand of database, asynchroon",
+  "hoofdstuk": 5,
+  "opgave": "Oefening_05_03.md",
+  "bouwtOpVan": "04_03",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "BestellijnDb",
+    "opbouwen": "sqlscript"
+  },
+  "bestanden": [
+    "bestellijnen.json"
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden uit punt 5 en testscenario punt 6, met de databaserepository",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Actieve lijnen boven 150, de duurste eerst",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/boven/150"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Geen lijnen boven 1000",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/boven/1000"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De fiche uit 04_03",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 5,
+              "aantalGeschrapteLijnen": 1,
+              "totaalActief": 772.76,
+              "totaalGeschrapt": 89.95,
+              "duursteActieveLijn": {
+                "id": 1,
+                "omschrijving": "Moederbord ASUS B650",
+                "aantal": 1,
+                "stukPrijs": 249.99,
+                "isActief": true
+              },
+              "isLeeg": false
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Een lijn toevoegen: Id 7, actief",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 1,
+              "stukPrijs": 109.95
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "omschrijving": "Koeler Noctua NH-D15",
+              "aantal": 1,
+              "stukPrijs": 109.95,
+              "isActief": true
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/7"
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Lijn 3 schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn/3"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "De fiche na stap 2 en 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 5,
+              "aantalGeschrapteLijnen": 2,
+              "totaalActief": 743.71,
+              "totaalGeschrapt": 228.95,
+              "duursteActieveLijn": {
+                "id": 1,
+                "omschrijving": "Moederbord ASUS B650",
+                "aantal": 1,
+                "stukPrijs": 249.99,
+                "isActief": true
+              },
+              "isLeeg": false
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Actieve lijnen boven 150, de duurste eerst",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/boven/150"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "API stoppen en opnieuw starten",
+          "actie": "herstart"
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "De fiche is dezelfde als in stap 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 5,
+              "aantalGeschrapteLijnen": 2,
+              "totaalActief": 743.71,
+              "totaalGeschrapt": 228.95,
+              "duursteActieveLijn": {
+                "id": 1,
+                "omschrijving": "Moederbord ASUS B650",
+                "aantal": 1,
+                "stukPrijs": 249.99,
+                "isActief": true
+              },
+              "isLeeg": false
+            }
+          }
+        },
+        {
+          "id": "6.7a",
+          "punt": "6",
+          "uitleg": "Lijn 3 herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/herstel/3"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.7b",
+          "punt": "6",
+          "uitleg": "De hele bestelling schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 0,
+              "aantalGeschrapteLijnen": 7,
+              "totaalActief": 0,
+              "totaalGeschrapt": 972.66,
+              "duursteActieveLijn": null,
+              "isLeeg": true
+            }
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "De hele bestelling nog eens schrappen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Er zijn geen actieve bestellijnen om te schrappen."
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "4",
+          "uitleg": "De databaserepository bewaarde alles in de tabel Bestellijnen",
+          "sql": "SELECT \"Id\", \"Omschrijving\", \"Aantal\", \"StukPrijs\", \"IsActief\" FROM \"Bestellijnen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Moederbord ASUS B650",
+                "1",
+                "249.99",
+                "f"
+              ],
+              [
+                "2",
+                "DDR5 32 GB kit",
+                "2",
+                "109.90",
+                "f"
+              ],
+              [
+                "3",
+                "NVMe SSD 2 TB",
+                "1",
+                "139.00",
+                "f"
+              ],
+              [
+                "4",
+                "Behuizing midi tower",
+                "1",
+                "89.95",
+                "f"
+              ],
+              [
+                "5",
+                "Voeding 750 W",
+                "1",
+                "119.00",
+                "f"
+              ],
+              [
+                "6",
+                "Casefan 120 mm",
+                "3",
+                "14.99",
+                "f"
+              ],
+              [
+                "7",
+                "Koeler Noctua NH-D15",
+                "1",
+                "109.95",
+                "f"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "6",
+      "tekst": "Wissel in Program.cs naar `BestandBestellijnRepository`, verwijder `bestellijnen.json`, start de API en doorloop stap 1 tot en met 8 opnieuw: elk antwoord is hetzelfde als met de databaserepository, ook Id 7 voor de nieuwe lijn. Daarna terug naar `BestellijnRepository`."
+    },
+    {
+      "punt": "3",
+      "tekst": "`BestandBestellijnRepository` leest en schrijft `bestellijnen.json` asynchroon, en leest het bestand niet in zijn constructor."
+    },
+    {
+      "punt": "5",
+      "tekst": "In de SQL bij `GET api/bestellijn/boven/{bedrag}` staan de vermenigvuldiging, de vergelijking en het sorteren."
+    }
+  ]
+}

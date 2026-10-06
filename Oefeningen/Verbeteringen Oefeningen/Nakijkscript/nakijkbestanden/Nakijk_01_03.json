@@ -1,0 +1,167 @@
+{
+  "formaat": 1,
+  "oefening": "01_03",
+  "titel": "Twee routeparameters in één route",
+  "hoofdstuk": 1,
+  "opgave": "Oefening_01_03.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "",
+    "probeer": [
+      "api/"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden en regels uit punt 1 tot 5",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1",
+          "punt": "1",
+          "uitleg": "Algemeen bericht",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit"
+          },
+          "verwacht": {
+            "tekst": "Compatibiliteitsbalie Bit & Byte. Geef twee onderdelen op om ze te vergelijken."
+          }
+        },
+        {
+          "id": "2a",
+          "punt": "2",
+          "uitleg": "Sockets komen overeen, hoofdletters verschillen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/socket/AM5/am5"
+          },
+          "verwacht": {
+            "tekst": "De processor past op dit moederbord."
+          }
+        },
+        {
+          "id": "2b",
+          "punt": "2",
+          "uitleg": "Sockets verschillen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/socket/AM5/LGA1700"
+          },
+          "verwacht": {
+            "tekst": "De processor past niet: AM5 tegenover LGA1700."
+          }
+        },
+        {
+          "id": "3a",
+          "punt": "3",
+          "uitleg": "Voeding te zwak",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/voeding/550/620"
+          },
+          "verwacht": {
+            "tekst": "De voeding is te zwak voor deze build."
+          }
+        },
+        {
+          "id": "3b",
+          "punt": "3",
+          "uitleg": "Voeding met krappe marge",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/voeding/650/620"
+          },
+          "verwacht": {
+            "tekst": "De voeding volstaat, maar de marge is krap."
+          }
+        },
+        {
+          "id": "3c",
+          "punt": "3",
+          "uitleg": "Voeding ruim voldoende",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/voeding/850/620"
+          },
+          "verwacht": {
+            "tekst": "De voeding is ruim voldoende."
+          }
+        },
+        {
+          "id": "4a",
+          "punt": "4",
+          "uitleg": "Meer modules dan sloten",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/sloten/2/4"
+          },
+          "verwacht": {
+            "tekst": "Er passen maar 2 modules in dit moederbord."
+          }
+        },
+        {
+          "id": "4b",
+          "punt": "4",
+          "uitleg": "Evenveel modules als sloten",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/sloten/4/4"
+          },
+          "verwacht": {
+            "tekst": "Alle sloten worden gebruikt."
+          }
+        },
+        {
+          "id": "4c",
+          "punt": "4",
+          "uitleg": "Minder modules dan sloten",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/sloten/4/2"
+          },
+          "verwacht": {
+            "tekst": "Er blijven nog 2 sloten vrij."
+          }
+        },
+        {
+          "id": "5a",
+          "punt": "5",
+          "uitleg": "Gaming-build",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/build/gaming/AM5/600/4"
+          },
+          "verwacht": {
+            "tekst": "De processor past op dit moederbord. De voeding volstaat, maar de marge is krap. Alle sloten worden gebruikt."
+          }
+        },
+        {
+          "id": "5b",
+          "punt": "5",
+          "uitleg": "Kantoor-build, alles fout",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/build/kantoor/LGA1700/450/4"
+          },
+          "verwacht": {
+            "tekst": "De processor past niet: LGA1700 tegenover AM5. De voeding is ruim voldoende. Er passen maar 2 modules in dit moederbord."
+          }
+        },
+        {
+          "id": "5c",
+          "punt": "5",
+          "uitleg": "Onbekende build",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/build/server/AM5/600/4"
+          },
+          "verwacht": {
+            "tekst": "We kennen deze build niet."
+          }
+        }
+      ]
+    }
+  ]
+}

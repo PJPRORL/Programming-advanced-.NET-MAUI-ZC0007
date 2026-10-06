@@ -1,0 +1,435 @@
+{
+  "formaat": 1,
+  "oefening": "04_06",
+  "titel": "Migraties terugdraaien",
+  "hoofdstuk": 4,
+  "opgave": "Oefening_04_06.md",
+  "bouwtOpVan": "03_06",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ConcertzaalDb",
+    "opbouwen": "sqlscript"
+  },
+  "bestanden": [
+    "tickets.json"
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 5: de database zoals de student ze terugdraaide",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Controle 1: de geschiedenis bevat enkel nog TicketTabel",
+          "sql": "SELECT substring(\"MigrationId\" from position('_' in \"MigrationId\") + 1) FROM \"__EFMigrationsHistory\" ORDER BY \"MigrationId\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "TicketTabel"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.2a",
+          "punt": "5",
+          "uitleg": "Controle 2: de tabel Tickets heeft geen kolom Categorie meer",
+          "sql": "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Tickets' AND column_name = 'Categorie'",
+          "verwacht": {
+            "aantal": 0
+          }
+        },
+        {
+          "id": "5.2b",
+          "punt": "5",
+          "uitleg": "Controle 2: de tabel bevat nog dezelfde zes tickets",
+          "sql": "SELECT \"Id\", \"Naam\", \"Rij\", \"Stoel\", \"Prijs\", \"IsGeannuleerd\" FROM \"Tickets\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Sofie Peeters",
+                "1",
+                "5",
+                "45.00",
+                "f"
+              ],
+              [
+                "2",
+                "Tom Janssens",
+                "1",
+                "6",
+                "45.00",
+                "f"
+              ],
+              [
+                "3",
+                "Lisa Maes",
+                "3",
+                "12",
+                "35.00",
+                "f"
+              ],
+              [
+                "4",
+                "Karim El Idrissi",
+                "3",
+                "13",
+                "35.00",
+                "t"
+              ],
+              [
+                "5",
+                "Emma Claes",
+                "7",
+                "2",
+                "25.00",
+                "f"
+              ],
+              [
+                "6",
+                "Noah Willems",
+                "7",
+                "3",
+                "25.00",
+                "f"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Controle 4: de opbrengst is nog altijd 175.00",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 175.0
+          }
+        },
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Ticket 3 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "Lisa Maes",
+              "rij": 3,
+              "stoel": 12,
+              "prijs": 35.0,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "Ticket 4 is geannuleerd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/4"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id 4."
+          }
+        },
+        {
+          "id": "2.1",
+          "punt": "2",
+          "uitleg": "De tabel Tickets heeft de kolommen uit punt 2, geen enkele mag leeg blijven",
+          "sql": "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Tickets'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "IsGeannuleerd",
+                "boolean",
+                "",
+                "NO"
+              ],
+              [
+                "Naam",
+                "character varying",
+                "100",
+                "NO"
+              ],
+              [
+                "Prijs",
+                "numeric",
+                "",
+                "NO"
+              ],
+              [
+                "Rij",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Stoel",
+                "integer",
+                "",
+                "NO"
+              ]
+            ],
+            "volgorde": "vrij"
+          }
+        },
+        {
+          "id": "2.2",
+          "punt": "2",
+          "uitleg": "Prijs heeft 6 cijfers, waarvan 2 na de komma",
+          "sql": "SELECT numeric_precision, numeric_scale FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Tickets' AND column_name = 'Prijs'",
+          "verwacht": {
+            "rijen": [
+              [
+                "6",
+                "2"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "2.3",
+          "punt": "2",
+          "uitleg": "Id is de sleutel van Tickets en de database telt zelf op",
+          "sql": "SELECT kcu.column_name, (c.is_identity = 'YES' OR c.column_default LIKE 'nextval%') FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema AND kcu.table_name = tc.table_name JOIN information_schema.columns c ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name WHERE tc.table_schema = 'public' AND tc.table_name = 'Tickets' AND tc.constraint_type = 'PRIMARY KEY'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "De database opnieuw opgebouwd uit de migraties van het project",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "5.5",
+          "punt": "5",
+          "uitleg": "Opgebouwd uit de migraties van het project: enkel TicketTabel",
+          "sql": "SELECT substring(\"MigrationId\" from position('_' in \"MigrationId\") + 1) FROM \"__EFMigrationsHistory\" ORDER BY \"MigrationId\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "TicketTabel"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.6",
+          "punt": "5",
+          "uitleg": "Opgebouwd uit de migraties van het project: geen kolom Categorie",
+          "sql": "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Tickets' AND column_name = 'Categorie'",
+          "verwacht": {
+            "aantal": 0
+          }
+        },
+        {
+          "id": "5.7",
+          "punt": "3",
+          "uitleg": "Opgebouwd met het SQL-script: de zes starttickets",
+          "sql": "SELECT \"Id\", \"Naam\", \"Rij\", \"Stoel\", \"Prijs\", \"IsGeannuleerd\" FROM \"Tickets\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Sofie Peeters",
+                "1",
+                "5",
+                "45.00",
+                "f"
+              ],
+              [
+                "2",
+                "Tom Janssens",
+                "1",
+                "6",
+                "45.00",
+                "f"
+              ],
+              [
+                "3",
+                "Lisa Maes",
+                "3",
+                "12",
+                "35.00",
+                "f"
+              ],
+              [
+                "4",
+                "Karim El Idrissi",
+                "3",
+                "13",
+                "35.00",
+                "t"
+              ],
+              [
+                "5",
+                "Emma Claes",
+                "7",
+                "2",
+                "25.00",
+                "f"
+              ],
+              [
+                "6",
+                "Noah Willems",
+                "7",
+                "3",
+                "25.00",
+                "f"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "titel": "Dezelfde regels (punt 4)",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Een naam van precies 100 tekens, op een vrije plaats",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij",
+              "rij": 2,
+              "stoel": 1,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "naam": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij",
+              "rij": 2,
+              "stoel": 1,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/7"
+            }
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Een naam van 101 tekens, op een vrije plaats",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijA",
+              "rij": 2,
+              "stoel": 2,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De naam mag hoogstens 100 tekens lang zijn."
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Ticket 1 wijzigen naar een naam van 101 tekens, op zijn eigen plaats",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/1",
+            "body": {
+              "id": 1,
+              "naam": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijA",
+              "rij": 1,
+              "stoel": 5,
+              "prijs": 45.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De naam mag hoogstens 100 tekens lang zijn."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "De PostgreSQL-database draait in Docker."
+    },
+    {
+      "punt": "3",
+      "tekst": "`appsettings.json` bevat een connectiestring met de naam `PostgresConnection`."
+    },
+    {
+      "punt": "2",
+      "tekst": "Map Data met `ConcertzaalContext : DbContext` en `DbSet<Ticket> Tickets` met de Fluent API, geregistreerd in Program.cs met `UseNpgsql` en `PostgresConnection`."
+    },
+    {
+      "punt": "3",
+      "tekst": "Het SQL-script met de startgegevens is zelf geschreven; de startlijsten van `InMemoryTicketRepository` en `BestandTicketRepository` zijn gelijk aan de tabel; opbrengst en tickets antwoorden met beide repositories zoals in punt 3."
+    },
+    {
+      "punt": "5",
+      "tekst": "Stap 1 tot 3: `Categorie` als verplichte tekst van hoogstens 20 tekens; de migratie `CategorieToegevoegd` voegt in `Up` de kolom toe en haalt ze in `Down` weg; na het bijwerken stonden de zes tickets er nog, met een waarde voor `Categorie`."
+    },
+    {
+      "punt": "5",
+      "tekst": "Stap 4 tot 6, in die volgorde: de database terug naar de toestand van na `TicketTabel`, daarna de migratie `CategorieToegevoegd` uit het project verwijderen, daarna `Categorie` uit het model. Niets met de hand in de database of in de map Migrations."
+    },
+    {
+      "punt": "5",
+      "tekst": "Controle 3: in de map Migrations staat geen bestand met `Categorie` in de naam, en de momentopname (`...ModelSnapshot.cs`) bevat `Categorie` niet meer."
+    },
+    {
+      "punt": "5",
+      "tekst": "Controle 5: een nieuwe migratie zonder modelwijziging is leeg en wordt daarna weer verwijderd."
+    }
+  ]
+}

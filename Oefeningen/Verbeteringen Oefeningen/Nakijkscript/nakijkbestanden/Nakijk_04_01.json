@@ -1,0 +1,484 @@
+{
+  "formaat": 1,
+  "oefening": "04_01",
+  "titel": "Database en migraties",
+  "hoofdstuk": 4,
+  "opgave": "Oefening_04_01.md",
+  "bouwtOpVan": "03_01",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ArtikelDb",
+    "opbouwen": "sqlscript"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Database uit punt 5 tot 7 en voorbeeld uit punt 7",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "De tabel Artikelen bestaat met de kolommen uit punt 4, geen enkele mag leeg blijven",
+          "sql": "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Artikelen' AND column_name <> 'Garantiejaren'",
+          "verwacht": {
+            "rijen": [
+              [
+                "AantalOpVoorraad",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Id",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Merk",
+                "character varying",
+                "50",
+                "NO"
+              ],
+              [
+                "Naam",
+                "character varying",
+                "100",
+                "NO"
+              ],
+              [
+                "Prijs",
+                "numeric",
+                "",
+                "NO"
+              ],
+              [
+                "Soort",
+                "character varying",
+                "30",
+                "NO"
+              ]
+            ],
+            "volgorde": "vrij"
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Prijs heeft 10 cijfers, waarvan 2 na de komma",
+          "sql": "SELECT numeric_precision, numeric_scale FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Artikelen' AND column_name = 'Prijs'",
+          "verwacht": {
+            "rijen": [
+              [
+                "10",
+                "2"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Id is de sleutel van Artikelen en de database telt zelf op",
+          "sql": "SELECT kcu.column_name, (c.is_identity = 'YES' OR c.column_default LIKE 'nextval%') FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema AND kcu.table_name = tc.table_name JOIN information_schema.columns c ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name WHERE tc.table_schema = 'public' AND tc.table_name = 'Artikelen' AND tc.constraint_type = 'PRIMARY KEY'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De zes startartikelen staan in de tabel",
+          "sql": "SELECT \"Id\", \"Naam\", \"Merk\", \"Soort\", \"Prijs\", \"AantalOpVoorraad\" FROM \"Artikelen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "ROG Strix B650-A",
+                "Asus",
+                "moederbord",
+                "249.99",
+                "12"
+              ],
+              [
+                "2",
+                "MAG B650 Tomahawk",
+                "MSI",
+                "moederbord",
+                "219.00",
+                "5"
+              ],
+              [
+                "3",
+                "Ryzen 5 7600X",
+                "AMD",
+                "processor",
+                "229.50",
+                "3"
+              ],
+              [
+                "4",
+                "Ryzen 7 7800X3D",
+                "AMD",
+                "processor",
+                "389.00",
+                "0"
+              ],
+              [
+                "5",
+                "TUF Gaming RTX 4070",
+                "Asus",
+                "videokaart",
+                "649.00",
+                "2"
+              ],
+              [
+                "6",
+                "Ventus 2X RTX 4060",
+                "MSI",
+                "videokaart",
+                "299.99",
+                "0"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Garantiejaren is een verplicht geheel getal",
+          "sql": "SELECT data_type, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Artikelen' AND column_name = 'Garantiejaren'",
+          "verwacht": {
+            "rijen": [
+              [
+                "integer",
+                "NO"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Elk artikel heeft de garantie uit de tabel van punt 7",
+          "sql": "SELECT \"Id\", \"Garantiejaren\" FROM \"Artikelen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "3"
+              ],
+              [
+                "2",
+                "2"
+              ],
+              [
+                "3",
+                "3"
+              ],
+              [
+                "4",
+                "3"
+              ],
+              [
+                "5",
+                "3"
+              ],
+              [
+                "6",
+                "2"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "7.3",
+          "punt": "7",
+          "uitleg": "De geschiedenis bevat precies ArtikelTabel en GarantieToegevoegd",
+          "sql": "SELECT substring(\"MigrationId\" from position('_' in \"MigrationId\") + 1) FROM \"__EFMigrationsHistory\" ORDER BY \"MigrationId\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "ArtikelTabel"
+              ],
+              [
+                "GarantieToegevoegd"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Artikel 4 opvragen, met zijn garantie",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Ryzen 7 7800X3D",
+              "merk": "AMD",
+              "soort": "processor",
+              "prijs": 389.0,
+              "aantalOpVoorraad": 0,
+              "garantiejaren": 3
+            }
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "De API toont dezelfde zes artikelen als de database",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$verzameling": [
+                {
+                  "id": 1,
+                  "naam": "ROG Strix B650-A",
+                  "merk": "Asus",
+                  "soort": "moederbord",
+                  "prijs": 249.99,
+                  "aantalOpVoorraad": 12,
+                  "garantiejaren": 3
+                },
+                {
+                  "id": 2,
+                  "naam": "MAG B650 Tomahawk",
+                  "merk": "MSI",
+                  "soort": "moederbord",
+                  "prijs": 219.0,
+                  "aantalOpVoorraad": 5,
+                  "garantiejaren": 2
+                },
+                {
+                  "id": 3,
+                  "naam": "Ryzen 5 7600X",
+                  "merk": "AMD",
+                  "soort": "processor",
+                  "prijs": 229.5,
+                  "aantalOpVoorraad": 3,
+                  "garantiejaren": 3
+                },
+                {
+                  "id": 4,
+                  "naam": "Ryzen 7 7800X3D",
+                  "merk": "AMD",
+                  "soort": "processor",
+                  "prijs": 389.0,
+                  "aantalOpVoorraad": 0,
+                  "garantiejaren": 3
+                },
+                {
+                  "id": 5,
+                  "naam": "TUF Gaming RTX 4070",
+                  "merk": "Asus",
+                  "soort": "videokaart",
+                  "prijs": 649.0,
+                  "aantalOpVoorraad": 2,
+                  "garantiejaren": 3
+                },
+                {
+                  "id": 6,
+                  "naam": "Ventus 2X RTX 4060",
+                  "merk": "MSI",
+                  "soort": "videokaart",
+                  "prijs": 299.99,
+                  "aantalOpVoorraad": 0,
+                  "garantiejaren": 2
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "De endpoints uit 03_01 met de vaste startgegevens (punt 1)",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1.1",
+          "punt": "1",
+          "uitleg": "Merk in kleine letters",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/merk/asus"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                1,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.2",
+          "punt": "1",
+          "uitleg": "Merk in hoofdletters",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/merk/ASUS"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                1,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.3",
+          "punt": "1",
+          "uitleg": "Merk met een hoofdletter vooraan",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/merk/Asus"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                1,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.4",
+          "punt": "1",
+          "uitleg": "Artikelen van de soort processor",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/soort/processor"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.5",
+          "punt": "1",
+          "uitleg": "Artikelen op voorraad",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/voorradig"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$ids": [
+                1,
+                2,
+                3,
+                5
+              ]
+            }
+          }
+        },
+        {
+          "id": "1.6",
+          "punt": "1",
+          "uitleg": "De fiche van artikel 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/fiche/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "artikel": {
+                "id": 4,
+                "naam": "Ryzen 7 7800X3D",
+                "merk": "AMD",
+                "soort": "processor",
+                "prijs": 389.0,
+                "aantalOpVoorraad": 0,
+                "garantiejaren": 3
+              },
+              "isVoorradig": false,
+              "aantalVanDezelfdeSoort": 1,
+              "isGoedkoopsteVanDeSoort": false
+            }
+          }
+        },
+        {
+          "id": "1.7",
+          "punt": "1",
+          "uitleg": "Een onbestaand artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 99."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "De PostgreSQL-database draait in Docker."
+    },
+    {
+      "punt": "3",
+      "tekst": "`appsettings.json` bevat een connectiestring met de naam `PostgresConnection`."
+    },
+    {
+      "punt": "4",
+      "tekst": "Map Data met `ArtikelContext : DbContext` en `DbSet<Artikel> Artikelen`; de kolommen staan in `OnModelCreating` met de Fluent API; de context is in Program.cs geregistreerd met `UseNpgsql` en de connectiestring `PostgresConnection`."
+    },
+    {
+      "punt": "6",
+      "tekst": "Het SQL-script met de startgegevens is zelf geschreven, en de startlijst van `InMemoryArtikelRepository` is gelijk aan de tabel."
+    },
+    {
+      "punt": "7",
+      "tekst": "De migratie `GarantieToegevoegd` voegt in `Up` de kolom toe en haalt ze in `Down` weer weg; de student verklaart welke waarde de bestaande artikelen na het bijwerken in `Garantiejaren` kregen."
+    },
+    {
+      "punt": "7",
+      "tekst": "De kolom `Garantiejaren` kwam er via een migratie, niet via een ALTER TABLE."
+    }
+  ]
+}

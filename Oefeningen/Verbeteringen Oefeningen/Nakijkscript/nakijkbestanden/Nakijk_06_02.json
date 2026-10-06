@@ -1,0 +1,551 @@
+{
+  "formaat": 1,
+  "oefening": "06_02",
+  "titel": "Een veel-op-veel-relatie",
+  "hoofdstuk": 6,
+  "opgave": "Oefening_06_02.md",
+  "bouwtOpVan": "05_02",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "VentilatorDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Regels uit punt 2 tot 6 en testscenario punt 7",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "De migratie Behuizingen is uitgevoerd",
+          "sql": "SELECT \"MigrationId\" FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" LIKE '%\\_Behuizingen'",
+          "verwacht": {
+            "aantal": 1
+          }
+        },
+        {
+          "id": "2.1",
+          "punt": "2",
+          "uitleg": "Een ventilator toont zijn compatibiliteiten als null",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "merk": "Corsair",
+              "afmetingInMm": 120,
+              "verlichting": "RGB",
+              "prijs": 34.9,
+              "compatibiliteiten": null
+            }
+          }
+        },
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "De database weigert zelf behuizing 1 te verwijderen",
+          "sql": "DELETE FROM \"Behuizingen\" WHERE \"Id\" = 1",
+          "verwacht": {
+            "fout": "foreign key"
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "De database weigert zelf ventilator 4 te verwijderen",
+          "sql": "DELETE FROM \"Ventilatoren\" WHERE \"Id\" = 4",
+          "verwacht": {
+            "fout": "foreign key"
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Alle behuizingen, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Behuizing 1 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "naam": "Silent Base",
+                "formaat": "midi tower"
+              }
+            }
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Onbestaande behuizing",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen behuizing met Id 99."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Compatibiliteiten van behuizing 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/2/compatibiliteiten"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 3,
+                "behuizingId": 2,
+                "behuizing": null,
+                "ventilatorId": 1,
+                "ventilator": null,
+                "aantalPlaatsen": 2
+              },
+              {
+                "id": 4,
+                "behuizingId": 2,
+                "behuizing": null,
+                "ventilatorId": 3,
+                "ventilator": null,
+                "aantalPlaatsen": 2
+              }
+            ]
+          }
+        },
+        {
+          "id": "5.5",
+          "punt": "5",
+          "uitleg": "Compatibiliteiten van een onbestaande behuizing",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/99/compatibiliteiten"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen behuizing met Id 99."
+          }
+        },
+        {
+          "id": "5.6",
+          "punt": "5",
+          "uitleg": "Onbestaande compatibiliteit",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen compatibiliteit met Id 99."
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Ventilator 1 koppelen aan behuizing 3",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "compatibiliteit",
+            "body": {
+              "behuizingId": 3,
+              "ventilatorId": 1,
+              "aantalPlaatsen": 2
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "behuizingId": 3,
+              "behuizing": null,
+              "ventilatorId": 1,
+              "ventilator": null,
+              "aantalPlaatsen": 2
+            },
+            "location": {
+              "eindigtOp": "/api/compatibiliteit/7"
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Dezelfde koppeling nog eens",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "compatibiliteit",
+            "body": {
+              "behuizingId": 3,
+              "ventilatorId": 1,
+              "aantalPlaatsen": 2
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze ventilator is al gekoppeld aan deze behuizing."
+          }
+        },
+        {
+          "id": "7.3",
+          "punt": "7",
+          "uitleg": "Een onbestaande ventilator koppelen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "compatibiliteit",
+            "body": {
+              "behuizingId": 1,
+              "ventilatorId": 99,
+              "aantalPlaatsen": 1
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We vonden geen ventilator met Id 99."
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Een gekoppelde ventilator verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ventilator/4"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze ventilator past nog in een behuizing."
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "Ventilator 1 vervangen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/1",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 31.9
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "merk": "Noctua",
+              "afmetingInMm": 120,
+              "verlichting": "geen",
+              "prijs": 31.9,
+              "compatibiliteiten": null
+            },
+            "location": {
+              "eindigtOp": "/api/ventilator/5"
+            }
+          }
+        },
+        {
+          "id": "7.6a",
+          "punt": "7",
+          "uitleg": "Behuizing 1 verwijst nu naar ventilator 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "behuizing/1/compatibiliteiten"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "behuizingId": 1,
+                "behuizing": null,
+                "ventilatorId": 5,
+                "ventilator": null,
+                "aantalPlaatsen": 3
+              },
+              {
+                "id": 2,
+                "behuizingId": 1,
+                "behuizing": null,
+                "ventilatorId": 2,
+                "ventilator": null,
+                "aantalPlaatsen": 2
+              }
+            ]
+          }
+        },
+        {
+          "id": "7.6b",
+          "punt": "7",
+          "uitleg": "Compatibiliteit 3 verwijst nu naar ventilator 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 3,
+                "behuizingId": 2,
+                "ventilatorId": 5,
+                "aantalPlaatsen": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "7.6c",
+          "punt": "7",
+          "uitleg": "Compatibiliteit 7 verwijst nu naar ventilator 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/7"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 7,
+                "behuizingId": 3,
+                "ventilatorId": 5,
+                "aantalPlaatsen": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "7.7a",
+          "punt": "7",
+          "uitleg": "Ventilator 1 is weg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/1"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen ventilator met Id 1."
+          }
+        },
+        {
+          "id": "7.7b",
+          "punt": "7",
+          "uitleg": "De historiek: verwijderd 1, toegevoegd 5",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/historiek"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "actie": "verwijderd",
+                  "ventilatorId": 1
+                }
+              },
+              {
+                "$bevat": {
+                  "actie": "toegevoegd",
+                  "ventilatorId": 5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "7.8a",
+          "punt": "7",
+          "uitleg": "Ventilator 2 vervangen door een van 92 mm",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/2",
+            "body": {
+              "merk": "Arctic",
+              "afmetingInMm": 92,
+              "verlichting": "geen",
+              "prijs": 14.99
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We verkopen enkel ventilatoren van 120 of 140 mm."
+          }
+        },
+        {
+          "id": "7.8b",
+          "punt": "7",
+          "uitleg": "Compatibiliteit 2 verwijst nog naar ventilator 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 2,
+                "ventilatorId": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "7.8c",
+          "punt": "7",
+          "uitleg": "Compatibiliteit 5 verwijst nog naar ventilator 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "compatibiliteit/5"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 5,
+                "ventilatorId": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "7.8d",
+          "punt": "7",
+          "uitleg": "Ventilator 2 is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "merk": "be quiet!",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 24.9,
+              "compatibiliteiten": null
+            }
+          }
+        },
+        {
+          "id": "7.8e",
+          "punt": "7",
+          "uitleg": "De historiek bevat nog altijd twee regels",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/historiek"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "actie": "verwijderd",
+                  "ventilatorId": 1
+                }
+              },
+              {
+                "$bevat": {
+                  "actie": "toegevoegd",
+                  "ventilatorId": 5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "7.9",
+          "punt": "7",
+          "uitleg": "De nieuwe ventilator 5 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ventilator/5"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze ventilator past nog in een behuizing."
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Een onbestaande behuizing koppelen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "compatibiliteit",
+            "body": {
+              "behuizingId": 99,
+              "ventilatorId": 2,
+              "aantalPlaatsen": 1
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We vonden geen behuizing met Id 99."
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Een koppeling met 0 plaatsen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "compatibiliteit",
+            "body": {
+              "behuizingId": 3,
+              "ventilatorId": 3,
+              "aantalPlaatsen": 0
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Het aantal plaatsen moet minstens 1 zijn."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "4",
+      "tekst": "`OnModelCreating` is verdeeld in twee methodes: één voor de tabellen en relaties, één voor de startgegevens."
+    }
+  ]
+}

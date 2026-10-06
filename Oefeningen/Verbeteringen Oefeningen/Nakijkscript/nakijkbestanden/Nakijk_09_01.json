@@ -1,0 +1,440 @@
+{
+  "formaat": 1,
+  "oefening": "09_01",
+  "titel": "DTO's en Mapster",
+  "hoofdstuk": 9,
+  "opgave": "Oefening_09_01.md",
+  "bouwtOpVan": "08_01",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ArtikelDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 6, met de voorbeelden uit punt 3 en 5",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Artikel 4 als read-DTO, zonder veld leverancier",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Ryzen 7 7800X3D",
+              "merk": "AMD",
+              "soort": "processor",
+              "prijs": 389.0,
+              "aantalOpVoorraad": 0,
+              "garantiejaren": 3,
+              "leverancierId": 3,
+              "leverancier": {
+                "$ontbreekt": true
+              }
+            }
+          }
+        },
+        {
+          "id": "3.2",
+          "punt": "3",
+          "uitleg": "Leverancier 3 als read-DTO, zonder veld artikelen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "ChipCentraal",
+              "land": "Duitsland",
+              "artikelen": {
+                "$ontbreekt": true
+              }
+            }
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Artikel 4 met naam en land van zijn leverancier, plat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/4/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Ryzen 7 7800X3D",
+              "merk": "AMD",
+              "soort": "processor",
+              "prijs": 389.0,
+              "aantalOpVoorraad": 0,
+              "garantiejaren": 3,
+              "leverancierId": 3,
+              "leverancierNaam": "ChipCentraal",
+              "leverancierLand": "Duitsland",
+              "leverancier": {
+                "$ontbreekt": true
+              }
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Leverancier 3 met aantallen en assortiment",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/3/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 3,
+              "naam": "ChipCentraal",
+              "land": "Duitsland",
+              "aantalArtikelen": 2,
+              "totaleVoorraad": 3,
+              "assortiment": {
+                "$verzameling": [
+                  {
+                    "id": 3,
+                    "naam": "Ryzen 5 7600X",
+                    "soort": "processor",
+                    "prijs": 229.5
+                  },
+                  {
+                    "id": 4,
+                    "naam": "Ryzen 7 7800X3D",
+                    "soort": "processor",
+                    "prijs": 389.0
+                  }
+                ]
+              },
+              "artikelen": {
+                "$ontbreekt": true
+              }
+            }
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "De fiche van artikel 6, met de read-DTO van het artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/fiche/6"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "artikel": {
+                "id": 6,
+                "naam": "Ventus 2X RTX 4060",
+                "merk": "MSI",
+                "soort": "videokaart",
+                "prijs": 299.99,
+                "aantalOpVoorraad": 0,
+                "garantiejaren": 2,
+                "leverancierId": 2,
+                "leverancier": {
+                  "$ontbreekt": true
+                }
+              },
+              "isVoorradig": false,
+              "aantalVanDezelfdeSoort": 1,
+              "isGoedkoopsteVanDeSoort": true
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Het overzicht van alle leveranciers, op Id, in één query",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1,
+                  "aantalArtikelen": 2,
+                  "totaleVoorraad": 14
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 2,
+                  "aantalArtikelen": 2,
+                  "totaleVoorraad": 5
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 3,
+                  "aantalArtikelen": 2,
+                  "totaleVoorraad": 3
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 4,
+                  "aantalArtikelen": 0,
+                  "totaleVoorraad": 0,
+                  "assortiment": []
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.4a",
+          "punt": "6",
+          "uitleg": "Kabelkoning toevoegen; Id en artikelen in de body worden genegeerd",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "leverancier",
+            "body": {
+              "id": 99,
+              "naam": "Kabelkoning",
+              "land": "België",
+              "artikelen": [
+                {
+                  "naam": "HDMI-kabel",
+                  "merk": "Kabelkoning",
+                  "soort": "kabel",
+                  "prijs": 9.99
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "naam": "Kabelkoning",
+              "land": "België"
+            },
+            "location": {
+              "eindigtOp": "/api/leverancier/5"
+            }
+          }
+        },
+        {
+          "id": "6.4b",
+          "punt": "6",
+          "uitleg": "Kabelkoning levert niets",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/5/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 5,
+                "aantalArtikelen": 0,
+                "assortiment": []
+              }
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Nog altijd zes artikelen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "Leverancier 2 bijwerken",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "leverancier/2",
+            "body": {
+              "naam": "Componentenhuis NL",
+              "land": "Nederland"
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "Leverancier 1 bijwerken met een lege naam",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "leverancier/1",
+            "body": {
+              "naam": "",
+              "land": "België"
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een leverancier moet een naam hebben."
+          }
+        },
+        {
+          "id": "6.7a",
+          "punt": "6",
+          "uitleg": "Artikel 1 naar leverancier 4",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "artikel/1/leverancier/4"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.7b",
+          "punt": "6",
+          "uitleg": "Artikel 1 komt nu van Koelwerk",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/1/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "leverancierId": 4,
+                "leverancierNaam": "Koelwerk"
+              }
+            }
+          }
+        },
+        {
+          "id": "6.7c",
+          "punt": "6",
+          "uitleg": "Het overzicht na de verhuizing van artikel 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/details"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1,
+                  "aantalArtikelen": 1,
+                  "totaleVoorraad": 2
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 2
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 3
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 4,
+                  "aantalArtikelen": 1,
+                  "totaleVoorraad": 12
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 5
+                }
+              }
+            ],
+            "queries": 1
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "Details van een onbestaand artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 99."
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Details van een onbestaande leverancier: bericht uit 08_01",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "leverancier/99/details"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen leverancier met Id 99."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "1",
+      "tekst": "`IgnoreCycles` staat niet meer in Program.cs."
+    },
+    {
+      "punt": "2",
+      "tekst": "Mapster is geïnstalleerd. Er is een map `DTOs` met een map per model, en een map `Configuration` met een klasse `MapperProfile`, zoals in les 09. Mapster vindt de `MapperProfile` bij het opstarten."
+    },
+    {
+      "punt": "2",
+      "tekst": "Geen enkele DTO bevat een model, en geen enkel model een DTO. Een DTO in een DTO verwijst niet terug."
+    },
+    {
+      "punt": "3",
+      "tekst": "`ArtikelFiche` staat in de map `DTOs` en bevat de read-DTO van het artikel, niet het model."
+    },
+    {
+      "punt": "4",
+      "tekst": "POST en PUT op `api/leverancier` ontvangen een write-DTO met enkel `naam` en `land`, zonder data annotations voor de controles."
+    }
+  ]
+}

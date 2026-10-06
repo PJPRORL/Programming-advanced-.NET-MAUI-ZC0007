@@ -1,0 +1,90 @@
+{
+  "formaat": 1,
+  "oefening": "TM_02_01",
+  "titel": "Stadsbibliotheek Noord: boeken, GET",
+  "hoofdstuk": 2,
+  "opgave": "Oefening_2_TM.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "",
+    "probeer": [
+      "api/"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden uit punt 1 en 2",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1.1",
+          "punt": "1",
+          "uitleg": "Alle boeken",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "boeken"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "titel": "De Ontdekking van de Hemel",
+                "auteur": "Harry Mulisch",
+                "uitgeverij": "De Arbeiderspers",
+                "jaartal": 1992
+              },
+              {
+                "id": 2,
+                "titel": "Het Dagboek van Anne Frank",
+                "auteur": "Anne Frank",
+                "uitgeverij": "Contact",
+                "jaartal": 1947
+              },
+              {
+                "id": 3,
+                "titel": "De Avonturen van Pi",
+                "auteur": "Yann Martel",
+                "uitgeverij": "De Bezige Bij",
+                "jaartal": 2001
+              }
+            ]
+          }
+        },
+        {
+          "id": "2.1",
+          "punt": "2",
+          "uitleg": "Boek 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "boeken/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "titel": "Het Dagboek van Anne Frank",
+              "auteur": "Anne Frank",
+              "uitgeverij": "Contact",
+              "jaartal": 1947
+            }
+          }
+        },
+        {
+          "id": "2.2",
+          "punt": "2",
+          "uitleg": "Onbestaand boek: 404 zonder body",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "boeken/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "geenBody": true
+          }
+        }
+      ]
+    }
+  ]
+}

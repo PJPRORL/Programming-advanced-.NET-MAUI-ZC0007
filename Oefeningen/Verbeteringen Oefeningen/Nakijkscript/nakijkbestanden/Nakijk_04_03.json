@@ -1,0 +1,393 @@
+{
+  "formaat": 1,
+  "oefening": "04_03",
+  "titel": "Migraties terugdraaien",
+  "hoofdstuk": 4,
+  "opgave": "Oefening_04_03.md",
+  "bouwtOpVan": "03_03",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "BestellijnDb",
+    "opbouwen": "sqlscript"
+  },
+  "bestanden": [
+    "bestellijnen.json"
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 5: de database zoals de student ze terugdraaide",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Controle 1: de geschiedenis bevat enkel nog BestellijnTabel",
+          "sql": "SELECT substring(\"MigrationId\" from position('_' in \"MigrationId\") + 1) FROM \"__EFMigrationsHistory\" ORDER BY \"MigrationId\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "BestellijnTabel"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.2a",
+          "punt": "5",
+          "uitleg": "Controle 2: de tabel Bestellijnen heeft geen kolom Korting meer",
+          "sql": "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Bestellijnen' AND column_name = 'Korting'",
+          "verwacht": {
+            "aantal": 0
+          }
+        },
+        {
+          "id": "5.2b",
+          "punt": "5",
+          "uitleg": "Controle 2: de tabel bevat nog dezelfde zes bestellijnen",
+          "sql": "SELECT \"Id\", \"Omschrijving\", \"Aantal\", \"StukPrijs\", \"IsActief\" FROM \"Bestellijnen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Moederbord ASUS B650",
+                "1",
+                "249.99",
+                "t"
+              ],
+              [
+                "2",
+                "DDR5 32 GB kit",
+                "2",
+                "109.90",
+                "t"
+              ],
+              [
+                "3",
+                "NVMe SSD 2 TB",
+                "1",
+                "139.00",
+                "t"
+              ],
+              [
+                "4",
+                "Behuizing midi tower",
+                "1",
+                "89.95",
+                "f"
+              ],
+              [
+                "5",
+                "Voeding 750 W",
+                "1",
+                "119.00",
+                "t"
+              ],
+              [
+                "6",
+                "Casefan 120 mm",
+                "3",
+                "14.99",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "Controle 4: de fiche geeft hetzelfde antwoord als in punt 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 5,
+              "aantalGeschrapteLijnen": 1,
+              "totaalActief": 772.76,
+              "totaalGeschrapt": 89.95,
+              "duursteActieveLijn": {
+                "id": 1,
+                "omschrijving": "Moederbord ASUS B650",
+                "aantal": 1,
+                "stukPrijs": 249.99,
+                "isActief": true
+              },
+              "isLeeg": false
+            }
+          }
+        },
+        {
+          "id": "2.1",
+          "punt": "2",
+          "uitleg": "De tabel Bestellijnen heeft de kolommen uit punt 2, geen enkele mag leeg blijven",
+          "sql": "SELECT column_name, data_type, character_maximum_length, is_nullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Bestellijnen'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Aantal",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "Id",
+                "integer",
+                "",
+                "NO"
+              ],
+              [
+                "IsActief",
+                "boolean",
+                "",
+                "NO"
+              ],
+              [
+                "Omschrijving",
+                "character varying",
+                "200",
+                "NO"
+              ],
+              [
+                "StukPrijs",
+                "numeric",
+                "",
+                "NO"
+              ]
+            ],
+            "volgorde": "vrij"
+          }
+        },
+        {
+          "id": "2.2",
+          "punt": "2",
+          "uitleg": "StukPrijs heeft 10 cijfers, waarvan 2 na de komma",
+          "sql": "SELECT numeric_precision, numeric_scale FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Bestellijnen' AND column_name = 'StukPrijs'",
+          "verwacht": {
+            "rijen": [
+              [
+                "10",
+                "2"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "2.3",
+          "punt": "2",
+          "uitleg": "Id is de sleutel van Bestellijnen en de database telt zelf op",
+          "sql": "SELECT kcu.column_name, (c.is_identity = 'YES' OR c.column_default LIKE 'nextval%') FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.table_schema = tc.table_schema AND kcu.table_name = tc.table_name JOIN information_schema.columns c ON c.table_schema = kcu.table_schema AND c.table_name = kcu.table_name AND c.column_name = kcu.column_name WHERE tc.table_schema = 'public' AND tc.table_name = 'Bestellijnen' AND tc.constraint_type = 'PRIMARY KEY'",
+          "verwacht": {
+            "rijen": [
+              [
+                "Id",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "De database opnieuw opgebouwd uit de migraties van het project",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "5.5",
+          "punt": "5",
+          "uitleg": "Opgebouwd uit de migraties van het project: enkel BestellijnTabel",
+          "sql": "SELECT substring(\"MigrationId\" from position('_' in \"MigrationId\") + 1) FROM \"__EFMigrationsHistory\" ORDER BY \"MigrationId\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "BestellijnTabel"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "5.6",
+          "punt": "5",
+          "uitleg": "Opgebouwd uit de migraties van het project: geen kolom Korting",
+          "sql": "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'Bestellijnen' AND column_name = 'Korting'",
+          "verwacht": {
+            "aantal": 0
+          }
+        },
+        {
+          "id": "5.7",
+          "punt": "3",
+          "uitleg": "Opgebouwd met het SQL-script: de zes startlijnen",
+          "sql": "SELECT \"Id\", \"Omschrijving\", \"Aantal\", \"StukPrijs\", \"IsActief\" FROM \"Bestellijnen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Moederbord ASUS B650",
+                "1",
+                "249.99",
+                "t"
+              ],
+              [
+                "2",
+                "DDR5 32 GB kit",
+                "2",
+                "109.90",
+                "t"
+              ],
+              [
+                "3",
+                "NVMe SSD 2 TB",
+                "1",
+                "139.00",
+                "t"
+              ],
+              [
+                "4",
+                "Behuizing midi tower",
+                "1",
+                "89.95",
+                "f"
+              ],
+              [
+                "5",
+                "Voeding 750 W",
+                "1",
+                "119.00",
+                "t"
+              ],
+              [
+                "6",
+                "Casefan 120 mm",
+                "3",
+                "14.99",
+                "t"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "titel": "Dezelfde regels (punt 4)",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Een omschrijving van precies 200 tekens",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij",
+              "aantal": 1,
+              "stukPrijs": 10.0,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "omschrijving": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghij",
+              "aantal": 1,
+              "stukPrijs": 10.0,
+              "isActief": true
+            },
+            "location": {
+              "eindigtOp": "/api/bestellijn/7"
+            }
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Een omschrijving van 201 tekens",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestellijn",
+            "body": {
+              "omschrijving": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijA",
+              "aantal": 1,
+              "stukPrijs": 10.0,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De omschrijving mag hoogstens 200 tekens lang zijn."
+          }
+        },
+        {
+          "id": "4.3",
+          "punt": "4",
+          "uitleg": "Lijn 1 bijwerken met een omschrijving van 201 tekens",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/1",
+            "body": {
+              "id": 1,
+              "omschrijving": "AbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijA",
+              "aantal": 1,
+              "stukPrijs": 249.99,
+              "isActief": true
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De omschrijving mag hoogstens 200 tekens lang zijn."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "De PostgreSQL-database draait in Docker."
+    },
+    {
+      "punt": "3",
+      "tekst": "`appsettings.json` bevat een connectiestring met de naam `PostgresConnection`."
+    },
+    {
+      "punt": "2",
+      "tekst": "Map Data met `BestellijnContext : DbContext` en `DbSet<Bestellijn> Bestellijnen` met de Fluent API, geregistreerd in Program.cs met `UseNpgsql` en `PostgresConnection`."
+    },
+    {
+      "punt": "3",
+      "tekst": "Het SQL-script met de startgegevens is zelf geschreven; de startlijsten van `InMemoryBestellijnRepository` en `BestandBestellijnRepository` zijn gelijk aan de tabel; de fiche geeft met beide repositories het antwoord uit punt 3."
+    },
+    {
+      "punt": "5",
+      "tekst": "Stap 1 tot 3: `Korting` als verplicht getal met 5 cijfers, waarvan 2 na de komma; de migratie `KortingToegevoegd` voegt in `Up` de kolom toe en haalt ze in `Down` weg; na het bijwerken stonden de zes lijnen er nog, met een waarde voor `Korting`."
+    },
+    {
+      "punt": "5",
+      "tekst": "Stap 4 tot 6, in die volgorde: de database terug naar de toestand van na `BestellijnTabel`, daarna de migratie `KortingToegevoegd` uit het project verwijderen, daarna `Korting` uit het model. Niets met de hand in de database of in de map Migrations."
+    },
+    {
+      "punt": "5",
+      "tekst": "Controle 3: in de map Migrations staat geen bestand met `Korting` in de naam, en de momentopname (`...ModelSnapshot.cs`) bevat `Korting` niet meer."
+    },
+    {
+      "punt": "5",
+      "tekst": "Controle 5: een nieuwe migratie zonder modelwijziging is leeg en wordt daarna weer verwijderd."
+    }
+  ]
+}

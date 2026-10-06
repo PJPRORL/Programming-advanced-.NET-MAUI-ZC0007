@@ -1,0 +1,355 @@
+{
+  "formaat": 1,
+  "oefening": "05_06",
+  "titel": "Bestand of database, asynchroon",
+  "hoofdstuk": 5,
+  "opgave": "Oefening_05_06.md",
+  "bouwtOpVan": "04_06",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "ConcertzaalDb",
+    "opbouwen": "sqlscript"
+  },
+  "bestanden": [
+    "tickets.json"
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden uit punt 5 en testscenario punt 6, met de databaserepository",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Rij 1, gesorteerd op stoel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/rij/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Rij 3 zonder het geannuleerde ticket 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/rij/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Een lege rij",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/rij/9"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Opbrengst bij de start",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 175.0
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Een ticket verkopen: Id 7, niet geannuleerd",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Jonas Wouters",
+              "rij": 3,
+              "stoel": 13,
+              "prijs": 35.0
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 7,
+              "naam": "Jonas Wouters",
+              "rij": 3,
+              "stoel": 13,
+              "prijs": 35.0,
+              "isGeannuleerd": false
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/7"
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Ticket 5 annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/5"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.4a",
+          "punt": "6",
+          "uitleg": "Opbrengst na stap 2 en 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 185.0
+          }
+        },
+        {
+          "id": "6.4b",
+          "punt": "6",
+          "uitleg": "Rij 3 bevat de tickets 3 en 7",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/rij/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3,
+                7
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.5a",
+          "punt": "6",
+          "uitleg": "API stoppen en opnieuw starten",
+          "actie": "herstart"
+        },
+        {
+          "id": "6.5b",
+          "punt": "6",
+          "uitleg": "Opbrengst na de herstart",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 185.0
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "Ticket 4 herstellen terwijl zijn plaats verkocht is",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/4"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 3 stoel 13 is intussen aan iemand anders verkocht."
+          }
+        },
+        {
+          "id": "6.7a",
+          "punt": "6",
+          "uitleg": "Ticket 5 herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/5"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.7b",
+          "punt": "6",
+          "uitleg": "Opbrengst na het herstel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 210.0
+          }
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "Ticket 7 verhuizen naar een bezette plaats",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/7/7/3"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 7 stoel 3 is al verkocht."
+          }
+        },
+        {
+          "id": "6.9a",
+          "punt": "6",
+          "uitleg": "Ticket 7 verhuizen naar rij 9 stoel 1",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/7/9/1"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.9b",
+          "punt": "6",
+          "uitleg": "De verhuizing verandert de opbrengst niet",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": 210.0
+          }
+        },
+        {
+          "id": "6.9c",
+          "punt": "6",
+          "uitleg": "Rij 3 bevat enkel nog ticket 3",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/rij/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "6.10",
+          "punt": "4",
+          "uitleg": "De databaserepository bewaarde alles in de tabel Tickets",
+          "sql": "SELECT \"Id\", \"Naam\", \"Rij\", \"Stoel\", \"Prijs\", \"IsGeannuleerd\" FROM \"Tickets\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Sofie Peeters",
+                "1",
+                "5",
+                "45.00",
+                "f"
+              ],
+              [
+                "2",
+                "Tom Janssens",
+                "1",
+                "6",
+                "45.00",
+                "f"
+              ],
+              [
+                "3",
+                "Lisa Maes",
+                "3",
+                "12",
+                "35.00",
+                "f"
+              ],
+              [
+                "4",
+                "Karim El Idrissi",
+                "3",
+                "13",
+                "35.00",
+                "t"
+              ],
+              [
+                "5",
+                "Emma Claes",
+                "7",
+                "2",
+                "25.00",
+                "f"
+              ],
+              [
+                "6",
+                "Noah Willems",
+                "7",
+                "3",
+                "25.00",
+                "f"
+              ],
+              [
+                "7",
+                "Jonas Wouters",
+                "9",
+                "1",
+                "35.00",
+                "f"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "6",
+      "tekst": "Wissel in Program.cs naar `BestandTicketRepository`, verwijder `tickets.json`, start de API en doorloop stap 1 tot en met 9 opnieuw: elk antwoord is hetzelfde als met de databaserepository, ook Id 7 voor het nieuwe ticket. Daarna terug naar `TicketRepository`."
+    },
+    {
+      "punt": "3",
+      "tekst": "`BestandTicketRepository` leest en schrijft `tickets.json` asynchroon, en leest het bestand niet in zijn constructor."
+    },
+    {
+      "punt": "5",
+      "tekst": "In de SQL bij `GET api/ticket/rij/{rij}` staan beide voorwaarden (de rij en niet geannuleerd) en het sorteren op stoel."
+    }
+  ]
+}

@@ -1,0 +1,179 @@
+{
+  "formaat": 1,
+  "oefening": "01_05",
+  "titel": "Controller en routeparameters",
+  "hoofdstuk": 1,
+  "opgave": "Oefening_01_05.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "",
+    "probeer": [
+      "api/"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden en regels uit punt 1 tot 5",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1",
+          "punt": "1",
+          "uitleg": "Welkomstbericht",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek"
+          },
+          "verwacht": {
+            "tekst": "Welkom in De Leeszaal. Wij zijn open van dinsdag tot zaterdag."
+          }
+        },
+        {
+          "id": "2a",
+          "punt": "2",
+          "uitleg": "Afdeling jeugd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/afdeling/jeugd"
+          },
+          "verwacht": {
+            "tekst": "De jeugdafdeling vind je op het gelijkvloers, achteraan links."
+          }
+        },
+        {
+          "id": "2b",
+          "punt": "2",
+          "uitleg": "Afdeling strips",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/afdeling/strips"
+          },
+          "verwacht": {
+            "tekst": "De stripafdeling vind je op de eerste verdieping."
+          }
+        },
+        {
+          "id": "2c",
+          "punt": "2",
+          "uitleg": "Afdeling studie",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/afdeling/studie"
+          },
+          "verwacht": {
+            "tekst": "De studiezaal vind je op de tweede verdieping en is stiltezone."
+          }
+        },
+        {
+          "id": "2d",
+          "punt": "2",
+          "uitleg": "Onbekende afdeling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/afdeling/muziek"
+          },
+          "verwacht": {
+            "tekst": "Sorry, deze afdeling bestaat niet in onze bibliotheek."
+          }
+        },
+        {
+          "id": "3a",
+          "punt": "3",
+          "uitleg": "0 dagen te laat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/boete/0"
+          },
+          "verwacht": {
+            "tekst": "Je bent op tijd, er is geen boete."
+          }
+        },
+        {
+          "id": "3b",
+          "punt": "3",
+          "uitleg": "4 dagen te laat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/boete/4"
+          },
+          "verwacht": {
+            "tekst": "Je betaalt een boete van 1 euro."
+          }
+        },
+        {
+          "id": "3c",
+          "punt": "3",
+          "uitleg": "20 dagen te laat",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/boete/20"
+          },
+          "verwacht": {
+            "tekst": "Je betaalt een boete van 5 euro en je lidkaart wordt geblokkeerd."
+          }
+        },
+        {
+          "id": "4a",
+          "punt": "4",
+          "uitleg": "Controlecode van een lidkaart",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/lidkaart/LZ-2026-4471"
+          },
+          "verwacht": {
+            "tekst": "Lidkaart LZ-2026-4471 heeft controlecode 4471."
+          }
+        },
+        {
+          "id": "4b",
+          "punt": "4",
+          "uitleg": "Een ander nummer: niet hardgecodeerd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/lidkaart/LZ-2025-1093"
+          },
+          "verwacht": {
+            "tekst": "Lidkaart LZ-2025-1093 heeft controlecode 1093."
+          }
+        },
+        {
+          "id": "5a",
+          "punt": "5",
+          "uitleg": "Lenersfiche LZ-2026-8820",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/lener/LZ-2026-8820"
+          },
+          "verwacht": {
+            "tekst": "Lidkaart LZ-2026-8820 heeft controlecode 8820. De stripafdeling vind je op de eerste verdieping. Je betaalt een boete van 1 euro."
+          }
+        },
+        {
+          "id": "5b",
+          "punt": "5",
+          "uitleg": "Lenersfiche LZ-2026-4471",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/lener/LZ-2026-4471"
+          },
+          "verwacht": {
+            "tekst": "Lidkaart LZ-2026-4471 heeft controlecode 4471. De jeugdafdeling vind je op het gelijkvloers, achteraan links. Je bent op tijd, er is geen boete."
+          }
+        },
+        {
+          "id": "5c",
+          "punt": "5",
+          "uitleg": "Onbekend lidkaartnummer",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bibliotheek/lener/LZ-2024-0001"
+          },
+          "verwacht": {
+            "tekst": "We kennen dit lidkaartnummer niet."
+          }
+        }
+      ]
+    }
+  ]
+}

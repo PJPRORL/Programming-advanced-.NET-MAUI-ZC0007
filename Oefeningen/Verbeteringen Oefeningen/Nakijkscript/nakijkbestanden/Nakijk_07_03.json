@@ -1,0 +1,575 @@
+{
+  "formaat": 1,
+  "oefening": "07_03",
+  "titel": "Alles of niets, met één Unit of Work",
+  "hoofdstuk": 7,
+  "opgave": "Oefening_07_03.md",
+  "bouwtOpVan": "06_03",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "BestellijnDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 4 en regels uit punt 3 en 4",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "4.1a",
+          "punt": "4",
+          "uitleg": "Lijn 2 bijwerken zonder isActief en bestellingId in de body",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/2",
+            "body": {
+              "omschrijving": "DDR5 32 GB kit",
+              "aantal": 3,
+              "stukPrijs": 104.9
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "4.1b",
+          "punt": "4",
+          "uitleg": "Lijn 2: aantal 3, stukprijs 104.90, actief, bij bestelling 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "aantal": 3,
+                "stukPrijs": 104.9,
+                "isActief": true,
+                "bestellingId": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "4.2a",
+          "punt": "4",
+          "uitleg": "Lijn 5 bijwerken met bestellingId 3 en isActief false",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/5",
+            "body": {
+              "id": 5,
+              "omschrijving": "Voeding 750 W",
+              "aantal": 1,
+              "stukPrijs": 119.0,
+              "isActief": false,
+              "bestellingId": 3
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "4.2b",
+          "punt": "4",
+          "uitleg": "Lijn 5 is nog altijd actief en hoort nog altijd bij bestelling 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/5"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "isActief": true,
+                "bestellingId": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "4.3a",
+          "punt": "4",
+          "uitleg": "De actieve lijnen, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                5,
+                6
+              ]
+            }
+          }
+        },
+        {
+          "id": "4.3b",
+          "punt": "4",
+          "uitleg": "Lijn 4 is nog altijd geschrapt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/4"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen actieve bestellijn met Id 4."
+          }
+        },
+        {
+          "id": "4.4",
+          "punt": "4",
+          "uitleg": "De fiche van bestelling 1 na het bijwerken van lijn 2",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/1/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "totaalActief": 703.69,
+                "totaalGeschrapt": 89.95
+              }
+            }
+          }
+        },
+        {
+          "id": "4.5a",
+          "punt": "4",
+          "uitleg": "Volledige bestelling met een stukprijs 0 voor de koelpasta",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Processor Ryzen 7 7800X3D",
+                  "aantal": 1,
+                  "stukPrijs": 389.0
+                },
+                {
+                  "omschrijving": "Koelpasta",
+                  "aantal": 2,
+                  "stukPrijs": 0
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De stukprijs moet groter zijn dan 0."
+          }
+        },
+        {
+          "id": "4.5b",
+          "punt": "4",
+          "uitleg": "Er is geen bestelling bijgekomen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        },
+        {
+          "id": "4.5c",
+          "punt": "4",
+          "uitleg": "Er is geen lijn bijgekomen: nog altijd zes lijnen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$aantal": 6
+            }
+          }
+        },
+        {
+          "id": "4.6a",
+          "punt": "4",
+          "uitleg": "Lege klantnaam en geen lijnen: eerst de controle op de bestelling",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-004",
+              "klantnaam": "",
+              "bestellijnen": []
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een bestelling moet een klantnaam hebben."
+          }
+        },
+        {
+          "id": "4.6b",
+          "punt": "4",
+          "uitleg": "Geen lijnen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": []
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een bestelling moet minstens één bestellijn hebben."
+          }
+        },
+        {
+          "id": "4.7",
+          "punt": "4",
+          "uitleg": "Volledige bestelling plaatsen, met isActief false bij de koelpasta",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Processor Ryzen 7 7800X3D",
+                  "aantal": 1,
+                  "stukPrijs": 389.0
+                },
+                {
+                  "omschrijving": "Koelpasta",
+                  "aantal": 2,
+                  "stukPrijs": 7.99,
+                  "isActief": false
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 4,
+              "referentie": "BB-2026-004",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": null
+            },
+            "location": {
+              "eindigtOp": "/api/bestelling/4"
+            }
+          }
+        },
+        {
+          "id": "4.8",
+          "punt": "4",
+          "uitleg": "Acht lijnen; 7 en 8 zijn actief en horen bij bestelling 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 2
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 3
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 4
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 5
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 6
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 7,
+                  "isActief": true,
+                  "bestellingId": 4
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 8,
+                  "isActief": true,
+                  "bestellingId": 4
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "4.9",
+          "punt": "4",
+          "uitleg": "De fiche van bestelling 4",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestelling/4/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "aantalActieveLijnen": 2,
+              "aantalGeschrapteLijnen": 0,
+              "totaalActief": 404.98,
+              "totaalGeschrapt": 0,
+              "duursteActieveLijn": {
+                "$bevat": {
+                  "omschrijving": "Processor Ryzen 7 7800X3D"
+                }
+              },
+              "isLeeg": false
+            }
+          }
+        },
+        {
+          "id": "4.10",
+          "punt": "4",
+          "uitleg": "De fiche over alle lijnen samen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/fiche"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "aantalActieveLijnen": 7,
+                "aantalGeschrapteLijnen": 1,
+                "totaalActief": 1272.64
+              }
+            }
+          }
+        },
+        {
+          "id": "4.11",
+          "punt": "4",
+          "uitleg": "Bestelling 4 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "bestelling/4"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Deze bestelling heeft nog bestellijnen."
+          }
+        },
+        {
+          "id": "3.r1a",
+          "punt": "3",
+          "uitleg": "Lijn 3 bijwerken met een ander Id in de body: enkel het Id uit de URL telt",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "bestellijn/3",
+            "body": {
+              "id": 1,
+              "omschrijving": "NVMe SSD 2 TB",
+              "aantal": 2,
+              "stukPrijs": 139.0
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "3.r1b",
+          "punt": "3",
+          "uitleg": "Lijn 3 is bijgewerkt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/3"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 3,
+                "aantal": 2
+              }
+            }
+          }
+        },
+        {
+          "id": "3.r1c",
+          "punt": "3",
+          "uitleg": "Lijn 1 is niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/1"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 1,
+                "omschrijving": "Moederbord ASUS B650",
+                "aantal": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "4.r1",
+          "punt": "4",
+          "uitleg": "Volledige bestelling zonder referentie",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Processor Ryzen 7 7800X3D",
+                  "aantal": 1,
+                  "stukPrijs": 389.0
+                },
+                {
+                  "omschrijving": "Koelpasta",
+                  "aantal": 2,
+                  "stukPrijs": 7.99
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een bestelling moet een referentie hebben."
+          }
+        },
+        {
+          "id": "4.r2",
+          "punt": "4",
+          "uitleg": "Twee foute lijnen: de eerste fout in de volgorde van het verzoek",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-005",
+              "klantnaam": "Mehdi Aziz",
+              "bestellijnen": [
+                {
+                  "omschrijving": "",
+                  "aantal": 1,
+                  "stukPrijs": 389.0
+                },
+                {
+                  "omschrijving": "Koelpasta",
+                  "aantal": 0,
+                  "stukPrijs": 7.99
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een bestellijn moet een omschrijving hebben."
+          }
+        },
+        {
+          "id": "4.r3a",
+          "punt": "4",
+          "uitleg": "Volledige bestelling met bestellingId 1 in de lijn",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "bestelling/volledig",
+            "body": {
+              "referentie": "BB-2026-005",
+              "klantnaam": "An Vermeulen",
+              "bestellijnen": [
+                {
+                  "omschrijving": "Voeding 850 W",
+                  "aantal": 1,
+                  "stukPrijs": 139.0,
+                  "bestellingId": 1
+                }
+              ]
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "referentie": "BB-2026-005",
+              "klantnaam": "An Vermeulen",
+              "bestellijnen": null
+            },
+            "location": {
+              "eindigtOp": "/api/bestelling/5"
+            }
+          }
+        },
+        {
+          "id": "4.r3b",
+          "punt": "4",
+          "uitleg": "De nieuwe lijn hoort bij de nieuwe bestelling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bestellijn/9"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$bevat": {
+                "id": 9,
+                "isActief": true,
+                "bestellingId": 5
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "4",
+      "tekst": "Een geslaagde volledige bestelling bewaart de bestelling en al haar lijnen met één `SaveChangesAsync`."
+    }
+  ]
+}

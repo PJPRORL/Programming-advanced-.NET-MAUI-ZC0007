@@ -1,0 +1,198 @@
+{
+  "formaat": 1,
+  "oefening": "02_01",
+  "titel": "Model, lijst en statuscodes",
+  "hoofdstuk": 2,
+  "opgave": "Oefening_02_01.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Regels uit punt 1 tot 7 (eigen startgegevens van de student)",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "3.1",
+          "punt": "3",
+          "uitleg": "Volledige voorraad; elk artikel heeft de velden uit punt 1",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "id": {
+                  "$elk": true
+                },
+                "naam": {
+                  "$elk": true
+                },
+                "merk": {
+                  "$elk": true
+                },
+                "soort": {
+                  "$elk": true
+                },
+                "prijs": {
+                  "$elk": true
+                },
+                "aantalOpVoorraad": {
+                  "$elk": true
+                }
+              }
+            }
+          },
+          "bewaar": {
+            "eersteId": "[0].id",
+            "eersteSoort": "[0].soort"
+          }
+        },
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "Het eerste artikel uit de lijst opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/{{eersteId}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{eersteId}}",
+              "naam": {
+                "$elk": true
+              },
+              "merk": {
+                "$elk": true
+              },
+              "soort": "{{eersteSoort}}",
+              "prijs": {
+                "$elk": true
+              },
+              "aantalOpVoorraad": {
+                "$elk": true
+              }
+            }
+          }
+        },
+        {
+          "id": "4.2",
+          "punt": "4",
+          "uitleg": "Onbestaand artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 999."
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Artikelen van de soort van het eerste artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/soort/{{eersteSoort}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$elkElement": {
+                "$bevat": {
+                  "soort": "{{eersteSoort}}"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Soort zonder artikelen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/soort/koffiemachine"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikelen van de soort koffiemachine."
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Enkel wat op voorraad is: geen artikel met voorraad 0",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/voorradig"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$geenElement": {
+                "$bevat": {
+                  "aantalOpVoorraad": 0
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Fiche van het eerste artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/fiche/{{eersteId}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "artikel": {
+                "$bevat": {
+                  "id": "{{eersteId}}"
+                }
+              },
+              "isVoorradig": {
+                "$elk": true
+              },
+              "aantalVanDezelfdeSoort": {
+                "$elk": true
+              },
+              "isGoedkoopsteVanDeSoort": {
+                "$elk": true
+              }
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "Fiche van een onbestaand artikel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "artikel/fiche/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen artikel met Id 999."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "7",
+      "tekst": "In de fiche: `aantalVanDezelfdeSoort` is 0 bij een artikel dat als enige van zijn soort in de lijst zit; `isVoorradig` is false bij het artikel met voorraad 0; van twee artikelen van dezelfde soort staat `isGoedkoopsteVanDeSoort` maar bij één op true."
+    }
+  ]
+}

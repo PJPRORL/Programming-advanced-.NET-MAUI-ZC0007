@@ -1,0 +1,305 @@
+{
+  "formaat": 1,
+  "oefening": "05_02",
+  "titel": "CRUD op de database, asynchroon",
+  "hoofdstuk": 5,
+  "opgave": "Oefening_05_02.md",
+  "bouwtOpVan": "04_02",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "VentilatorDb",
+    "opbouwen": "sqlscript"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 6",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "De historiek is leeg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/historiek"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "6.2",
+          "punt": "6",
+          "uitleg": "Fractal toevoegen, het meegestuurde Id wordt overschreven",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "id": 2,
+              "merk": "Fractal",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 21.9
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 5,
+              "merk": "Fractal",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 21.9
+            },
+            "location": {
+              "eindigtOp": "/api/ventilator/5"
+            }
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Ventilator 5 bijwerken naar 19.90",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/5",
+            "body": {
+              "id": 5,
+              "merk": "Fractal",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 19.9
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.4",
+          "punt": "6",
+          "uitleg": "Ventilator 2 vervangen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ventilator/vervang/2",
+            "body": {
+              "merk": "Noctua",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 32.5
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 6,
+              "merk": "Noctua",
+              "afmetingInMm": 140,
+              "verlichting": "geen",
+              "prijs": 32.5
+            },
+            "location": {
+              "eindigtOp": "/api/ventilator/6"
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Onbestaande ventilator verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ventilator/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan ventilator met Id 99 niet verwijderen, omdat deze niet gevonden is."
+          }
+        },
+        {
+          "id": "6.6",
+          "punt": "6",
+          "uitleg": "Een ventilator van 92 mm toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ventilator",
+            "body": {
+              "id": 0,
+              "merk": "Arctic",
+              "afmetingInMm": 92,
+              "verlichting": "geen",
+              "prijs": 14.99
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "We verkopen enkel ventilatoren van 120 of 140 mm."
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "API stoppen en opnieuw starten",
+          "actie": "herstart"
+        },
+        {
+          "id": "6.8",
+          "punt": "6",
+          "uitleg": "De historiek na de herstart",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator/historiek"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "id": 1,
+                "actie": "toegevoegd",
+                "ventilatorId": 5
+              },
+              {
+                "id": 2,
+                "actie": "bijgewerkt",
+                "ventilatorId": 5
+              },
+              {
+                "id": 3,
+                "actie": "verwijderd",
+                "ventilatorId": 2
+              },
+              {
+                "id": 4,
+                "actie": "toegevoegd",
+                "ventilatorId": 6
+              }
+            ]
+          }
+        },
+        {
+          "id": "6.9",
+          "punt": "6",
+          "uitleg": "Ventilatoren 1, 3, 4, 5 en 6, ventilator 5 kost 19.90",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ventilator"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": [
+              {
+                "$bevat": {
+                  "id": 1
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 3
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 4
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 5,
+                  "prijs": 19.9
+                }
+              },
+              {
+                "$bevat": {
+                  "id": 6
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "6.10a",
+          "punt": "6",
+          "uitleg": "De tabel Ventilatoren bevat hetzelfde als de API",
+          "sql": "SELECT \"Id\", \"Merk\", \"AfmetingInMm\", \"Verlichting\", \"Prijs\" FROM \"Ventilatoren\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "Noctua",
+                "120",
+                "geen",
+                "29.90"
+              ],
+              [
+                "3",
+                "Corsair",
+                "120",
+                "RGB",
+                "34.90"
+              ],
+              [
+                "4",
+                "Arctic",
+                "140",
+                "ARGB",
+                "19.99"
+              ],
+              [
+                "5",
+                "Fractal",
+                "140",
+                "geen",
+                "19.90"
+              ],
+              [
+                "6",
+                "Noctua",
+                "140",
+                "geen",
+                "32.50"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        },
+        {
+          "id": "6.10b",
+          "punt": "6",
+          "uitleg": "De tabel Wijzigingen bevat hetzelfde als de API",
+          "sql": "SELECT \"Id\", \"Actie\", \"VentilatorId\" FROM \"Wijzigingen\" ORDER BY \"Id\"",
+          "verwacht": {
+            "rijen": [
+              [
+                "1",
+                "toegevoegd",
+                "5"
+              ],
+              [
+                "2",
+                "bijgewerkt",
+                "5"
+              ],
+              [
+                "3",
+                "verwijderd",
+                "2"
+              ],
+              [
+                "4",
+                "toegevoegd",
+                "6"
+              ]
+            ],
+            "volgorde": "vast"
+          }
+        }
+      ]
+    }
+  ]
+}

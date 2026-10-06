@@ -1,0 +1,273 @@
+{
+  "formaat": 1,
+  "oefening": "01_07",
+  "titel": "Eigen route en geneste beslissingen",
+  "hoofdstuk": 1,
+  "opgave": "Oefening_01_07.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden en regels uit punt 1 tot 5",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1a",
+          "punt": "1",
+          "uitleg": "Overzicht op api/festival",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival"
+          },
+          "verwacht": {
+            "tekst": "Welkom op Klankdal. Drie podia, twee dagen, één weide."
+          }
+        },
+        {
+          "id": "1b",
+          "punt": "1",
+          "uitleg": "Op api/podium mag niets terugkomen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "podium"
+          },
+          "verwacht": {
+            "geenBody": true
+          }
+        },
+        {
+          "id": "2a",
+          "punt": "2",
+          "uitleg": "Hoofdpodium voor 18 uur",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/podium/hoofdpodium/15"
+          },
+          "verwacht": {
+            "tekst": "Op het hoofdpodium spelen nu de opwarmers."
+          }
+        },
+        {
+          "id": "2b",
+          "punt": "2",
+          "uitleg": "Hoofdpodium om 18 uur",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/podium/hoofdpodium/18"
+          },
+          "verwacht": {
+            "tekst": "Op het hoofdpodium speelt nu de hoofdact."
+          }
+        },
+        {
+          "id": "2c",
+          "punt": "2",
+          "uitleg": "Hoofdpodium na 21 uur",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/podium/hoofdpodium/22"
+          },
+          "verwacht": {
+            "tekst": "Het hoofdpodium is gesloten."
+          }
+        },
+        {
+          "id": "2d",
+          "punt": "2",
+          "uitleg": "Tent voor 22 uur",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/podium/tent/21"
+          },
+          "verwacht": {
+            "tekst": "In de tent draaien de dj's van de dag."
+          }
+        },
+        {
+          "id": "2e",
+          "punt": "2",
+          "uitleg": "Tent vanaf 22 uur",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/podium/tent/22"
+          },
+          "verwacht": {
+            "tekst": "In de tent begint nu de nachtset."
+          }
+        },
+        {
+          "id": "2f",
+          "punt": "2",
+          "uitleg": "Strand op elk uur",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/podium/strand/3"
+          },
+          "verwacht": {
+            "tekst": "Op het strandpodium speelt akoestische muziek."
+          }
+        },
+        {
+          "id": "2g",
+          "punt": "2",
+          "uitleg": "Onbekend podium",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/podium/kelder/20"
+          },
+          "verwacht": {
+            "tekst": "Dit podium staat niet op het terrein."
+          }
+        },
+        {
+          "id": "3a",
+          "punt": "3",
+          "uitleg": "Kind jonger dan 12",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/ticket/combi/8"
+          },
+          "verwacht": {
+            "tekst": "Kinderen jonger dan 12 komen gratis binnen."
+          }
+        },
+        {
+          "id": "3b",
+          "punt": "3",
+          "uitleg": "Jongere: halve prijs",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/ticket/combi/15"
+          },
+          "verwacht": {
+            "tekst": "Een combiticket kost jou 60 euro."
+          }
+        },
+        {
+          "id": "3c",
+          "punt": "3",
+          "uitleg": "Volwassene: volle prijs",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/ticket/vip/30"
+          },
+          "verwacht": {
+            "tekst": "Een vipticket kost jou 210 euro."
+          }
+        },
+        {
+          "id": "3d",
+          "punt": "3",
+          "uitleg": "Kind van 8 met onbekend tickettype",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/ticket/abonnement/8"
+          },
+          "verwacht": {
+            "tekst": "Dit tickettype bestaat niet."
+          }
+        },
+        {
+          "id": "4a",
+          "punt": "4",
+          "uitleg": "Regenkans boven 70",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/weer/31/85"
+          },
+          "verwacht": {
+            "tekst": "Neem een regenjas mee."
+          }
+        },
+        {
+          "id": "4b",
+          "punt": "4",
+          "uitleg": "Warmer dan 28 graden",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/weer/31/20"
+          },
+          "verwacht": {
+            "tekst": "Neem water en zonnecrème mee."
+          }
+        },
+        {
+          "id": "4c",
+          "punt": "4",
+          "uitleg": "Kouder dan 12 graden",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/weer/9/20"
+          },
+          "verwacht": {
+            "tekst": "Trek een warme trui aan."
+          }
+        },
+        {
+          "id": "4d",
+          "punt": "4",
+          "uitleg": "Alle andere gevallen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/weer/20/20"
+          },
+          "verwacht": {
+            "tekst": "Ideaal festivalweer."
+          }
+        },
+        {
+          "id": "5a",
+          "punt": "5",
+          "uitleg": "Plan combi, hoofdpodium om 19 uur",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/plan/combi/15/hoofdpodium/19"
+          },
+          "verwacht": {
+            "tekst": "Een combiticket kost jou 60 euro. Op het hoofdpodium speelt nu de hoofdact. Neem een regenjas mee."
+          }
+        },
+        {
+          "id": "5b",
+          "punt": "5",
+          "uitleg": "Plan dag, strand om 14 uur",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/plan/dag/30/strand/14"
+          },
+          "verwacht": {
+            "tekst": "Een dagticket kost jou 65 euro. Op het strandpodium speelt akoestische muziek. Neem water en zonnecrème mee."
+          }
+        },
+        {
+          "id": "5c",
+          "punt": "5",
+          "uitleg": "Plan met onbekend tickettype (kind van 8)",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/plan/abonnement/8/strand/14"
+          },
+          "verwacht": {
+            "tekst": "Dit tickettype bestaat niet."
+          }
+        },
+        {
+          "id": "5d",
+          "punt": "5",
+          "uitleg": "Plan met onbekend podium: tweede boodschap vervangen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "festival/plan/dag/30/kelder/14"
+          },
+          "verwacht": {
+            "tekst": "Een dagticket kost jou 65 euro. Dit podium staat niet op het terrein. Neem water en zonnecrème mee."
+          }
+        }
+      ]
+    }
+  ]
+}

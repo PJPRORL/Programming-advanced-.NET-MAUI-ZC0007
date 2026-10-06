@@ -1,0 +1,871 @@
+{
+  "formaat": 1,
+  "oefening": "03_06",
+  "titel": "Twee repositories, één contract",
+  "hoofdstuk": 3,
+  "opgave": "Oefening_03_06.md",
+  "bouwtOpVan": "02_06",
+  "soort": "bestand",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "bestanden": [
+    "tickets.json"
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Testscenario punt 6, met de bestandsrepository",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "6.0",
+          "punt": "6",
+          "uitleg": "Voorbereiding: een geldig ticket van 35.00 op rij 30 stoel 3, dat in stap 2 geannuleerd wordt",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket A",
+              "rij": 30,
+              "stoel": 3,
+              "prijs": 35.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Testticket A",
+              "rij": 30,
+              "stoel": 3,
+              "prijs": 35.0,
+              "isGeannuleerd": false
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/{{x}}"
+            }
+          },
+          "bewaar": {
+            "x": "id"
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Stap 1: de opbrengst opvragen en noteren",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200
+          },
+          "bewaar": {
+            "o1": ""
+          }
+        },
+        {
+          "id": "6.2a",
+          "punt": "6",
+          "uitleg": "Stap 2: een ticket van 45.00 verkopen op rij 30 stoel 1, met zijn adres",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket B",
+              "rij": 30,
+              "stoel": 1,
+              "prijs": 45.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Testticket B",
+              "rij": 30,
+              "stoel": 1,
+              "prijs": 45.0,
+              "isGeannuleerd": false
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/{{n}}"
+            }
+          },
+          "bewaar": {
+            "n": "id"
+          }
+        },
+        {
+          "id": "6.2b",
+          "punt": "6",
+          "uitleg": "Stap 2: het ticket op rij 30 stoel 3 annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/{{x}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.3",
+          "punt": "6",
+          "uitleg": "Stap 3: de API stoppen en opnieuw starten",
+          "actie": "herstart"
+        },
+        {
+          "id": "6.4a",
+          "punt": "6",
+          "uitleg": "Stap 4: de opbrengst is die van stap 1 + 45.00 (nieuw) - 35.00 (geannuleerd)",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$reken": "{{o1}} + 45.00 - 35.00"
+            }
+          }
+        },
+        {
+          "id": "6.4b",
+          "punt": "6",
+          "uitleg": "Stap 4: het geannuleerde ticket staat nog in alle tickets, als geannuleerd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/alles"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$heeftElement": {
+                "id": "{{x}}",
+                "naam": "Testticket A",
+                "rij": 30,
+                "stoel": 3,
+                "prijs": 35.0,
+                "isGeannuleerd": true
+              }
+            }
+          }
+        },
+        {
+          "id": "6.4c",
+          "punt": "6",
+          "uitleg": "Stap 4: het geannuleerde ticket is nog altijd geannuleerd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{x}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id {{x}}."
+          }
+        },
+        {
+          "id": "6.4d",
+          "punt": "6",
+          "uitleg": "Stap 4: het nieuwe ticket uit stap 2 is er nog",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{n}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{n}}",
+              "naam": "Testticket B",
+              "rij": 30,
+              "stoel": 1,
+              "prijs": 45.0,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "6.5",
+          "punt": "6",
+          "uitleg": "Stap 5: de plaats van het nieuwe ticket is na de herstart nog bezet",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket C",
+              "rij": 30,
+              "stoel": 1,
+              "prijs": 35.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 30 stoel 1 is al verkocht."
+          }
+        },
+        {
+          "id": "6.6a",
+          "punt": "6",
+          "uitleg": "Stap 6: de plaats van het geannuleerde ticket is na de herstart nog vrij",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket D",
+              "rij": 30,
+              "stoel": 3,
+              "prijs": 40.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Testticket D",
+              "rij": 30,
+              "stoel": 3,
+              "prijs": 40.0,
+              "isGeannuleerd": false
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/{{m}}"
+            }
+          },
+          "bewaar": {
+            "m": "id"
+          }
+        },
+        {
+          "id": "6.6b",
+          "punt": "6",
+          "uitleg": "Stap 6: het nieuwe ticket is op zijn eigen Id op te vragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{m}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{m}}",
+              "naam": "Testticket D",
+              "rij": 30,
+              "stoel": 3,
+              "prijs": 40.0,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "6.6c",
+          "punt": "6",
+          "uitleg": "Stap 6: het geannuleerde ticket deelt zijn Id niet met het nieuwe",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{x}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id {{x}}."
+          }
+        },
+        {
+          "id": "6.7",
+          "punt": "6",
+          "uitleg": "Stap 7: het geannuleerde ticket herstellen terwijl zijn plaats ingenomen is",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/{{x}}"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 30 stoel 3 is intussen aan iemand anders verkocht."
+          }
+        },
+        {
+          "id": "6.8a",
+          "punt": "6",
+          "uitleg": "Stap 8: de opbrengst noteren",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200
+          },
+          "bewaar": {
+            "o8": ""
+          }
+        },
+        {
+          "id": "6.8b",
+          "punt": "6",
+          "uitleg": "Stap 8: het ticket uit stap 2 verhuizen naar rij 30 stoel 2",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{n}}/30/2"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "6.8c",
+          "punt": "6",
+          "uitleg": "Stap 8: herstarten",
+          "actie": "herstart"
+        },
+        {
+          "id": "6.8d",
+          "punt": "6",
+          "uitleg": "Stap 8: het ticket staat op zijn nieuwe plaats",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{n}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{n}}",
+              "naam": "Testticket B",
+              "rij": 30,
+              "stoel": 2,
+              "prijs": 45.0,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "6.8e",
+          "punt": "6",
+          "uitleg": "Stap 8: de opbrengst is door de verhuizing niet veranderd",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/opbrengst"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": "{{o8}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "titel": "Regels uit punt 1",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "R1",
+          "punt": "1",
+          "uitleg": "Een onbestaand ticket opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/999"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id 999."
+          }
+        },
+        {
+          "id": "R2",
+          "punt": "1",
+          "uitleg": "Verkopen zonder naam",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "",
+              "rij": 30,
+              "stoel": 5,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een ticket moet op naam staan."
+          }
+        },
+        {
+          "id": "R3",
+          "punt": "1",
+          "uitleg": "Verkopen op rij 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket E",
+              "rij": 0,
+              "stoel": 5,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De rij moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "R4",
+          "punt": "1",
+          "uitleg": "Verkopen op stoel 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket E",
+              "rij": 30,
+              "stoel": 0,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De stoel moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "R5",
+          "punt": "1",
+          "uitleg": "Verkopen met prijs 0",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket E",
+              "rij": 30,
+              "stoel": 5,
+              "prijs": 0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De prijs moet groter zijn dan 0."
+          }
+        },
+        {
+          "id": "R6",
+          "punt": "1",
+          "uitleg": "Een nieuw ticket is nooit geannuleerd, ook als de client ja meestuurt",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket E",
+              "rij": 30,
+              "stoel": 5,
+              "prijs": 30.0,
+              "isGeannuleerd": true
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Testticket E",
+              "rij": 30,
+              "stoel": 5,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/{{t1}}"
+            }
+          },
+          "bewaar": {
+            "t1": "id"
+          }
+        },
+        {
+          "id": "R7",
+          "punt": "1",
+          "uitleg": "Dezelfde plaats nog eens verkopen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket F",
+              "rij": 30,
+              "stoel": 5,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 30 stoel 5 is al verkocht."
+          }
+        },
+        {
+          "id": "R8",
+          "punt": "1",
+          "uitleg": "Een tweede ticket verkopen op rij 30 stoel 6",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "ticket",
+            "body": {
+              "naam": "Testticket F",
+              "rij": 30,
+              "stoel": 6,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": {
+                "$elk": true
+              },
+              "naam": "Testticket F",
+              "rij": 30,
+              "stoel": 6,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            },
+            "location": {
+              "eindigtOp": "/api/ticket/{{t2}}"
+            }
+          },
+          "bewaar": {
+            "t2": "id"
+          }
+        },
+        {
+          "id": "R9",
+          "punt": "1",
+          "uitleg": "Wijzigen met behoud van de eigen plaats is geen dubbele verkoop",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "Testticket E",
+              "rij": 30,
+              "stoel": 5,
+              "prijs": 32.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "R10",
+          "punt": "1",
+          "uitleg": "Het gewijzigde ticket heeft de nieuwe prijs",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{t1}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{t1}}",
+              "naam": "Testticket E",
+              "rij": 30,
+              "stoel": 5,
+              "prijs": 32.5,
+              "isGeannuleerd": false
+            }
+          }
+        },
+        {
+          "id": "R11",
+          "punt": "1",
+          "uitleg": "Wijzigen naar de plaats van een ander ticket",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "Testticket E",
+              "rij": 30,
+              "stoel": 6,
+              "prijs": 32.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 30 stoel 6 is al verkocht."
+          }
+        },
+        {
+          "id": "R12",
+          "punt": "1",
+          "uitleg": "Wijzigen naar rij 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t1}}",
+            "body": {
+              "naam": "Testticket E",
+              "rij": 0,
+              "stoel": 5,
+              "prijs": 32.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De rij moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "R13",
+          "punt": "1",
+          "uitleg": "Een onbestaand ticket wijzigen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/999",
+            "body": {
+              "naam": "Testticket E",
+              "rij": 30,
+              "stoel": 9,
+              "prijs": 32.5,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "R14",
+          "punt": "1",
+          "uitleg": "Verhuizen naar de eigen plaats",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{t1}}/30/5"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit ticket zit al op rij 30 stoel 5."
+          }
+        },
+        {
+          "id": "R15",
+          "punt": "1",
+          "uitleg": "Verhuizen naar de plaats van een ander ticket",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{t1}}/30/6"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Rij 30 stoel 6 is al verkocht."
+          }
+        },
+        {
+          "id": "R16",
+          "punt": "1",
+          "uitleg": "Verhuizen naar rij 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{t1}}/0/7"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De rij moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "R17",
+          "punt": "1",
+          "uitleg": "Verhuizen naar stoel 0",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{t1}}/30/0"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "De stoel moet minstens 1 zijn."
+          }
+        },
+        {
+          "id": "R18",
+          "punt": "1",
+          "uitleg": "Een onbestaand ticket verhuizen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/999/30/7"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id 999."
+          }
+        },
+        {
+          "id": "R19",
+          "punt": "1",
+          "uitleg": "Een geldig ticket herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/{{t1}}"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit ticket is niet geannuleerd."
+          }
+        },
+        {
+          "id": "R20",
+          "punt": "1",
+          "uitleg": "Het tweede ticket annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/{{t2}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "R21",
+          "punt": "1",
+          "uitleg": "Hetzelfde ticket een tweede keer annuleren",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "ticket/{{t2}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "Kan ticket met Id {{t2}} niet annuleren, omdat het niet gevonden is."
+          }
+        },
+        {
+          "id": "R22",
+          "punt": "1",
+          "uitleg": "Een geannuleerd ticket opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{t2}}"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id {{t2}}."
+          }
+        },
+        {
+          "id": "R23",
+          "punt": "1",
+          "uitleg": "Een geannuleerd ticket wijzigen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/{{t2}}",
+            "body": {
+              "naam": "Testticket F",
+              "rij": 30,
+              "stoel": 6,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "R24",
+          "punt": "1",
+          "uitleg": "Een geannuleerd ticket verhuizen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/verhuis/{{t2}}/30/8"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen geldig ticket met Id {{t2}}."
+          }
+        },
+        {
+          "id": "R25",
+          "punt": "1",
+          "uitleg": "Een onbestaand ticket herstellen",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/999"
+          },
+          "verwacht": {
+            "status": 404
+          }
+        },
+        {
+          "id": "R26",
+          "punt": "1",
+          "uitleg": "Het geannuleerde ticket herstellen: zijn plaats is nog vrij",
+          "verzoek": {
+            "methode": "PUT",
+            "pad": "ticket/herstel/{{t2}}"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "R27",
+          "punt": "1",
+          "uitleg": "Het herstelde ticket is weer geldig",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "ticket/{{t2}}"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": "{{t2}}",
+              "naam": "Testticket F",
+              "rij": 30,
+              "stoel": 6,
+              "prijs": 30.0,
+              "isGeannuleerd": false
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "2",
+      "tekst": "`ITicketRepository` bevat enkel methodes die gegevens ophalen of bewaren; geldigheid, plaatscontrole en statuscodes beslist de controller."
+    },
+    {
+      "punt": "3",
+      "tekst": "`InMemoryTicketRepository` bevat de lijst; constructor injection van `ITicketRepository` en `ILogger<TicketController>`; Information per verzoek, Warning bij elke 400 en 404; annuleren blijft een soft delete."
+    },
+    {
+      "punt": "4",
+      "tekst": "`BestandTicketRepository` leest `tickets.json` bij de start, schrijft de startlijst weg als het bestand niet bestaat, en schrijft na elke wijziging; het bestand bevat leesbare JSON met `IsGeannuleerd`."
+    },
+    {
+      "punt": "5",
+      "tekst": "Wisselen in Program.cs zonder iets aan de TicketController te veranderen. Het script test met de bestandsrepository."
+    },
+    {
+      "punt": "6",
+      "tekst": "Het script verkoopt zijn eigen tickets op rij 30 (stoel 1, 2, 3, 5, 6): die plaatsen mogen in de eigen startlijst niet bezet zijn."
+    },
+    {
+      "punt": "6",
+      "tekst": "Stap 9: met de in-memory repository stap 1 tot en met 3 doorlopen; na de herstart staan de opbrengst en alle tickets weer zoals in de startlijst."
+    }
+  ]
+}

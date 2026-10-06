@@ -1,0 +1,265 @@
+{
+  "formaat": 1,
+  "oefening": "06_04",
+  "titel": "Een één-op-veel-relatie",
+  "hoofdstuk": 6,
+  "opgave": "Oefening_06_04.md",
+  "bouwtOpVan": "05_04",
+  "soort": "database",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "database": {
+    "naam": "AsielDb",
+    "opbouwen": "migraties"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "JSON uit punt 5 en testscenario punt 7",
+      "start": "opbouwen",
+      "stappen": [
+        {
+          "id": "4.1",
+          "punt": "4",
+          "uitleg": "De migratie Verblijven is uitgevoerd",
+          "sql": "SELECT \"MigrationId\" FROM \"__EFMigrationsHistory\" WHERE \"MigrationId\" LIKE '%\\_Verblijven'",
+          "verwacht": {
+            "aantal": 1
+          }
+        },
+        {
+          "id": "5.1",
+          "punt": "5",
+          "uitleg": "Verblijf 2 opvragen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/2"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 2,
+              "naam": "Hondenren",
+              "capaciteit": 4,
+              "dieren": null
+            }
+          }
+        },
+        {
+          "id": "5.2",
+          "punt": "5",
+          "uitleg": "Dier 4 opvragen, met zijn verblijfId",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/4"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "id": 4,
+              "naam": "Bella",
+              "soort": "hond",
+              "leeftijdInJaren": 1,
+              "isGechipt": true,
+              "verblijfId": 2,
+              "verblijf": null
+            }
+          }
+        },
+        {
+          "id": "5.3",
+          "punt": "5",
+          "uitleg": "Onbestaand verblijf",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/99"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen verblijf met Id 99."
+          }
+        },
+        {
+          "id": "5.4",
+          "punt": "5",
+          "uitleg": "De dieren van verblijf 2, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/2/dieren"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                3,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.1",
+          "punt": "7",
+          "uitleg": "Verblijf 1 verwijderen terwijl er nog dieren in wonen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "verblijf/1"
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Dit verblijf is niet leeg."
+          }
+        },
+        {
+          "id": "7.1b",
+          "punt": "7",
+          "uitleg": "De katten zijn er nog",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "dier/soort/kat"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.2",
+          "punt": "7",
+          "uitleg": "De database weigert zelf verblijf 1 te verwijderen",
+          "sql": "DELETE FROM \"Verblijven\" WHERE \"Id\" = 1",
+          "verwacht": {
+            "fout": "foreign key"
+          }
+        },
+        {
+          "id": "7.3a",
+          "punt": "7",
+          "uitleg": "Verblijf 5 verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "verblijf/5"
+          },
+          "verwacht": {
+            "status": 204
+          }
+        },
+        {
+          "id": "7.3b",
+          "punt": "7",
+          "uitleg": "Verblijf 5 nog eens verwijderen",
+          "verzoek": {
+            "methode": "DELETE",
+            "pad": "verblijf/5"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen verblijf met Id 5."
+          }
+        },
+        {
+          "id": "7.4",
+          "punt": "7",
+          "uitleg": "Opvangkamer toevoegen",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "verblijf",
+            "body": {
+              "naam": "Opvangkamer",
+              "capaciteit": 3
+            }
+          },
+          "verwacht": {
+            "status": 201,
+            "json": {
+              "id": 6,
+              "naam": "Opvangkamer",
+              "capaciteit": 3,
+              "dieren": null
+            },
+            "location": {
+              "eindigtOp": "/api/verblijf/6"
+            }
+          }
+        },
+        {
+          "id": "7.5",
+          "punt": "7",
+          "uitleg": "Alle verblijven, op Id",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": {
+              "$idsInVolgorde": [
+                1,
+                2,
+                3,
+                4,
+                6
+              ]
+            }
+          }
+        },
+        {
+          "id": "7.6",
+          "punt": "7",
+          "uitleg": "Een leeg verblijf",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/6/dieren"
+          },
+          "verwacht": {
+            "status": 200,
+            "json": []
+          }
+        },
+        {
+          "id": "7.7",
+          "punt": "7",
+          "uitleg": "Dieren van een onbestaand verblijf",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "verblijf/99/dieren"
+          },
+          "verwacht": {
+            "status": 404,
+            "tekst": "We vonden geen verblijf met Id 99."
+          }
+        },
+        {
+          "id": "6.1",
+          "punt": "6",
+          "uitleg": "Een verblijf zonder naam",
+          "verzoek": {
+            "methode": "POST",
+            "pad": "verblijf",
+            "body": {
+              "naam": "",
+              "capaciteit": 3
+            }
+          },
+          "verwacht": {
+            "status": 400,
+            "tekst": "Een verblijf moet een naam hebben."
+          }
+        }
+      ]
+    }
+  ],
+  "handmatig": [
+    {
+      "punt": "4",
+      "tekst": "`OnModelCreating` is verdeeld in twee methodes: één voor de tabellen, één voor de startgegevens."
+    }
+  ]
+}

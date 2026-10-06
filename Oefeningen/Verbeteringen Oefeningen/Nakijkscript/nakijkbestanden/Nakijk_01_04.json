@@ -1,0 +1,261 @@
+{
+  "formaat": 1,
+  "oefening": "01_04",
+  "titel": "Eigen route en geneste beslissingen",
+  "hoofdstuk": 1,
+  "opgave": "Oefening_01_04.md",
+  "soort": "geheugen",
+  "routePrefix": {
+    "standaard": "api/",
+    "probeer": []
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "titel": "Voorbeelden en regels uit punt 1 tot 5",
+      "start": "herstart",
+      "stappen": [
+        {
+          "id": "1a",
+          "punt": "1",
+          "uitleg": "Overzicht op api/bouwadvies",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies"
+          },
+          "verwacht": {
+            "tekst": "Adviespaneel Bit & Byte. Vraag advies op over je budget, je doel of je koeling."
+          }
+        },
+        {
+          "id": "1b",
+          "punt": "1",
+          "uitleg": "Op api/advies mag niets terugkomen",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "advies"
+          },
+          "verwacht": {
+            "geenBody": true
+          }
+        },
+        {
+          "id": "2a",
+          "punt": "2",
+          "uitleg": "Budget minder dan 600",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/budget/450"
+          },
+          "verwacht": {
+            "tekst": "Met dit budget kies je best een tweedehandstoestel."
+          }
+        },
+        {
+          "id": "2b",
+          "punt": "2",
+          "uitleg": "Budget 600 (ondergrens kantoor-pc)",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/budget/600"
+          },
+          "verwacht": {
+            "tekst": "Met dit budget bouw je een degelijke kantoor-pc."
+          }
+        },
+        {
+          "id": "2c",
+          "punt": "2",
+          "uitleg": "Budget 1200 (ondergrens gaming-pc)",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/budget/1200"
+          },
+          "verwacht": {
+            "tekst": "Met dit budget bouw je een volwaardige gaming-pc."
+          }
+        },
+        {
+          "id": "2d",
+          "punt": "2",
+          "uitleg": "Budget 2500 (ondergrens vrijwel alles)",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/budget/2500"
+          },
+          "verwacht": {
+            "tekst": "Met dit budget kan je vrijwel alles bouwen."
+          }
+        },
+        {
+          "id": "3a",
+          "punt": "3",
+          "uitleg": "Gaming onder het minimum",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/doel/gaming/900"
+          },
+          "verwacht": {
+            "tekst": "Voor een gaming-pc reken je op minstens 1200 euro. Je komt 300 euro te kort."
+          }
+        },
+        {
+          "id": "3b",
+          "punt": "3",
+          "uitleg": "Kantoor binnen het budget",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/doel/kantoor/900"
+          },
+          "verwacht": {
+            "tekst": "Een kantoor-pc is haalbaar binnen dit budget."
+          }
+        },
+        {
+          "id": "3c",
+          "punt": "3",
+          "uitleg": "Onbekend doel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/doel/server/900"
+          },
+          "verwacht": {
+            "tekst": "We kennen dit doel niet."
+          }
+        },
+        {
+          "id": "3d",
+          "punt": "3",
+          "uitleg": "Bedrag gelijk aan het minimum",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/doel/gaming/1200"
+          },
+          "verwacht": {
+            "tekst": "Een gaming-pc is haalbaar binnen dit budget."
+          }
+        },
+        {
+          "id": "4a",
+          "punt": "4",
+          "uitleg": "Lucht, 95 watt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/koeling/95/lucht"
+          },
+          "verwacht": {
+            "tekst": "Een gewone luchtkoeler volstaat."
+          }
+        },
+        {
+          "id": "4b",
+          "punt": "4",
+          "uitleg": "Lucht, 150 watt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/koeling/150/lucht"
+          },
+          "verwacht": {
+            "tekst": "Kies een zware luchtkoeler."
+          }
+        },
+        {
+          "id": "4c",
+          "punt": "4",
+          "uitleg": "Lucht, meer dan 150 watt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/koeling/200/lucht"
+          },
+          "verwacht": {
+            "tekst": "Luchtkoeling volstaat niet, ga voor waterkoeling."
+          }
+        },
+        {
+          "id": "4d",
+          "punt": "4",
+          "uitleg": "Water, 250 watt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/koeling/250/water"
+          },
+          "verwacht": {
+            "tekst": "Een waterkoeling van 240 mm volstaat."
+          }
+        },
+        {
+          "id": "4e",
+          "punt": "4",
+          "uitleg": "Water, meer dan 250 watt",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/koeling/300/water"
+          },
+          "verwacht": {
+            "tekst": "Kies een radiator van 360 mm of groter."
+          }
+        },
+        {
+          "id": "4f",
+          "punt": "4",
+          "uitleg": "Onbekende koeling bij een laag wattage",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/koeling/65/stikstof"
+          },
+          "verwacht": {
+            "tekst": "We kennen dit soort koeling niet."
+          }
+        },
+        {
+          "id": "5a",
+          "punt": "5",
+          "uitleg": "Volledig advies, gaming",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/volledig/gaming/1500/140/lucht"
+          },
+          "verwacht": {
+            "tekst": "Met dit budget bouw je een volwaardige gaming-pc. Een gaming-pc is haalbaar binnen dit budget. Kies een zware luchtkoeler."
+          }
+        },
+        {
+          "id": "5b",
+          "punt": "5",
+          "uitleg": "Volledig advies, montage met de verkeerde koeling",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/volledig/montage/1000/200/lucht"
+          },
+          "verwacht": {
+            "tekst": "Met dit budget bouw je een degelijke kantoor-pc. Voor een montage-pc reken je op minstens 1500 euro. Je komt 500 euro te kort. Luchtkoeling volstaat niet, ga voor waterkoeling. Voor een montage-pc raden we water aan."
+          }
+        },
+        {
+          "id": "5c",
+          "punt": "5",
+          "uitleg": "Volledig advies, onbekend doel",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/volledig/server/1500/140/lucht"
+          },
+          "verwacht": {
+            "tekst": "We kennen dit doel niet."
+          }
+        },
+        {
+          "id": "5d",
+          "punt": "5",
+          "uitleg": "Volledig advies, onbekende koeling: derde boodschap vervangen, vierde valt weg",
+          "verzoek": {
+            "methode": "GET",
+            "pad": "bouwadvies/volledig/gaming/1500/140/stikstof"
+          },
+          "verwacht": {
+            "tekst": "Met dit budget bouw je een volwaardige gaming-pc. Een gaming-pc is haalbaar binnen dit budget. We kennen dit soort koeling niet."
+          }
+        }
+      ]
+    }
+  ]
+}
