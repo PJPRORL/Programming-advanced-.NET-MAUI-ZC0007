@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using ProgrammingAdvancedOefeningen.Models;
-using System.Security.Cryptography.X509Certificates;
-
-namespace ProgrammingAdvancedOefeningen.Controllers
+﻿namespace ProgrammingAdvancedOefeningen.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -20,18 +15,78 @@ namespace ProgrammingAdvancedOefeningen.Controllers
             new Artikel { Id = 6, Naam = "Ergonomische Bureaustoel", Merk = "Herman Miller", Soort = "Kantoormeubilair", Prijs = 495.00, AantalOpVoorraad = 0 }
         };
 
-        // Verwerken van artikelen
+
+        [HttpGet()]
         public ActionResult<List<Artikel>> GetArtikelen()
         {
             return Ok(Artikelen);
         }
 
-        [HttpGet("artikel/{id}")]
+        [HttpGet("{id}")]
         public ActionResult<Artikel> GetArtikelId(int id)
         {
+
             Artikel artikel = Artikelen.FirstOrDefault(artikel => artikel.Id == id);
 
-            return artikel;
+            if (artikel == null)
+            {
+                return NotFound($"We vonden geen artikel met Id {id}.");
+            }
+
+            return Ok(artikel);
         }
+
+        [HttpGet("soort/{soort}")]
+        public ActionResult<Artikel> GetArtikelSoort(string soort)
+        {
+
+            List<Artikel> artikelen = new List<Artikel>();
+
+            foreach (var artikel in Artikelen)
+            {
+                if (artikel.Soort == soort)
+                {
+                    artikelen.Add(artikel);
+                }
+            }
+
+            if (artikelen.Count == 0)
+            {
+                return NotFound($"We vonden geen artikelen van de soort {soort}.");
+            }
+            else
+            {
+                return Ok(artikelen);
+            }
+        }
+
+        [HttpGet("voorradig")]
+        public ActionResult<Artikel> GetVoorraad()
+        {
+            List<Artikel> artikelen = new List<Artikel>();
+
+            foreach (var artikel in Artikelen)
+            {
+                if (artikel.AantalOpVoorraad > 0)
+                {
+                    artikelen.Add(artikel);
+                }
+            }
+
+            if (artikelen.Count == null)
+            {
+                return Ok(artikelen);
+            }
+
+            return Ok(artikelen);
+        }
+
+        //[HttpGet("fiche/{id}")]
+        //public ActionResult<ArtikelFiche> GetFicheArtikelen()
+        //{
+
+
+        //    return ;
+        //}
     }
 }
