@@ -12,11 +12,7 @@ builder.Services.AddOpenApi();
 // Registreren van Repositories
 builder.Services.AddScoped<IArtikelRepository, InMemoryArtikelRepository>();
 builder.Services.AddScoped<IVentilatorRepository, InMemoryVentilatorRepository>();
-builder.Services.AddScoped<IWijzigingRepository, InMemoryWijzigingRepository>();
 
-// Registreren van de database
-var connectionstring = builder.Configuration.GetConnectionString("PostgresConnection");
-builder.Services.AddDbContext<ArtikelContext>(options => options.UseNpgsql(connectionstring));
 
 var app = builder.Build();
 

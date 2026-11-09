@@ -2,6 +2,7 @@
 {
     public class InMemoryVentilatorRepository : IVentilatorRepository
     {
+
         private static List<Ventilator> ventilatoren = new List<Ventilator>
         {
             new Ventilator {Id = 1, AfmetingInMm = 120, Merk = "Noctua", Prijs = 34.99, Verlichting = "Geen"},
@@ -35,6 +36,7 @@
 
             if (bestaandeVentilator != null)
             {
+                bestaandeVentilator.Id = ventilator.Id;
                 bestaandeVentilator.AfmetingInMm = ventilator.AfmetingInMm;
                 bestaandeVentilator.Merk = ventilator.Merk;
                 bestaandeVentilator.Prijs = ventilator.Prijs;
@@ -50,6 +52,11 @@
             {
                 ventilatoren.Remove(ventilator);
             }
+        }
+
+        public void Replace(int id)
+        {
+
         }
     }
 }
