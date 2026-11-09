@@ -49,12 +49,12 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
 
 ### 3. Een ticket met zijn concert
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket/<span style="color:#e64980"><b>{id}</b></span>/details</code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/<span style="color:#e64980"><b>{id}</b></span>/details</code>
 
-- Er is geen geldig ticket met dat Id: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen geldig ticket met Id <span style="color:#e64980"><b>{id}</b></span>.</code>
+- Er is geen geldig ticket met dat Id: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 - Anders: <code style="color:#37b24d;font-weight:600">200 OK</code> met het ticket, en daarin zijn concert.
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/3/details</code> geeft als resultaat:
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/3/details</code> geeft als resultaat:
 
 ```json
 {
@@ -62,13 +62,13 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
   "naam": "Lisa Maes",
   "rij": 3,
   "stoel": 12,
-  "prijs": 35.00,
+  "prijs": 35,
   "isGeannuleerd": false,
   "concertId": 1,
   "concert": {
     "id": 1,
     "titel": "Jazz in de Notenbalk",
-    "datum": "14-11-2026",
+    "datum": "2026-11-14T20:00:00Z",
     "tickets": [null]
   }
 }
@@ -81,21 +81,21 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
 
 ### 4. Een concert met al zijn tickets
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/concert/<span style="color:#e64980"><b>{id}</b></span>/details</code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">concerten/<span style="color:#e64980"><b>{id}</b></span>/details</code>
 
-- Het concert bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen concert met Id <span style="color:#e64980"><b>{id}</b></span>.</code>
+- Het concert bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 - Anders: <code style="color:#37b24d;font-weight:600">200 OK</code> met het concert, en daarin al zijn tickets: de geldige en de geannuleerde. Een concert zonder tickets heeft een lege lijst.
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/2/details</code> geeft als resultaat:
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/2/details</code> geeft als resultaat:
 
 ```json
 {
   "id": 2,
   "titel": "Strijkkwartet Aurora",
-  "datum": "21-11-2026",
+  "datum": "2026-11-21T20:00:00Z",
   "tickets": [
-    { "id": 5, "naam": "Emma Claes", "rij": 7, "stoel": 2, "prijs": 25.00, "isGeannuleerd": false, "concertId": 2, "concert": null },
-    { "id": 6, "naam": "Noah Willems", "rij": 7, "stoel": 3, "prijs": 25.00, "isGeannuleerd": false, "concertId": 2, "concert": null }
+    { "id": 5, "naam": "Emma Claes", "rij": 7, "stoel": 2, "prijs": 25, "isGeannuleerd": false, "concertId": 2, "concert": null },
+    { "id": 6, "naam": "Noah Willems", "rij": 7, "stoel": 3, "prijs": 25, "isGeannuleerd": false, "concertId": 2, "concert": null }
   ]
 }
 ```
@@ -117,12 +117,12 @@ De groepsverkoop uit 07_06 blijft precies hetzelfde antwoorden, ook nu je API cy
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/concert/jaar/<span style="color:#e64980"><b>{jaar}</b></span></code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">concerten/jaar/<span style="color:#e64980"><b>{jaar}</b></span></code>
 
-- Er is geen enkel concert in dat jaar: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen concerten in <span style="color:#e64980"><b>{jaar}</b></span>.</code>
+- Er is geen enkel concert in dat jaar: <code style="color:#37b24d;font-weight:600">200 OK</code> met een lege lijst `[]`, zoals de schoolopgaven het vragen.
 - Anders: <code style="color:#37b24d;font-weight:600">200 OK</code> met alle concerten van dat jaar, op Id gesorteerd, elk met al zijn tickets, zoals in punt 4.
 
-`{jaar}` is een geheel getal. Het jaar haal je uit de datum, die de vorm `dd-MM-yyyy` heeft. Je API laat de database filteren: hij haalt enkel de concerten van dat jaar op.
+`{jaar}` is een geheel getal. Het jaar haal je uit de datum van het concert. Je API laat de database filteren: hij haalt enkel de concerten van dat jaar op.
 
 > [!IMPORTANT]
 > Je API stuurt voor dit verzoek precies één query naar de database, net als bij punt 3 en 4. Kijk in je terminal: Entity Framework Core toont elke query die het uitvoert. Zie je er meer, lees dan nog eens wat les 07 over het N+1-probleem zegt.
@@ -131,13 +131,13 @@ De groepsverkoop uit 07_06 blijft precies hetzelfde antwoorden, ook nu je API cy
 
 Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks:
 
-1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/3/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/2/details</code> geven de JSON uit punt 3 en 4.
-2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/4/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen geldig ticket met Id 4.</code> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/1/details</code> geeft wél alle vier de tickets van concert 1, ook ticket 4 met `"isGeannuleerd": true`.
-3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/3/details</code> geeft `"tickets": []`. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/99/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen concert met Id 99.</code>
-4. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/1</code> geeft nog altijd `"tickets": null`, net als in 07_06.
+1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/3/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/2/details</code> geven de JSON uit punt 3 en 4.
+2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/4/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/1/details</code> geeft wél alle vier de tickets van concert 1, ook ticket 4 met `"isGeannuleerd": true`.
+3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/3/details</code> geeft `"tickets": []`. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/99/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code>.
+4. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/1</code> geeft nog altijd `"tickets": null`, net als in 07_06.
 5. Verkoop de groep uit 07_06. Je krijgt <code style="color:#37b24d;font-weight:600">200</code> met drie tickets, met de Id's 7, 8 en 9, elk met `"concert": null`, net als in 07_06.
-6. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/3/details</code> geeft de tickets van `Jonas Wouters` en `Lies Martens`. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/1/details</code> geeft vijf tickets: de tickets 1 tot en met 4, en dat van `Ward Peeters`.
-7. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/jaar/2026</code> geeft de concerten 1 en 2, in die volgorde, met hun tickets zoals in stap 6 en punt 4. In je terminal staat bij dit verzoek één query.
-8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/jaar/2027</code> geeft concert 3, met de tickets van `Jonas Wouters` en `Lies Martens`.
-9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/jaar/2028</code> geeft <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen concerten in 2028.</code>
+6. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/3/details</code> geeft de tickets van `Jonas Wouters` en `Lies Martens`. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/1/details</code> geeft vijf tickets: de tickets 1 tot en met 4, en dat van `Ward Peeters`.
+7. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/jaar/2026</code> geeft de concerten 1 en 2, in die volgorde, met hun tickets zoals in stap 6 en punt 4. In je terminal staat bij dit verzoek één query.
+8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/jaar/2027</code> geeft concert 3, met de tickets van `Jonas Wouters` en `Lies Martens`.
+9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/jaar/2028</code> geeft `[]`, met <code style="color:#37b24d;font-weight:600">200</code>.
 10. Open je `ERD.md`. Staat de relatie erin, met aan beide kanten de juiste cardinaliteit?

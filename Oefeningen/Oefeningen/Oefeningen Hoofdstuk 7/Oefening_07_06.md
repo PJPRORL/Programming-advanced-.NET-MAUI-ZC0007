@@ -48,11 +48,14 @@ Beslis per model of de generieke repository volstaat, of dat het een specifieke 
 > [!WARNING]
 > De waarschuwing over een *object cycle* uit 06_06 blijft gelden. De generieke repository haalt altijd een volledig object op, ook als je enkel wil weten óf het bestaat.
 
+> [!WARNING]
+> In 06_06 berekenden je repositories de Id van een nieuw ticket of concert zelf: de hoogste Id plus één. De generieke repository uit les 07 laat de database de Id kiezen, en die teller weet niets van je startgegevens. Zorg dat een toevoeging, ook in een groep, nog altijd de hoogste Id plus één krijgt, zoals de schoolopgaven het vragen. Waar je dat doet, kies je zelf.
+
 ---
 
 ### 3. Wijzigen met de generieke repository
 
-<span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket/<span style="color:#e64980"><b>{id}</b></span></code> werkt zoals vroeger, met dezelfde controles en dezelfde berichten. Het Id staat in de URL. Stuurt de client ook een Id in de body, dan telt enkel dat uit de URL. Daarnaast gelden twee regels, wat de client ook meestuurt:
+<span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/<span style="color:#e64980"><b>{id}</b></span></code> werkt zoals vroeger, met dezelfde controles en dezelfde berichten. Het Id staat in de URL. Stuurt de client ook een Id in de body, dan telt enkel dat uit de URL. Daarnaast gelden twee regels, wat de client ook meestuurt:
 
 - wijzigen verandert nooit of een ticket geannuleerd is;
 - wijzigen verandert nooit bij welk concert een ticket hoort.
@@ -66,15 +69,15 @@ Beslis per model of de generieke repository volstaat, of dat het een specifieke 
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-<span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket/groep</code>
+<span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/groep</code>
 
 De client stuurt een lijst van tickets, elk met zijn eigen concert.
 
 ```json
 [
-  { "naam": "Jonas Wouters", "rij": 1, "stoel": 5, "prijs": 30.00, "concertId": 3 },
-  { "naam": "Lies Martens", "rij": 1, "stoel": 6, "prijs": 30.00, "concertId": 3 },
-  { "naam": "Ward Peeters", "rij": 3, "stoel": 13, "prijs": 30.00, "concertId": 1 }
+  { "naam": "Jonas Wouters", "rij": 1, "stoel": 5, "prijs": 30, "concertId": 3 },
+  { "naam": "Lies Martens", "rij": 1, "stoel": 6, "prijs": 30, "concertId": 3 },
+  { "naam": "Ward Peeters", "rij": 3, "stoel": 13, "prijs": 30, "concertId": 1 }
 ]
 ```
 
@@ -86,10 +89,10 @@ Controleer in deze volgorde, en geef de eerste fout terug die je tegenkomt:
 
 Faalt één controle, dan geef je <code style="color:#f08c00;font-weight:600">400 Bad Request</code> terug, en wordt er niets verkocht: geen enkel ticket uit de groep komt in de database.
 
-Slaagt alles, dan bewaar je alle tickets met één `SaveChangesAsync`. Geen enkel nieuw ticket is geannuleerd, wat de client ook meestuurt. Je geeft <code style="color:#37b24d;font-weight:600">200 OK</code> terug, met de nieuwe tickets, op Id gesorteerd, elk zoals <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/{id}</code> het zou tonen. Een groep heeft geen eigen adres, en daarom geen <code style="color:#37b24d;font-weight:600">201</code>.
+Slaagt alles, dan bewaar je alle tickets met één `SaveChangesAsync`. Geen enkel nieuw ticket is geannuleerd, wat de client ook meestuurt. Je geeft <code style="color:#37b24d;font-weight:600">200 OK</code> terug, met de nieuwe tickets, op Id gesorteerd, elk zoals <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/{id}</code> het zou tonen. Een groep heeft geen eigen adres, en daarom geen <code style="color:#37b24d;font-weight:600">201</code>.
 
 > [!TIP]
-> De controles op één ticket bestaan al, voor <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket</code>. Gebruik ze opnieuw, in plaats van ze te kopiëren.
+> De controles op één ticket bestaan al, voor <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets</code>. Gebruik ze opnieuw, in plaats van ze te kopiëren.
 
 > [!WARNING]
 > Krijg je een <code style="color:#f03e3e;font-weight:600">500</code> over een *object cycle*, terwijl de tickets wel bewaard zijn? Dan kent een nieuw ticket zijn concert, en kent dat concert zijn tickets weer. Denk na over hoe je API controleert of een concert bestaat.
@@ -98,17 +101,17 @@ Slaagt alles, dan bewaar je alle tickets met één `SaveChangesAsync`. Geen enke
 
 Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks. Bedragen vergelijk je als getal: `0`, `0.0` en `0.00` zijn hetzelfde antwoord.
 
-1. Wijzig ticket 3. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/3</code> toont de nieuwe naam, is niet geannuleerd en hoort bij concert 1.
+1. Wijzig ticket 3. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/3</code> toont de nieuwe naam, is niet geannuleerd en hoort bij concert 1.
 
    ```json
-   { "naam": "Lisa Maes-Peeters", "rij": 3, "stoel": 12, "prijs": 35.00 }
+   { "naam": "Lisa Maes-Peeters", "rij": 3, "stoel": 12, "prijs": 35 }
    ```
 
 2. Wijzig ticket 5 met dezelfde gegevens als in de startgegevens, maar met `concertId` `3` en `isGeannuleerd` `true`. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. Ticket 5 hoort nog altijd bij concert 2 en is nog altijd geldig.
-3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket</code> geeft de tickets 1, 2, 3, 5 en 6, in die volgorde. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/4</code> geeft nog altijd <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen geldig ticket met Id 4.</code>
+3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets</code> geeft de tickets 1, 2, 3, 5 en 6, in die volgorde. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/4</code> geeft nog altijd <code style="color:#f08c00;font-weight:600">404</code>.
 4. Verkoop de groep hierboven, maar met `Lies Martens` op rij 1 stoel 5. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Rij 1 stoel 5 komt twee keer voor in deze groep.</code> De opbrengst van concert 3 is nog altijd `0`.
-5. Verkoop de groep hierboven, maar met `concertId` `1` voor `Lies Martens`. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Rij 1 stoel 6 is al verkocht.</code> Ook `Jonas Wouters` is niet verkocht: de opbrengst van concert 3 is nog altijd `0`, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/alles</code> geeft nog altijd zes tickets.
+5. Verkoop de groep hierboven, maar met `concertId` `1` voor `Lies Martens`. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Rij 1 stoel 6 is al verkocht.</code> Ook `Jonas Wouters` is niet verkocht: de opbrengst van concert 3 is nog altijd `0`, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/alles</code> geeft nog altijd zes tickets.
 6. Verkoop een lege groep, `[]`. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Een groep moet minstens één ticket bevatten.</code> Verkoop de groep hierboven met `concertId` `99` voor `Ward Peeters`. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">We vonden geen concert met Id 99.</code>
 7. Verkoop de groep hierboven, met `"isGeannuleerd": true` bij `Ward Peeters`. Je krijgt <code style="color:#37b24d;font-weight:600">200</code> met drie tickets, met de Id's 7, 8 en 9, en geen van de drie is geannuleerd. Ward zit op de plaats van ticket 4: dat is geannuleerd, en telt dus niet.
-8. De opbrengst van concert 3 is `60.00`, die van concert 1 `155.00`, en die over alles samen `265.00`.
+8. De opbrengst van concert 3 is `60`, die van concert 1 `155`, en die over alles samen `265`.
 9. Herstel ticket 4. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Rij 3 stoel 13 is intussen aan iemand anders verkocht.</code>

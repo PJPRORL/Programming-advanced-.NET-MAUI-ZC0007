@@ -75,7 +75,7 @@ De client stuurt een bestelling, met haar lijnen in `bestellijnen`. Bij dit ene 
   "referentie": "BB-2026-004",
   "klantnaam": "Mehdi Aziz",
   "bestellijnen": [
-    { "omschrijving": "Processor Ryzen 7 7800X3D", "aantal": 1, "stukPrijs": 389.00 },
+    { "omschrijving": "Processor Ryzen 7 7800X3D", "aantal": 1, "stukPrijs": 389 },
     { "omschrijving": "Koelpasta", "aantal": 2, "stukPrijs": 7.99 }
   ]
 }
@@ -108,12 +108,12 @@ Slaagt alles, dan bewaar je de bestelling en al haar lijnen met één `SaveChang
 
 #### Testscenario
 
-Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks. Bedragen vergelijk je als getal: `0`, `0.0` en `0.00` zijn hetzelfde antwoord.
+Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks. Bedragen vergelijk je als getal: `0`, `0.0` en `0.00` zijn hetzelfde antwoord. Rond je sommen af zoals in 04_03.
 
 1. Werk lijn 2 bij. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/2</code> toont aantal 3 en een stukprijs van 104.90, is actief en hoort bij bestelling 1.
 
    ```json
-   { "omschrijving": "DDR5 32 GB kit", "aantal": 3, "stukPrijs": 104.90 }
+   { "omschrijving": "DDR5 32 GB kit", "aantal": 3, "stukPrijs": 104.9 }
    ```
 
 2. Werk lijn 5 bij met dezelfde gegevens als in de startgegevens, maar met `bestellingId` `3` en `isActief` `false`. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. Lijn 5 is nog altijd actief en hoort nog altijd bij bestelling 2.

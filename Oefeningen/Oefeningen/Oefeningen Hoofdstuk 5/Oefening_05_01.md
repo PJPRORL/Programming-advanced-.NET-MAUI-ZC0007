@@ -1,58 +1,58 @@
 # 05_01
 
-<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Een repository op de database, asynchroon &nbsp;·&nbsp; PC-onderdelen &nbsp;·&nbsp; niveau <span style="color:#37b24d">●○○</span> &nbsp;·&nbsp; ±75 min
+<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Een asynchrone repository op de database &nbsp;·&nbsp; PC-onderdelen &nbsp;·&nbsp; niveau <span style="color:#37b24d">●○○</span> &nbsp;·&nbsp; ±2 uur
 
 ## Leerdoel
 
-Na deze oefening kan je een repository schrijven die via Entity Framework Core met een echte database praat, en je API daarop laten overstappen met één regel in Program.cs.
+Na deze oefening kan je een repository schrijven die via Entity Framework Core met de database praat, de hele keten asynchroon maken, en je controller er weer op laten steunen.
 
-Je leert de hele keten asynchroon maken: je interface, je repository en je controller.
+Je leert een interface letterlijk volgen zoals de schoolopgaven ze geven, met het achtervoegsel `Async`, en de asynchrone methodes van Entity Framework Core gebruiken waarvoor ze bedoeld zijn.
 
-Daarnaast merk je dat een database geen volgorde belooft, tenzij je erom vraagt, en dat je dezelfde LINQ die je op een lijst gebruikte, nu op een tabel loslaat.
+Daarnaast lees je een parameter uit de querystring, en geef je een telling en een ja-of-nee terug als klein JSON-object.
 
 ## 
 
 ## Opdracht
 
-In 04_01 zette je naast je artikel-API een database op met precies dezelfde gegevens als je in-memory repository. Nu neemt de database het over.
+In 04_01 stapte je artikel-API over naar de database, met een controller die rechtstreeks met de DbContext werkte. Dat werkt, maar nu zit alle databasecode in je controller. Bit & Byte wil die code weer achter een interface, zoals in les 03, en wil daarnaast een paar extra vragen kunnen stellen over het assortiment.
 
-Jouw taak is om een repository te schrijven die met de database werkt, de hele keten asynchroon te maken, en je API te laten overstappen zonder dat de website iets merkt.
+Jouw taak is om een asynchrone repository te schrijven die met de database werkt, je controller erop te laten overstappen zonder dat de website iets merkt, en vier nieuwe endpoints toe te voegen.
 
-Via de API moet de website, net als in 04_01:
+Via de API moet de website, net als in 04_01, de voorraad opvragen, filteren en de fiche tonen. Daarnaast moet ze:
 
-1. de volledige voorraad kunnen opvragen;
-2. één artikel kunnen opvragen op basis van zijn Id;
-3. alle artikelen van één soort kunnen opvragen;
-4. enkel de artikelen kunnen opvragen die nog op voorraad liggen;
-5. alle artikelen van één merk kunnen opvragen;
-6. de artikelfiche kunnen opvragen;
-
-en daarnaast:
-
-7. de lijst van alle merken kunnen opvragen.
+1. de lijst van alle merken kunnen opvragen;
+2. de artikelen kunnen sorteren op prijs, oplopend of aflopend;
+3. kunnen tellen hoeveel artikelen er van één soort zijn;
+4. kunnen nagaan of een merk in het assortiment zit.
 
 Implementeer onderstaande functionaliteiten.
 
 ### 1. Je vertrekpunt
 
-Vertrek van je eigen oplossing van 04_01. Je database `ArtikelDb` bevat de zes artikelen uit 04_01, met hun garantie.
-
-| Id | Naam                | Merk | Soort      | Prijs  | AantalOpVoorraad | Garantiejaren |
-|----|---------------------|------|------------|--------|------------------|---------------|
-| 1  | ROG Strix B650-A    | Asus | moederbord | 249.99 | 12               | 3             |
-| 2  | MAG B650 Tomahawk   | MSI  | moederbord | 219.00 | 5                | 2             |
-| 3  | Ryzen 5 7600X       | AMD  | processor  | 229.50 | 3                | 3             |
-| 4  | Ryzen 7 7800X3D     | AMD  | processor  | 389.00 | 0                | 3             |
-| 5  | TUF Gaming RTX 4070 | Asus | videokaart | 649.00 | 2                | 3             |
-| 6  | Ventus 2X RTX 4060  | MSI  | videokaart | 299.99 | 0                | 2             |
+Vertrek van je eigen oplossing van 04_01. Je database `ArtikelDb` bevat de zes artikelen met hun garantie. Je model en je database veranderen in deze oefening niet.
 
 Alle endpoints uit 04_01 moeten na deze oefening nog precies hetzelfde antwoorden: dezelfde routes, dezelfde statuscodes, dezelfde berichten en dezelfde JSON.
 
 ---
 
-### 2. Het contract asynchroon
+### 2. Het contract
 
-Pas `IArtikelRepository` aan, zodat elke methode een `Task` teruggeeft. Geef elke methode het achtervoegsel `Async`, zoals de les het als conventie vraagt.
+Vervang je oude `IArtikelRepository` uit les 03 door een asynchrone versie. Ze bevat precies deze methodes:
+
+| Methode | Parameters | Geeft terug |
+|---------|------------|-------------|
+| `GetAllAsync` | geen | `Task<List<Artikel>>` |
+| `GetByIdAsync` | `int id` | `Task<Artikel?>` |
+| `GetBySoortAsync` | `string soort` | `Task<List<Artikel>>` |
+| `GetVoorradigAsync` | geen | `Task<List<Artikel>>` |
+| `GetByMerkAsync` | `string merk` | `Task<List<Artikel>>` |
+| `GetMerkenAsync` | geen | `Task<List<string>>` |
+| `GetSortedByPrijsAsync` | `bool descending` | `Task<List<Artikel>>` |
+| `CountBySoortAsync` | `string soort` | `Task<int>` |
+| `HasAnyVanMerkAsync` | `string merk` | `Task<bool>` |
+
+> [!IMPORTANT]
+> Neem de namen, de parameters en de types letterlijk over. Op het examen krijg je de interface zo, en de testen roepen je methodes rechtstreeks aan.
 
 > [!NOTE]
 > Je `InMemoryArtikelRepository` volgt dit contract niet meer. Zoals in de les mag hij weg.
@@ -63,109 +63,95 @@ Pas `IArtikelRepository` aan, zodat elke methode een `Task` teruggeeft. Geef elk
 
 Maak in de map Repositories een klasse `ArtikelRepository` die `IArtikelRepository` implementeert.
 
-De repository krijgt je `ArtikelContext` binnen via zijn constructor, en haalt al zijn gegevens uit de tabel `Artikelen`. Gebruik overal de asynchrone methodes van Entity Framework Core.
+De repository krijgt je `ArtikelContext` via zijn constructor, en bewaart die in een `readonly` veld. Hij gebruikt overal de asynchrone methodes van Entity Framework Core.
 
-> [!WARNING]
-> Een database belooft geen volgorde, tenzij je erom vraagt. Vandaag komen je artikelen misschien netjes op Id terug, morgen na een wijziging niet meer. Elke lijst die je API teruggeeft, is gesorteerd op Id, zoals ze dat in je in-memory versie altijd was, behalve waar deze opgave een andere volgorde vraagt.
+Wat elke methode teruggeeft:
 
-> [!WARNING]
-> Niet elke C#-methode kan Entity Framework Core naar SQL vertalen. Krijg je een <code style="color:#f03e3e;font-weight:600">500</code> met een melding dat een expressie *could not be translated*, kijk dan welke methode je in je vergelijking gebruikt, en zoek een vorm die de database begrijpt.
+| Methode | Wat ze teruggeeft |
+|---------|-------------------|
+| `GetAllAsync` | alle artikelen, op Id gesorteerd |
+| `GetByIdAsync` | het artikel met die Id, of `null` |
+| `GetBySoortAsync` | de artikelen van die soort, zonder op hoofdletters te letten, op Id gesorteerd; een lege lijst als er geen zijn |
+| `GetVoorradigAsync` | de artikelen met minstens één stuk op voorraad, op Id gesorteerd |
+| `GetByMerkAsync` | de artikelen van dat merk, zonder op hoofdletters te letten, op Id gesorteerd |
+| `GetMerkenAsync` | elk merk één keer, alfabetisch gesorteerd; gebruik `Select` en `Distinct` |
+| `GetSortedByPrijsAsync` | alle artikelen op prijs: aflopend als `descending` `true` is, anders oplopend |
+| `CountBySoortAsync` | het aantal artikelen van die soort, met `CountAsync`, zonder op hoofdletters te letten |
+| `HasAnyVanMerkAsync` | `true` als er minstens één artikel van dat merk is, anders `false`, met `AnyAsync` |
+
+Registreer je repository in Program.cs met `AddScoped`, zodat je controller een `ArtikelRepository` krijgt wanneer hij om een `IArtikelRepository` vraagt.
+
+> [!TIP]
+> Let op de volgorde waarin je dubbels weghaalt en sorteert. Komen je merken niet alfabetisch terug, kijk dan in de SQL in je terminal of er nog een `ORDER BY` in staat, en waar.
 
 ---
 
-### 4. De controller asynchroon
+### 4. De controller op de repository
 
-Pas de ArtikelController aan, zodat elk endpoint asynchroon werkt en op de repository wacht.
+Pas je `ArtikelController` aan: hij krijgt via zijn constructor weer een `IArtikelRepository` binnen in plaats van de context, en elk endpoint werkt asynchroon en wacht op de repository.
+
+Beslissingen blijven in de controller: welke statuscode, welk bericht, en hoe de fiche eruitziet. De repository haalt enkel gegevens op.
 
 > [!IMPORTANT]
 > Async geldt van de database tot in de controller. Gebruik nergens `.Result` of `.Wait()` om een asynchrone methode toch synchroon te maken, en nergens `async void`.
 
 ---
 
-### 5. Wisselen naar de database
+### 5. De nieuwe endpoints
 
-Laat ASP.NET Core voortaan je `ArtikelRepository` aanleveren wanneer de controller om een `IArtikelRepository` vraagt. Dat is één regel in Program.cs.
+| Endpoint | Antwoord |
+|----------|----------|
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/artikel/merken</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met de lijst van alle merken |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/artikel/sorteren/prijs</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met alle artikelen op prijs, oplopend |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/artikel/sorteren/prijs?descending=true</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met alle artikelen op prijs, aflopend |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/artikel/tellen/soort/<span style="color:#e64980"><b>{soort}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `count`, een `int` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/artikel/exists/merk/<span style="color:#e64980"><b>{merk}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `exists`, een `bool` |
 
-Herstart je API en doe alle verzoeken uit 04_01 opnieuw. Ze moeten dezelfde antwoorden geven als vroeger.
-
----
-
-### 6. De lijst van alle merken
-
-Voorzie een GET-endpoint op:
-
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/artikel/merken</code>
-
-Dit endpoint geeft alle merken uit de tabel terug, elk merk één keer, alfabetisch gesorteerd, met statuscode <code style="color:#37b24d;font-weight:600">200 OK</code>.
-
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/merken</code> geeft als resultaat:
-
-```json
-["AMD", "Asus", "MSI"]
-```
+`descending` is een parameter uit de querystring. Ontbreekt hij, of is hij `false`, dan sorteer je oplopend. Een soort zonder artikelen geeft `{ "count": 0 }`, en een onbekend merk `{ "exists": false }`, allebei met <code style="color:#37b24d;font-weight:600">200 OK</code>.
 
 > [!TIP]
-> Kijk naar de LINQ-methodes in les 05, ook naar de voorbeelden in de tabel. Laat al het werk door de database doen, niet door je API.
+> Een routeparameter komt uit de route. `descending` staat achter het vraagteken. Zoek op met welk attribuut je ASP.NET Core zegt waar een parameter vandaan komt, en wat je parameter krijgt als de client hem weglaat.
+
+> [!NOTE]
+> Een telling of een ja-of-nee als klein object teruggeven, zoals `{ "count": 2 }`, is de vorm die de schoolopgaven gebruiken. Neem de naam van de property altijd letterlijk over uit de opgave.
+
+Log elk nieuw verzoek op niveau Information, zoals de andere endpoints.
 
 ---
 
-### 7. Alles samen: dezelfde antwoorden, nu uit de database
+### 6. Alles samen: dezelfde antwoorden, en meer
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-De zes vorige punten vervangen de hele binnenkant van je API: een andere repository, een ander contract, een asynchrone controller. Voor de website mag daarvan niets te merken zijn.
+De vorige punten vervangen de hele binnenkant van je API: een repository, een asynchroon contract, een asynchrone controller. Voor de website mag daarvan niets te merken zijn, behalve dat er vier endpoints bij zijn.
+
+#### Testscenario
 
 Doe de volgende verzoeken. Elk antwoord moet letter voor letter kloppen.
 
 | Verzoek | Statuscode | Antwoord |
 |---------|------------|----------|
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel</code> | <code style="color:#37b24d;font-weight:600">200</code> | de zes artikelen uit de tabel van punt 1, op Id gesorteerd |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel</code> | <code style="color:#37b24d;font-weight:600">200</code> | de zes artikelen, op Id gesorteerd |
 | <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/99</code> | <code style="color:#f08c00;font-weight:600">404</code> | <code style="color:#845ef7">We vonden geen artikel met Id 99.</code> |
 | <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/soort/processor</code> | <code style="color:#37b24d;font-weight:600">200</code> | de artikelen met Id 3 en 4 |
 | <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/soort/koeler</code> | <code style="color:#f08c00;font-weight:600">404</code> | <code style="color:#845ef7">We vonden geen artikelen van de soort koeler.</code> |
 | <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/voorradig</code> | <code style="color:#37b24d;font-weight:600">200</code> | de artikelen met Id 1, 2, 3 en 5 |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/merk/asus</code> | <code style="color:#37b24d;font-weight:600">200</code> | de artikelen met Id 1 en 5 |
 | <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/merk/corsair</code> | <code style="color:#f08c00;font-weight:600">404</code> | <code style="color:#845ef7">We vonden geen artikelen van het merk corsair.</code> |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/merken</code> | <code style="color:#37b24d;font-weight:600">200</code> | `["AMD", "Asus", "MSI"]` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/sorteren/prijs</code> | <code style="color:#37b24d;font-weight:600">200</code> | de artikelen 2, 3, 1, 6, 4 en 5, in die volgorde |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/sorteren/prijs?descending=true</code> | <code style="color:#37b24d;font-weight:600">200</code> | de artikelen 5, 4, 6, 1, 3 en 2, in die volgorde |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/sorteren/prijs?descending=false</code> | <code style="color:#37b24d;font-weight:600">200</code> | dezelfde volgorde als zonder parameter |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/tellen/soort/VIDEOKAART</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "count": 2 }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/tellen/soort/koeler</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "count": 0 }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/exists/merk/msi</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "exists": true }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/exists/merk/corsair</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "exists": false }` |
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/4</code> geeft als resultaat:
-
-```json
-{
-  "id": 4,
-  "naam": "Ryzen 7 7800X3D",
-  "merk": "AMD",
-  "soort": "processor",
-  "prijs": 389.00,
-  "aantalOpVoorraad": 0,
-  "garantiejaren": 3
-}
-```
-
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/fiche/6</code> geeft als resultaat:
-
-```json
-{
-  "artikel": {
-    "id": 6,
-    "naam": "Ventus 2X RTX 4060",
-    "merk": "MSI",
-    "soort": "videokaart",
-    "prijs": 299.99,
-    "aantalOpVoorraad": 0,
-    "garantiejaren": 2
-  },
-  "isVoorradig": false,
-  "aantalVanDezelfdeSoort": 1,
-  "isGoedkoopsteVanDeSoort": true
-}
-```
-
-En voor de fiche van artikel 1: `isVoorradig` is `true`, `aantalVanDezelfdeSoort` is `1` en `isGoedkoopsteVanDeSoort` is `false`.
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/fiche/1</code> geeft `isVoorradig` `true`, `aantalVanDezelfdeSoort` `1` en `isGoedkoopsteVanDeSoort` `false`, met artikel 1 zoals in 04_01.
 
 Controleer tot slot in het terminalvenster van je API:
 
-- of je logberichten er nog staan, met hetzelfde niveau als in 03_01;
-- of je bij elk verzoek de SQL ziet die Entity Framework Core naar de database stuurt. Kijk bij het verzoek naar de merken of het sorteren in die SQL staat.
+- of je logberichten er nog staan, met dezelfde niveaus als in 04_01;
+- of je bij de merken één query ziet met `DISTINCT` en `ORDER BY`, en bij het tellen een `COUNT` in de SQL, in plaats van een query die alle artikelen ophaalt.
 
 > [!NOTE]
-> Vergelijk het met les 05: de controller veranderde enkel omdat het contract asynchroon werd. Dat hij nu met een database praat in plaats van met een lijst, weet hij niet.
+> Vergelijk het met 04_01: de controller veranderde omdat hij nu een asynchrone repository krijgt. Dat de gegevens uit een database komen, weet hij niet meer.

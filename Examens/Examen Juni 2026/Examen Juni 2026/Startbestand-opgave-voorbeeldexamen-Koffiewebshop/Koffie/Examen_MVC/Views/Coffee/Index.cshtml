@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Coffee List";
+}
+
+<div class="container mt-4">
+    <h1>@ViewData["Title"]</h1>
+
+    <div class="row">
+        @* Todo: Toon alle koffies in DB *@
+        <div class="col-12 col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="~/images/unknown.jpg" class="card-img-top" style="height: 200px; object-fit: cover;">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Koffie Naam</h5>
+                    <p class="card-text">Beschrijving</p>
+                    <p class="card-text"><strong>Price:</strong> Prijs</p>
+                    <div class="mt-auto">
+                        <div class="d-flex flex-column flex-md-row gap-2">
+
+                           @* Todo: Add to Cart Button *@
+                            <form method="post" class="w-100">
+                                @* <input type="hidden" name="id" value="@coffee.Id" /> *@
+                                <button class="btn btn-primary w-100" type="submit">
+                                    <i class="fas fa-shopping-cart"></i> Add to cart
+                                </button>
+                            </form>
+
+                            @* Todo: Details Button  *@
+                            <a class="btn btn-secondary w-100">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

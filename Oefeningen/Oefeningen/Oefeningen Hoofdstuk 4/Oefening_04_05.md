@@ -1,39 +1,39 @@
 # 04_05
 
-<b>Hoofdstuk 04</b> &nbsp;·&nbsp; Twee tabellen, één context &nbsp;·&nbsp; Fietsverhuur &nbsp;·&nbsp; niveau <span style="color:#f08c00">●●○</span> &nbsp;·&nbsp; ±90 min
+<b>Hoofdstuk 04</b> &nbsp;·&nbsp; CRUD op de database, twee tabellen, in schoolstijl &nbsp;·&nbsp; Fietsverhuur &nbsp;·&nbsp; niveau <span style="color:#f08c00">●●○</span> &nbsp;·&nbsp; ±2 uur
 
 ## Leerdoel
 
-Na deze oefening kan je meer dan één model naar dezelfde database brengen, via één DbContext en meerdere migraties.
+Na deze oefening kan je met één DbContext twee tabellen beheren, en elke wijziging van je API echt in de database bewaren.
 
-Je leert dat de regels in je database en de regels in je API moeten overeenkomen: een tekst die te lang is voor de database, moet je API al eerder netjes weigeren.
+Je leert toevoegen, bijwerken en verwijderen via de DbContext, een tweede tabel via een tweede migratie toevoegen, en de Id van een nieuw item zelf berekenen, zoals de schoolopgaven het vragen.
 
-Daarnaast zorg je ervoor dat je API en je database hetzelfde verhaal vertellen, zodat de overstap in les 05 niets verandert voor wie je API gebruikt.
+Daarnaast zorg je dat de regels van je API en die van je database overeenkomen, en leg je in elk endpoint een logbericht met een vast niveau.
 
 ## 
 
 ## Opdracht
 
-De fietsen-API van Trapdoor uit 03_05 werkt met twee repositories in het geheugen: één voor de fietsen en één voor de verhuringen. Beide moeten later naar een database verhuizen.
+De fietsen-API van Trapdoor uit 03_05 werkt met twee repositories in het geheugen: één voor de fietsen en één voor de verhuringen. Bij elke herstart zijn de verhuringen weg. De balie wil dat alles blijft, en de nieuwe kassasoftware verwacht de routes en de antwoorden in de stijl van de schoolopgaven, net als de website van Knuffelhof in 04_04.
 
-Jouw taak is om naast je bestaande API een database op te zetten met een tabel voor de fietsen en een tabel voor de verhuringen, en je API zo aan te passen dat hij dezelfde regels volgt als die database.
+Jouw taak is om een database op te zetten met een tabel voor de fietsen en een tabel voor de verhuringen, je controller rechtstreeks met die database te laten werken, en je routes en antwoorden om te zetten naar de nieuwe stijl.
 
-In deze oefening:
+Via de API moet de balie, net als in 03_05:
 
-1. zet je een database op en koppel je je project eraan;
-2. leg je de tabel voor de fietsen vast en maak je ze via een migratie;
-3. doe je hetzelfde voor de verhuringen, in een tweede migratie;
-4. zet je de startgegevens in de database én in je API;
-5. laat je je API weigeren wat de database zou weigeren.
+1. alle fietsen en één fiets kunnen opvragen;
+2. een fiets kunnen toevoegen, bijwerken, verwijderen en vervangen;
+3. een fiets kunnen verhuren en terugbrengen;
+4. de verhuringen kunnen nalezen;
 
-> [!NOTE]
-> Je API gebruikt de database in deze les nog niet. Hij blijft werken met je twee in-memory repositories. De overstap gebeurt in les 05.
+en daarnaast:
+
+5. erop kunnen rekenen dat dit alles een herstart overleeft.
 
 Implementeer onderstaande functionaliteiten.
 
 ### 1. Je vertrekpunt
 
-Vertrek van je eigen oplossing van 03_05. Alle endpoints uit die oefening blijven werken zoals ze nu werken, met de regels uit punt 6 van 03_05.
+Vertrek van je eigen oplossing van 03_05. De regels uit die oefening blijven gelden: de drie controles bij toevoegen, bijwerken en vervangen, de regels voor verhuren en terugbrengen, en de regel dat een verhuurde fiets niet uit de vloot kan.
 
 Vanaf nu liggen de modellen vast, met deze C#-types:
 
@@ -42,15 +42,15 @@ Vanaf nu liggen de modellen vast, met deze C#-types:
 | Id            | `int`     |     | Id        | `int`    |
 | Type          | `string`  |     | Actie     | `string` |
 | Framemaat     | `int`     |     | FietsId   | `int`    |
-| PrijsPerDag   | `decimal` |     |           |          |
+| PrijsPerDag   | `double`  |     |           |          |
 | IsBeschikbaar | `bool`    |     |           |          |
 
-> [!TIP]
-> Was een bedrag bij jou een `double`, maak er dan nu een `decimal` van. Een `double` kan een bedrag als 0,10 niet exact bewaren, een `decimal` wel. Voor geld kies je daarom altijd `decimal`.
+> [!IMPORTANT]
+> Net als in 04_04 volgt de reeks _04 tot en met _06 vanaf nu de stijl van de schoolopgaven: routes zonder `api/`, in het meervoud, en een <code style="color:#f08c00;font-weight:600">404</code> zonder body. Een <code style="color:#f08c00;font-weight:600">400</code> houdt wel zijn reden: die regels zijn van de fietsverhuur zelf, en de schoolopgaven zeggen er niets over.
 
 ---
 
-### 2. De database en de koppeling
+### 2. De database en de context
 
 Gebruik je PostgreSQL-container uit les 04, of start er een. Deze oefening krijgt een eigen database met de naam `FietsverhuurDb`.
 
@@ -64,45 +64,15 @@ Maak een map Data, met daarin een klasse `FietsverhuurContext` die erft van `DbC
 
 Voeg aan je context een `DbSet<Fiets>` toe met de naam `Fietsen`, en leg met de Fluent API vast:
 
-| Property      | Kolom in de database                                   |
-|---------------|--------------------------------------------------------|
-| Id            | de sleutel, de database telt zelf op                   |
-| Type          | tekst van hoogstens 30 tekens, verplicht               |
-| Framemaat     | geheel getal, verplicht                                |
-| PrijsPerDag   | getal met 6 cijfers, waarvan 2 na de komma, verplicht  |
-| IsBeschikbaar | ja of nee, verplicht                                   |
+| Property      | Kolom in de database |
+|---------------|----------------------|
+| Id            | de sleutel |
+| Type          | tekst van hoogstens 30 tekens, verplicht |
+| Framemaat     | geheel getal, verplicht |
+| PrijsPerDag   | kommagetal, verplicht |
+| IsBeschikbaar | ja of nee, verplicht |
 
-De tabel heet `Fietsen`.
-
-Maak een migratie met de naam `FietsTabel` en werk de database bij.
-
----
-
-### 4. De tabel voor de verhuringen
-
-Voeg daarna een `DbSet<Verhuring>` toe met de naam `Verhuringen`:
-
-| Property | Kolom in de database                     |
-|----------|------------------------------------------|
-| Id       | de sleutel, de database telt zelf op     |
-| Actie    | tekst van hoogstens 20 tekens, verplicht |
-| FietsId  | geheel getal, verplicht                  |
-
-De tabel heet `Verhuringen`.
-
-Maak een tweede migratie met de naam `VerhuringTabel` en werk de database opnieuw bij.
-
-> [!NOTE]
-> `FietsId` verwijst naar een fiets, maar de database weet dat nog niet: er is geen relatie tussen de twee tabellen. Relaties komen in les 06. Een verhuring moet bovendien kunnen blijven bestaan voor een fiets die al uit de vloot is.
-
-> [!TIP]
-> Open de tweede migratie voor je de database bijwerkt. Ze mag enkel over de tabel `Verhuringen` gaan. Zie je er ook iets van de fietsen in terug, dan is er tussen de twee migraties iets aan je model veranderd.
-
----
-
-### 5. De startgegevens
-
-Zet deze vier fietsen in de tabel `Fietsen`, met een SQL-script dat je zelf schrijft:
+De tabel heet `Fietsen`. Leg met `HasData` deze vier fietsen vast:
 
 | Id | Type         | Framemaat | PrijsPerDag | IsBeschikbaar |
 |----|--------------|-----------|-------------|---------------|
@@ -111,70 +81,112 @@ Zet deze vier fietsen in de tabel `Fietsen`, met een SQL-script dat je zelf schr
 | 3  | e-bike       | 56        | 25.00       | nee           |
 | 4  | bakfiets     | 52        | 30.00       | ja            |
 
-De tabel `Verhuringen` blijft leeg.
-
-Zet ook de startlijst van je `InMemoryFietsRepository` gelijk aan deze tabel. Je `InMemoryVerhuringRepository` begint leeg, zoals in 03_05.
-
-> [!TIP]
-> Schrijf de bedragen in je startlijst met twee cijfers na de komma, zoals in de tabel. Een `decimal` onthoudt hoeveel cijfers na de komma je schreef, en dat zie je terug in de JSON: `25m` en `25.00m` zijn even groot, maar je API toont ze anders. De database geeft ze altijd met twee cijfers terug.
-
-> [!NOTE]
-> De e-bike is niet beschikbaar, en geldt dus als verhuurd, zoals 03_05 het afsprak. Ze heeft geen verhuring in de lijst: ze was al weg voor je API bestond.
-
-> [!WARNING]
-> Zet je de Id's zelf in je INSERT, dan weet de teller van PostgreSQL daar niets van. Je merkt dat pas in les 05, bij de eerste POST. Denk dus nu al na over hoe je ervoor zorgt dat de Id's in je tabel overeenkomen met de tabel hierboven. Met SQL mag je daarvoor alles doen wat de gegevens raakt, ook de teller zelf bijstellen. Enkel de structuur van de tabel blijft voor migraties.
+Fiets 3 is dus verhuurd. Maak een migratie met de naam `InitialCreate` en werk de database bij.
 
 ---
 
-### 6. Alles samen: twee bronnen, één verhaal
+### 4. De tabel voor de verhuringen
 
-<span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
+Voeg daarna een `DbSet<Verhuring>` toe met de naam `Verhuringen`:
 
-Je hebt nu twee plaatsen waar fietsen bestaan: het geheugen van je API en je database. In les 05 vervang je de ene door de andere. Dat lukt enkel als ze vandaag al exact hetzelfde vertellen en dezelfde regels volgen.
+| Property | Kolom in de database |
+|----------|----------------------|
+| Id       | de sleutel |
+| Actie    | tekst van hoogstens 20 tekens, verplicht |
+| FietsId  | geheel getal, verplicht |
 
-#### Dezelfde gegevens
+De tabel heet `Verhuringen`, en begint leeg. Maak een tweede migratie met de naam `VerhuringTabel` en werk de database opnieuw bij.
 
-Herstart je API en vergelijk het antwoord op <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets</code> met de inhoud van de tabel `Fietsen`. Elk veld van elke fiets moet gelijk zijn.
+> [!NOTE]
+> `FietsId` verwijst naar een fiets, maar de database weet dat nog niet: relaties komen in les 06.
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/3</code> geeft als resultaat:
+> [!TIP]
+> Open de tweede migratie voor je de database bijwerkt. Ze mag enkel over de tabel `Verhuringen` gaan.
 
-```json
-{
-  "id": 3,
-  "type": "e-bike",
-  "framemaat": 56,
-  "prijsPerDag": 25.00,
-  "isBeschikbaar": false
-}
-```
+---
 
-#### Dezelfde regels
+### 5. De controller op de database, in de nieuwe stijl
 
-Je database weigert een type van meer dan 30 tekens. Doet je API dat niet, dan krijgt de client in les 05 een <code style="color:#f03e3e;font-weight:600">500</code> in plaats van een nette fout.
+Pas je `FietsController` aan: hij krijgt via zijn constructor voortaan je `FietsverhuurContext` binnen, naast zijn `ILogger<FietsController>`, in plaats van zijn twee repositories. Haal de registraties van je repositories weg uit Program.cs. Elk endpoint leest en bewaart rechtstreeks in de tabellen `Fietsen` en `Verhuringen`.
 
-Voeg daarom aan de controles uit 03_05 deze toe, bij toevoegen, bijwerken en vervangen:
+| Endpoint | Antwoord |
+|----------|----------|
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met alle fietsen, op Id gesorteerd |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/<span style="color:#e64980"><b>{id}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met de fiets, of <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body |
+| <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen</code> | <code style="color:#37b24d;font-weight:600">201 Created</code> met de nieuwe fiets en haar adres, of <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met de reden |
+| <span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/<span style="color:#e64980"><b>{id}</b></span></code> | <code style="color:#37b24d;font-weight:600">204 No Content</code>, <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body, of <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met de reden |
+| <span style="background:#e03131;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>DELETE</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/<span style="color:#e64980"><b>{id}</b></span></code> | <code style="color:#37b24d;font-weight:600">204 No Content</code>, <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body, of <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met de reden |
+| <span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/vervang/<span style="color:#e64980"><b>{id}</b></span></code> | <code style="color:#37b24d;font-weight:600">201 Created</code> met de nieuwe fiets en haar adres, <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body, of <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met de reden |
+| <span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/verhuur/<span style="color:#e64980"><b>{id}</b></span></code> | <code style="color:#37b24d;font-weight:600">204 No Content</code>, <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body, of <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met <code style="color:#845ef7">Deze fiets is al verhuurd.</code> |
+| <span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/terug/<span style="color:#e64980"><b>{id}</b></span></code> | <code style="color:#37b24d;font-weight:600">204 No Content</code>, <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body, of <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met <code style="color:#845ef7">Deze fiets is niet verhuurd.</code> |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/verhuringen</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met alle verhuringen, de oudste eerst |
+
+Bij een toevoeging berekent je API zelf de Id: de hoogste Id in de tabel, plus één. Dat geldt voor een nieuwe fiets en voor een nieuwe verhuring. Een Id die de client meestuurt, telt niet.
+
+> [!IMPORTANT]
+> Ook in een lege tabel moet een toevoeging lukken: je tabel `Verhuringen` begint leeg, en de eerste verhuring krijgt Id 1. Vraag je af wat de database antwoordt als je de hoogste Id vraagt van een tabel zonder rijen, en laat je API daar niet op vastlopen.
+
+> [!NOTE]
+> Omdat je API de Id zelf berekent, speelt de teller van PostgreSQL hier geen rol, ook niet na je startgegevens met `HasData`. In de reeks _01 tot en met _03 kiest de database de Id. Beide komen voor in de schoolopgaven: volg wat de opgave vraagt.
+
+> [!WARNING]
+> Iets toevoegen of aanpassen in de context schrijft nog niets naar de database. Geeft je API <code style="color:#37b24d;font-weight:600">201</code> of <code style="color:#37b24d;font-weight:600">204</code>, maar zie je na een herstart niets terug, kijk dan in les 04 welke methode alles wat de context genoteerd heeft echt bewaart.
+
+Log in elk endpoint, zoals de schoolopgaven het vragen:
+
+- elk verzoek op niveau `Information`;
+- elke <code style="color:#f08c00;font-weight:600">404</code> en elke <code style="color:#f08c00;font-weight:600">400</code> op niveau `Warning`, bij een <code style="color:#f08c00;font-weight:600">400</code> met de reden;
+- een DELETE op een fiets die niet bestaat op niveau `Error`.
+
+---
+
+### 6. Dezelfde regels
+
+Je database weigert een type van meer dan 30 tekens. Voeg daarom aan de controles uit 03_05 deze toe, bij toevoegen, bijwerken en vervangen:
 
 - het type is langer dan 30 tekens: <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met <code style="color:#845ef7">Het type mag hoogstens 30 tekens lang zijn.</code>
 
-Is een verzoek op meer dan één punt ongeldig, dan kies je zelf welk bericht je teruggeeft.
+Is een verzoek op meer dan één punt ongeldig, dan kies je zelf welk bericht je teruggeeft. Test ook een type van precies 30 tekens: dat moet lukken.
 
-> [!NOTE]
-> Ook een bedrag heeft in de database een grens: hoeveel cijfers het mag tellen. Met de prijs van een fiets kom je daar nooit in de buurt, dus die laat je hier rusten.
+---
 
-> [!IMPORTANT]
-> Een geweigerde actie verandert niets aan de fiets en laat geen spoor na in de verhuringen, net als in 03_05.
+### 7. Alles samen: niets verdwijnt nog
+
+<span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
+
+De vorige punten verhuizen je fietsen én je verhuringen naar de database, in een nieuwe stijl. In dit laatste punt toon je dat alles blijft: na een herstart vertellen je API en je database nog precies hetzelfde verhaal.
 
 #### Testscenario
 
-Herstart je API, zodat je met de startgegevens en een lege lijst verhuringen begint. Alle fietsen die je in deze reeks doorstuurt, zijn op elk ander punt geldig.
+Begin met een database die exact de startgegevens bevat: verwijder ze, en werk ze opnieuw bij met je migraties. Doorloop dan deze reeks.
 
-1. Vraag de verhuringen op. De lijst is leeg.
-2. Voeg een fiets toe met een type van precies 30 tekens. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe fiets is beschikbaar.
-3. Voeg een fiets toe met een type van 31 tekens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Het type mag hoogstens 30 tekens lang zijn.</code>
-4. Werk fiets 1 bij met een type van 31 tekens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met hetzelfde bericht. Vraag fiets 1 op: ze is niet veranderd.
-5. Verhuur fiets 1. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. De verhuringen bevatten één regel: `verhuurd`.
-6. Verhuur fiets 3. Je krijgt <code style="color:#f08c00;font-weight:600">400</code>, want de e-bike is al verhuurd.
-7. Controleer in je database dat de geschiedenis van je migraties precies twee migraties bevat, `FietsTabel` en `VerhuringTabel`, en dat beide tabellen bestaan met de kolommen uit punt 3 en 4.
+1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/verhuringen</code> geeft `[]`.
+2. Voeg deze fiets toe:
 
-> [!NOTE]
-> De fiets uit stap 2 en de verhuring uit stap 5 staan enkel in het geheugen van je API, niet in je database. Dat is normaal in deze les. Herstart je API, dan vertellen ze weer hetzelfde verhaal.
+   ```json
+   { "id": 50, "type": "racefiets", "framemaat": 58, "prijsPerDag": 22.5, "isBeschikbaar": false }
+   ```
+
+   Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe fiets heeft Id 5 en is beschikbaar. De header `Location` eindigt op `/fietsen/5`; hoofdletters tellen daarbij niet.
+3. Voeg dezelfde fiets toe met een type van 31 tekens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Het type mag hoogstens 30 tekens lang zijn.</code>
+4. Verhuur fiets 5, verhuur fiets 1, en breng fiets 5 terug. Je krijgt telkens <code style="color:#37b24d;font-weight:600">204</code>.
+5. Verwijder fiets 1. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Een verhuurde fiets kan je niet uit de vloot halen.</code>
+6. Verhuur fiets 3. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Deze fiets is al verhuurd.</code>
+7. Verwijder fiets 99. Je krijgt <code style="color:#f08c00;font-weight:600">404</code>, en in je terminal staat een `Error`.
+8. Stop je API en start hem opnieuw.
+9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/verhuringen</code> geeft als resultaat:
+
+   ```json
+   [
+     { "id": 1, "actie": "verhuurd", "fietsId": 5 },
+     { "id": 2, "actie": "verhuurd", "fietsId": 1 },
+     { "id": 3, "actie": "teruggebracht", "fietsId": 5 }
+   ]
+   ```
+
+10. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen</code> geeft de fietsen 1 tot en met 5. Fiets 1 is niet beschikbaar, fiets 5 wel.
+11. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets</code> geeft <code style="color:#f08c00;font-weight:600">404</code>: de oude route bestaat niet meer.
+12. De tabellen `Fietsen` en `Verhuringen` in je database bevatten precies hetzelfde als je API, en de geschiedenis van je migraties bevat `InitialCreate` en `VerhuringTabel`.
+
+> [!WARNING]
+> Staat er in stap 9 een verhuring van een actie die mislukte? Kijk dan waar in je endpoint je de verhuring toevoegt en bewaart: pas na alle controles.

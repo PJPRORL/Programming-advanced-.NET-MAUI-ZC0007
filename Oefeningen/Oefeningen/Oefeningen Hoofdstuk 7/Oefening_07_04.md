@@ -57,6 +57,9 @@ Bouw `IDierRepository` en `DierRepository` zo om. Beslis zelf of `Verblijf` een 
 > [!WARNING]
 > De waarschuwing over een *object cycle* uit 06_04 blijft gelden. De generieke repository haalt altijd een volledig object op, ook als je enkel wil weten óf het bestaat.
 
+> [!WARNING]
+> In 06_04 berekende je repository de Id van een nieuw verblijf zelf: de hoogste Id plus één. De generieke repository uit les 07 laat de database de Id kiezen, en die teller weet niets van je startgegevens. Zorg dat een toevoeging nog altijd de hoogste Id plus één krijgt, zoals de schoolopgaven het vragen. Waar je dat doet, kies je zelf.
+
 ---
 
 ### 4. De Unit of Work
@@ -78,11 +81,11 @@ Doorloop daarna het testscenario van 06_04 opnieuw. Elk antwoord moet hetzelfde 
 
 ### 5. Een verblijf bijwerken
 
-<span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/verblijf/<span style="color:#e64980"><b>{id}</b></span></code>
+<span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">verblijven/<span style="color:#e64980"><b>{id}</b></span></code>
 
 Het Id staat in de URL, de nieuwe gegevens staan in de body. Stuurt de client ook een Id in de body, dan telt enkel dat uit de URL.
 
-- Het verblijf bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">Kan geen verblijf bijwerken met Id <span style="color:#e64980"><b>{id}</b></span>, omdat het niet bestaat.</code>
+- Het verblijf bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 - De naam is leeg: <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met <code style="color:#845ef7">Een verblijf moet een naam hebben.</code>
 - Anders: werk het verblijf bij en geef <code style="color:#37b24d;font-weight:600">204 No Content</code> terug.
 
@@ -99,11 +102,11 @@ Een geweigerde wijziging verandert niets aan het verblijf.
 
 Dieren verhuizen geregeld: naar quarantaine, of naar een rustiger verblijf. Maar in een verblijf kunnen niet meer dieren wonen dan zijn capaciteit toelaat. De generieke repository, de specifieke repositories en de Unit of Work komen samen in één endpoint.
 
-<span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/dier/<span style="color:#e64980"><b>{id}</b></span>/verblijf/<span style="color:#e64980"><b>{verblijfId}</b></span></code>
+<span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/<span style="color:#e64980"><b>{id}</b></span>/verblijf/<span style="color:#e64980"><b>{verblijfId}</b></span></code>
 
 Controleer in deze volgorde:
 
-1. het dier bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen dier met Id <span style="color:#e64980"><b>{id}</b></span>.</code>
+1. het dier bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 2. het verblijf bestaat niet: <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met <code style="color:#845ef7">We vonden geen verblijf met Id <span style="color:#e64980"><b>{verblijfId}</b></span>.</code>
 3. het dier woont al in dat verblijf: <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met <code style="color:#845ef7">Dit dier woont al in dit verblijf.</code>
 4. er wonen al minstens evenveel dieren in dat verblijf als zijn capaciteit toelaat: <code style="color:#f08c00;font-weight:600">400 Bad Request</code> met <code style="color:#845ef7">Dit verblijf is vol.</code>
@@ -114,20 +117,20 @@ Anders woont het dier voortaan in dat verblijf, en geef je <code style="color:#3
 
 Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks:
 
-1. Werk verblijf 2 bij. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/2</code> toont de nieuwe naam.
+1. Werk verblijf 2 bij. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/2</code> toont de nieuwe naam.
 
    ```json
-   { "naam": "Hondenweide", "capaciteit": 4 }
+   { "naam": "Hondenweide", "capaciteit": 4, "inGebruikSinds": "2012-04-01T00:00:00Z" }
    ```
 
-2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf</code> geeft de verblijven 1, 2, 3, 4 en 5, in die volgorde.
-3. Werk verblijf 99 bij. Je krijgt <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">Kan geen verblijf bijwerken met Id 99, omdat het niet bestaat.</code>
-4. Werk verblijf 1 bij met een lege naam. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Een verblijf moet een naam hebben.</code> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/1</code> toont nog altijd `Kattenkamer`.
-5. Werk verblijf 5 bij met de naam `Quarantaine` en een capaciteit van 1. Verhuis daarna dier 5 naar verblijf 5. Je krijgt telkens <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/5/dieren</code> geeft enkel dier 5, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/3/dieren</code> geeft `[]`.
+2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven</code> geeft de verblijven 1, 2, 3, 4 en 5, in die volgorde.
+3. Werk verblijf 99 bij. Je krijgt <code style="color:#f08c00;font-weight:600">404</code>.
+4. Werk verblijf 1 bij met een lege naam. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Een verblijf moet een naam hebben.</code> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/1</code> toont nog altijd `Kattenkamer`.
+5. Werk verblijf 5 bij met de naam `Quarantaine`, een capaciteit van 1 en dezelfde datum als in de startgegevens. Verhuis daarna dier 5 naar verblijf 5. Je krijgt telkens <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/5/dieren</code> geeft enkel dier 5, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/3/dieren</code> geeft `[]`.
 6. Verhuis dier 6 naar verblijf 5. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Dit verblijf is vol.</code>
 7. Doe stap 5 nog eens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Dit dier woont al in dit verblijf.</code> Die controle komt vóór de capaciteit.
-8. Verhuis dier 5 naar verblijf 99. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">We vonden geen verblijf met Id 99.</code> Verhuis dier 99 naar verblijf 1. Je krijgt <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen dier met Id 99.</code>
-9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/5</code> geeft als resultaat:
+8. Verhuis dier 5 naar verblijf 99. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">We vonden geen verblijf met Id 99.</code> Verhuis dier 99 naar verblijf 1. Je krijgt <code style="color:#f08c00;font-weight:600">404</code>.
+9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/5</code> geeft als resultaat:
 
    ```json
    {
@@ -142,4 +145,4 @@ Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop 
    ```
 
 10. Verwijder verblijf 3. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>: het is nu leeg.
-11. Voeg een verblijf toe met de naam `Opvangkamer` en een capaciteit van 3. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en het nieuwe verblijf heeft Id 6.
+11. Voeg een verblijf toe met de naam `Opvangkamer`, een capaciteit van 3 en als datum `2026-11-07T00:00:00Z`. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en het nieuwe verblijf heeft Id 6: de hoogste Id is 5.

@@ -96,7 +96,7 @@ Al de rest in de body negeert je API, gewoon omdat de DTO het niet kent. De cont
   "merk": "be quiet!",
   "afmetingInMm": 140,
   "verlichting": "geen",
-  "prijs": 24.90,
+  "prijs": 24.9,
   "behuizingen": [
     { "behuizingId": 1, "naam": "Silent Base", "formaat": "midi tower", "aantalPlaatsen": 2 },
     { "behuizingId": 3, "naam": "Studio XL", "formaat": "big tower", "aantalPlaatsen": 4 }
@@ -124,8 +124,8 @@ De volgorde binnen zo'n lijst ligt niet vast. De berichten bij een <code style="
   "formaat": "midi tower",
   "totaalPlaatsen": 5,
   "ventilatoren": [
-    { "ventilatorId": 1, "merk": "Noctua", "afmetingInMm": 120, "prijs": 29.90, "aantalPlaatsen": 3 },
-    { "ventilatorId": 2, "merk": "be quiet!", "afmetingInMm": 140, "prijs": 24.90, "aantalPlaatsen": 2 }
+    { "ventilatorId": 1, "merk": "Noctua", "afmetingInMm": 120, "prijs": 29.9, "aantalPlaatsen": 3 },
+    { "ventilatorId": 2, "merk": "be quiet!", "afmetingInMm": 140, "prijs": 24.9, "aantalPlaatsen": 2 }
   ]
 }
 ```

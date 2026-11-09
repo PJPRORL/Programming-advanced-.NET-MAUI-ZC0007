@@ -1,0 +1,43 @@
+﻿@model Examen_MVC.ViewModels.Cart.CartVM
+
+<h1>Winkelwagen</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Naam</th>
+            <th>Prijs</th>
+            <th>Aantal</th>
+            <th>Totaal</th>
+            <th>Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @* Todo: Toon alle items in Cart *@
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <form asp-action="RemoveItem" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash-can"></i>  Verwijderen
+                    </button>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+@* Todo: Toon prijzen *@
+<div class="d-flex flex-column align-items-end">
+    <h5>Totaal, incl. btw: </h5>
+    <h5>Verzending: </h5>
+    <h4>Totaal: </h4>
+</div>
+
+@* Todo: Checkout button *@
+<div class="mt-3">
+    <a class="btn btn-primary">Afrekenen</a>
+</div>

@@ -49,10 +49,10 @@ Of je DTO's klassen of records zijn, kies je zelf. Kies je voor records, denk da
 
 Elk endpoint dat vroeger een model teruggaf, geeft nu een read-DTO terug. Die heeft dezelfde properties als het model, **zonder de navigation properties**. Dat geldt ook voor de lijst die de groepsverkoop teruggeeft.
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/3</code> geeft nu als resultaat:
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/3</code> geeft nu als resultaat:
 
 ```json
-{ "id": 3, "naam": "Lisa Maes", "rij": 3, "stoel": 12, "prijs": 35.00, "isGeannuleerd": false, "concertId": 1 }
+{ "id": 3, "naam": "Lisa Maes", "rij": 3, "stoel": 12, "prijs": 35, "isGeannuleerd": false, "concertId": 1 }
 ```
 
 ---
@@ -63,10 +63,10 @@ De client stuurt voortaan enkel nog wat hij mag invullen:
 
 | Verzoek | Velden in de body |
 |---------|-------------------|
-| <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket</code> | `naam`, `rij`, `stoel`, `prijs`, `concertId` |
-| <span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket/<span style="color:#e64980"><b>{id}</b></span></code> | `naam`, `rij`, `stoel`, `prijs` |
-| <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/concert</code> | `titel`, `datum` |
-| <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket/groep</code> | een lijst tickets, elk met `naam`, `rij`, `stoel`, `prijs` en `concertId` |
+| <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets</code> | `naam`, `rij`, `stoel`, `prijs`, `concertId` |
+| <span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/<span style="color:#e64980"><b>{id}</b></span></code> | `naam`, `rij`, `stoel`, `prijs` |
+| <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">concerten</code> | `titel`, `datum` |
+| <span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/groep</code> | een lijst tickets, elk met `naam`, `rij`, `stoel`, `prijs` en `concertId` |
 
 Al de rest in de body negeert je API, gewoon omdat de DTO het niet kent. De controles en de berichten blijven dezelfde.
 
@@ -80,7 +80,7 @@ Al de rest in de body negeert je API, gewoon omdat de DTO het niet kent. De cont
 
 ### 5. De details, plat
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket/<span style="color:#e64980"><b>{id}</b></span>/details</code> geeft het ticket met de titel en de datum van zijn concert erbij, plat in één object:
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/<span style="color:#e64980"><b>{id}</b></span>/details</code> geeft het ticket met de titel en de datum van zijn concert erbij, plat in één object:
 
 ```json
 {
@@ -88,32 +88,32 @@ Al de rest in de body negeert je API, gewoon omdat de DTO het niet kent. De cont
   "naam": "Lisa Maes",
   "rij": 3,
   "stoel": 12,
-  "prijs": 35.00,
+  "prijs": 35,
   "isGeannuleerd": false,
   "concertId": 1,
   "titel": "Jazz in de Notenbalk",
-  "datum": "14-11-2026"
+  "datum": "2026-11-14T20:00:00Z"
 }
 ```
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/concert/<span style="color:#e64980"><b>{id}</b></span>/details</code> geeft het concert met een korte vorm van al zijn tickets, en zijn opbrengst:
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">concerten/<span style="color:#e64980"><b>{id}</b></span>/details</code> geeft het concert met een korte vorm van al zijn tickets, en zijn opbrengst:
 
 ```json
 {
   "id": 2,
   "titel": "Strijkkwartet Aurora",
-  "datum": "21-11-2026",
-  "opbrengst": 50.00,
+  "datum": "2026-11-21T20:00:00Z",
+  "opbrengst": 50,
   "tickets": [
-    { "id": 5, "naam": "Emma Claes", "rij": 7, "stoel": 2, "prijs": 25.00, "isGeannuleerd": false },
-    { "id": 6, "naam": "Noah Willems", "rij": 7, "stoel": 3, "prijs": 25.00, "isGeannuleerd": false }
+    { "id": 5, "naam": "Emma Claes", "rij": 7, "stoel": 2, "prijs": 25, "isGeannuleerd": false },
+    { "id": 6, "naam": "Noah Willems", "rij": 7, "stoel": 3, "prijs": 25, "isGeannuleerd": false }
   ]
 }
 ```
 
 `opbrengst` betekent hetzelfde als in 06_06: de som van de prijzen van de geldige tickets van het concert.
 
-De volgorde binnen een lijst met tickets ligt niet vast. De berichten bij een <code style="color:#f08c00;font-weight:600">404</code> blijven die van 08_06.
+De volgorde binnen een lijst met tickets ligt niet vast. Een <code style="color:#f08c00;font-weight:600">404</code> blijft zonder body, zoals in 08_06.
 
 ---
 
@@ -121,7 +121,7 @@ De volgorde binnen een lijst met tickets ligt niet vast. De berichten bij een <c
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/concert/jaar/<span style="color:#e64980"><b>{jaar}</b></span></code> geeft voortaan één overzicht, in plaats van een lijst concerten:
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">concerten/jaar/<span style="color:#e64980"><b>{jaar}</b></span></code> geeft voortaan één overzicht, in plaats van een lijst concerten:
 
 ```json
 {
@@ -137,7 +137,7 @@ De volgorde binnen een lijst met tickets ligt niet vast. De berichten bij een <c
 - `opbrengst` is de som over de geldige tickets van al die concerten;
 - `tickets` bevat alle tickets van al die concerten, geldig en geannuleerd, in één lijst, elk met de titel van zijn concert erbij. Elk ticket in die lijst heeft de velden `titel`, `naam`, `rij`, `stoel`, `prijs` en `isGeannuleerd`. Hun volgorde ligt niet vast.
 
-Het jaar wordt bepaald zoals in 08_06, en de <code style="color:#f08c00;font-weight:600">404</code> blijft dezelfde. Je API stuurt voor dit verzoek nog altijd één query naar de database.
+Het jaar wordt bepaald zoals in 08_06. Een jaar zonder concerten geeft <code style="color:#37b24d;font-weight:600">200 OK</code> met `aantalConcerten` `0`, `opbrengst` `0` en een lege lijst `tickets`. Je API stuurt voor dit verzoek nog altijd één query naar de database.
 
 > [!TIP]
 > Les 09 slaat een klant met bestellingen met orderlijnen plat tot één lijst. Kijk hoe, en beslis dan of je dat in je `MapperProfile` doet of in je controller.
@@ -146,9 +146,9 @@ Het jaar wordt bepaald zoals in 08_06, en de <code style="color:#f08c00;font-wei
 
 Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks. Bedragen vergelijk je als getal: `0`, `0.0` en `0.00` zijn hetzelfde antwoord.
 
-1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/3</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/3/details</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/2/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/jaar/2027</code> geven de JSON uit punt 3, 5 en 6. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/1</code> geeft `{ "id": 1, "titel": "Jazz in de Notenbalk", "datum": "14-11-2026" }`.
-2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/1/details</code> geeft `opbrengst` `125.00`, met alle vier de tickets, ook ticket 4 met `"isGeannuleerd": true`.
-3. Verkoop dit ticket. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met een ticket met Id 7 dat niet geannuleerd is en bij concert 2 hoort. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert</code> geeft nog altijd de concerten 1, 2 en 3.
+1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/3</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/3/details</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/2/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/jaar/2027</code> geven de JSON uit punt 3, 5 en 6. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/1</code> geeft `{ "id": 1, "titel": "Jazz in de Notenbalk", "datum": "2026-11-14T20:00:00Z" }`.
+2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/1/details</code> geeft `opbrengst` `125`, met alle vier de tickets, ook ticket 4 met `"isGeannuleerd": true`.
+3. Verkoop dit ticket. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met een ticket met Id 7 dat niet geannuleerd is en bij concert 2 hoort. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten</code> geeft nog altijd de concerten 1, 2 en 3.
 
    ```json
    {
@@ -156,17 +156,17 @@ Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop 
      "naam": "Jonas Wouters",
      "rij": 1,
      "stoel": 5,
-     "prijs": 30.00,
+     "prijs": 30,
      "isGeannuleerd": true,
      "concertId": 2,
-     "concert": { "titel": "Vals concert", "datum": "01-01-2027" }
+     "concert": { "titel": "Vals concert", "datum": "2027-01-01T00:00:00Z" }
    }
    ```
 
 4. Wijzig ticket 7 met dezelfde gegevens, maar op stoel 7, met `concertId` `1` en `isGeannuleerd` `true`. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. Ticket 7 zit op rij 1 stoel 7, is niet geannuleerd en hoort nog altijd bij concert 2.
-5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/2/details</code> geeft `opbrengst` `80.00`, met de tickets 5, 6 en 7.
+5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/2/details</code> geeft `opbrengst` `80`, met de tickets 5, 6 en 7.
 6. Verkoop de groep uit 07_06. Je krijgt <code style="color:#37b24d;font-weight:600">200</code> met drie tickets, met de Id's 8, 9 en 10, zonder veld `concert`.
-7. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/jaar/2026</code> geeft `aantalConcerten` `2`, `opbrengst` `235.00` en acht tickets: vijf met titel `Jazz in de Notenbalk`, waarvan één geannuleerd, en drie met titel `Strijkkwartet Aurora`. In je terminal staat bij dit verzoek één query.
-8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/jaar/2027</code> geeft `aantalConcerten` `1`, `opbrengst` `60.00`, en de tickets van `Jonas Wouters` en `Lies Martens`.
-9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/concert/jaar/2028</code> geeft <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen concerten in 2028.</code>
+7. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/jaar/2026</code> geeft `aantalConcerten` `2`, `opbrengst` `235` en acht tickets: vijf met titel `Jazz in de Notenbalk`, waarvan één geannuleerd, en drie met titel `Strijkkwartet Aurora`. In je terminal staat bij dit verzoek één query.
+8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/jaar/2027</code> geeft `aantalConcerten` `1`, `opbrengst` `60`, en de tickets van `Jonas Wouters` en `Lies Martens`.
+9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> concerten/jaar/2028</code> geeft <code style="color:#37b24d;font-weight:600">200</code>, met `{ "jaar": 2028, "aantalConcerten": 0, "opbrengst": 0, "tickets": [] }`.
 10. Wijzig ticket 3 met een lege naam, en verder geldige gegevens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Een ticket moet op naam staan.</code>

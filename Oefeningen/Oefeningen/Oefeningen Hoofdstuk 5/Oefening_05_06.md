@@ -1,22 +1,22 @@
 # 05_06
 
-<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Bestand of database, asynchroon &nbsp;·&nbsp; Concertzaal &nbsp;·&nbsp; niveau <span style="color:#f03e3e">●●●</span> &nbsp;·&nbsp; ±2 uur
+<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Bestand of database, asynchroon, in schoolstijl &nbsp;·&nbsp; Concertzaal &nbsp;·&nbsp; niveau <span style="color:#f03e3e">●●●</span> &nbsp;·&nbsp; ±2,5 uur
 
 ## Leerdoel
 
 Na deze oefening kan je één asynchroon contract laten volgen door twee repositories die op een totaal andere manier werken: één met een bestand en één met een database.
 
-Je leert dat async niet enkel bij databases hoort: ook een bestand lezen of schrijven kan asynchroon, en ook daar mag je je threads niet laten wachten.
+Je leert de database laten optellen, tellen, zoeken en sorteren met `SumAsync`, `CountAsync`, `AnyAsync` en `AverageAsync`, en een Id berekenen die in een bestand en in een database hetzelfde uitkomt.
 
-Daarnaast laat je de database het zware werk doen: filteren en sorteren gebeurt in SQL, niet in het geheugen van je API.
+Daarnaast bewijs je dat twee repositories precies hetzelfde antwoorden, ook bij de plaatscontrole.
 
 ## 
 
 ## Opdracht
 
-De ticket-API van De Notenbalk uit 04_06 kan wisselen tussen een repository in het geheugen en een repository in een JSON-bestand, en heeft ernaast een database klaarstaan. Nu krijgt die database haar eigen repository, de derde. De versie in het geheugen verdwijnt, de bestandsversie blijft als reserve.
+In 04_06 werkte je ticket-API rechtstreeks met de database, en bleef je bestandsrepository ongebruikt staan. De Notenbalk wil de databasecode achter een repository, maar wil de bestandsversie houden als reserve. Dan moet ze wel precies hetzelfde antwoorden, ook bij de vraag of een plaats nog vrij is.
 
-Jouw taak is om het contract asynchroon te maken, een repository te schrijven die met de database werkt, je bestandsrepository mee asynchroon te maken, en te bewijzen dat beide precies hetzelfde antwoorden.
+Jouw taak is om één asynchroon contract op te stellen, een repository te schrijven die met de database werkt, je bestandsrepository mee asynchroon te maken, en te bewijzen dat beide hetzelfde antwoorden.
 
 Via de API moet een medewerker, net als in 04_06:
 
@@ -27,82 +27,94 @@ Via de API moet een medewerker, net als in 04_06:
 
 en daarnaast:
 
-5. de geldige tickets van één rij kunnen opvragen.
+5. de geldige tickets van één rij kunnen opvragen en tellen;
+6. de gemiddelde prijs van een geldig ticket kunnen opvragen;
+7. de geldige tickets kunnen sorteren op prijs.
 
 Implementeer onderstaande functionaliteiten.
 
 ### 1. Je vertrekpunt
 
-Vertrek van je eigen oplossing van 04_06. Je database `ConcertzaalDb` bevat de zes tickets uit 04_06, en heeft geen kolom `Categorie` meer.
-
-| Id | Naam             | Rij | Stoel | Prijs | IsGeannuleerd |
-|----|------------------|-----|-------|-------|---------------|
-| 1  | Sofie Peeters    | 1   | 5     | 45.00 | nee           |
-| 2  | Tom Janssens     | 1   | 6     | 45.00 | nee           |
-| 3  | Lisa Maes        | 3   | 12    | 35.00 | nee           |
-| 4  | Karim El Idrissi | 3   | 13    | 35.00 | ja            |
-| 5  | Emma Claes       | 7   | 2     | 25.00 | nee           |
-| 6  | Noah Willems     | 7   | 3     | 25.00 | nee           |
-
-Alle endpoints uit 04_06 moeten na deze oefening nog precies hetzelfde antwoorden, met dezelfde controles en dezelfde berichten.
-
-> [!TIP]
-> Je zal in deze oefening vaak terug willen naar de startgegevens. Maak de tabel dan leeg, zet haar teller terug, en voer het SQL-script uit 04_06 opnieuw uit. De structuur van de database pas je nooit met de hand aan, enkel de gegevens.
+Vertrek van je eigen oplossing van 04_06. Je model en je database veranderen in deze oefening niet. Alle endpoints uit 04_06 moeten nog precies hetzelfde antwoorden.
 
 ---
 
-### 2. Het contract asynchroon
+### 2. De interface
 
-Pas `ITicketRepository` aan, zodat elke methode een `Task` teruggeeft en het achtervoegsel `Async` draagt.
+Stel in de map Repositories een asynchroon contract `ITicketRepository` op, met precies deze methodes:
 
-Je `InMemoryTicketRepository` mag weg, zoals in de les.
+| Methode | Parameters | Geeft terug |
+|---------|------------|-------------|
+| `GetGeldigeAsync` | geen | `Task<List<Ticket>>` |
+| `GetAllesAsync` | geen | `Task<List<Ticket>>` |
+| `GetByIdAsync` | `int id` | `Task<Ticket?>` |
+| `CreateAsync` | `Ticket ticket` | `Task<Ticket>` |
+| `UpdateAsync` | `int id, Ticket ticket` | `Task` |
+| `AnnuleerAsync` | `int id` | `Task` |
+| `HerstelAsync` | `int id` | `Task` |
+| `VerhuisAsync` | `int id, int rij, int stoel` | `Task` |
+| `IsPlaatsBezetAsync` | `int rij, int stoel, int behalveId` | `Task<bool>` |
+| `GetOpbrengstAsync` | geen | `Task<double>` |
+| `GetByRijAsync` | `int rij` | `Task<List<Ticket>>` |
+| `CountByRijAsync` | `int rij` | `Task<int>` |
+| `GetGemiddeldePrijsAsync` | geen | `Task<double>` |
+| `GetSortedByPrijsAsync` | `bool descending` | `Task<List<Ticket>>` |
+
+Wat elke methode doet:
+
+- `GetByIdAsync` geeft het ticket met die Id, ook als het geannuleerd is, of `null`. Of een geannuleerd ticket een <code style="color:#f08c00;font-weight:600">404</code> geeft, beslist de controller.
+- `CreateAsync` negeert de Id uit de body en berekent ze zelf, zoals in 04_06. Een nieuw ticket is nooit geannuleerd.
+- `UpdateAsync`, `AnnuleerAsync`, `HerstelAsync` en `VerhuisAsync` doen niets als het ticket niet bestaat.
+- `IsPlaatsBezetAsync` geeft `true` als er op die rij en die stoel een geldig ticket zit, met een andere Id dan `behalveId`. Bij een nieuw ticket geef je `0` mee.
+- `GetOpbrengstAsync` telt de prijzen van de geldige tickets op. `GetGemiddeldePrijsAsync` geeft hun gemiddelde, of `0` als er geen geldige tickets zijn.
+- `GetByRijAsync` geeft de geldige tickets van die rij, op stoel gesorteerd. `CountByRijAsync` telt ze.
+- `GetSortedByPrijsAsync` geeft de geldige tickets op prijs: aflopend als `descending` `true` is, anders oplopend. Bij een gelijke prijs komt het kleinste Id eerst.
+- De andere lijsten zijn op Id gesorteerd.
+
+> [!IMPORTANT]
+> Neem de namen, de parameters en de types letterlijk over. Pas je bestaande repositories en je controller daaraan aan.
+
+> [!TIP]
+> Met `behalveId` kan je controller dezelfde methode gebruiken bij een verkoop, bij een wijziging die op dezelfde plaats blijft, bij een herstel en bij een verhuizing. Denk na welke Id hij in elk van die gevallen meegeeft.
 
 ---
 
 ### 3. De bestandsrepository asynchroon
 
-Pas je `BestandTicketRepository` aan het nieuwe contract aan. Hij leest en schrijft `tickets.json` voortaan asynchroon.
-
-Een constructor kan niet wachten. Lees het bestand dus niet meer in je constructor, maar telkens wanneer een methode de gegevens nodig heeft. Bestaat het bestand dan nog niet, dan geldt nog altijd de startlijst.
+Maak je bestandsrepository uit 03_06 asynchroon, zodat ze het nieuwe contract volgt. Ze leest en schrijft `tickets.json` met de asynchrone methodes van .NET, en begint, als het bestand nog niet bestaat, met dezelfde zes tickets als je startgegevens in de database.
 
 > [!NOTE]
-> Bestanden lezen en schrijven kost net als een database tijd waarin je thread niets anders doet. Daarom bestaan er ook voor bestanden asynchrone methodes. Zoek ze op: hun namen volgen dezelfde afspraak als die van Entity Framework Core.
-
-> [!WARNING]
-> Een methode die met `async` gemarkeerd is maar nergens wacht, compileert met een waarschuwing en werkt verder gewoon synchroon. Lees de waarschuwingen in je build: elke `async`-methode in je project hoort minstens één keer te wachten.
+> Les 05 toont de asynchrone methodes om een bestand te lezen en te schrijven niet. Ze hebben dezelfde naam als de synchrone, met `Async` erachter. Zoek ze op in de documentatie van .NET.
 
 ---
 
 ### 4. De databaserepository
 
-Maak een klasse `TicketRepository` die `ITicketRepository` implementeert. Ze krijgt je `ConcertzaalContext` binnen via haar constructor en werkt met de tabel `Tickets`, met de asynchrone methodes van Entity Framework Core.
-
-Pas de TicketController aan, zodat elk endpoint asynchroon werkt, en laat ASP.NET Core voortaan je `TicketRepository` aanleveren.
+Maak een klasse `TicketRepository` die het contract volgt. Ze krijgt je `ConcertzaalContext` via haar constructor, bewaart die in een `readonly` veld, en gebruikt overal de asynchrone methodes van Entity Framework Core.
 
 > [!IMPORTANT]
-> Async geldt van de database en het bestand tot in de controller. Gebruik nergens `.Result` of `.Wait()`, en nergens `async void`.
+> Laat de database het werk doen: de opbrengst met `SumAsync`, het gemiddelde met `AverageAsync`, de telling met `CountAsync`, en de plaatscontrole met `AnyAsync`. Je haalt nooit alle tickets op om ze in je API te overlopen.
 
-> [!NOTE]
-> Lijsten blijven op Id gesorteerd, met welke repository ook, behalve waar deze opgave een andere volgorde vraagt. Een database belooft geen volgorde, tenzij je erom vraagt.
+> [!WARNING]
+> `AverageAsync` geeft geen `0` als er niets te berekenen valt. Zorg dat je methode dan `0` teruggeeft, in je beide repositories.
+
+Registreer met `AddScoped` welke repository je controller krijgt. Begin met de databaserepository.
+
+> [!WARNING]
+> Krijg je bij een verkoop een <code style="color:#f03e3e;font-weight:600">500</code> met *No route matches the supplied values*, terwijl het ticket wel bewaard is? Lees in je leerboek, hoofdstuk 38, wat ASP.NET Core met het achtervoegsel `Async` in de naam van een controlleractie doet.
 
 ---
 
-### 5. Eén rij
+### 5. De nieuwe endpoints
 
-Voorzie een GET-endpoint op:
+| Endpoint | Antwoord |
+|----------|----------|
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/rij/<span style="color:#e64980"><b>{rij}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met de geldige tickets van die rij, op stoel gesorteerd |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/tellen/rij/<span style="color:#e64980"><b>{rij}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `count`, een `int` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/prijs/gemiddelde</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `gemiddelde`, een `double` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">tickets/sorteren/prijs?descending=true</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met de geldige tickets op prijs, aflopend |
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ticket/rij/<span style="color:#e64980"><b>{rij}</b></span></code>
-
-Dit endpoint geeft de geldige tickets van die rij terug, gesorteerd op stoel. Het antwoord is altijd <code style="color:#37b24d;font-weight:600">200 OK</code>, ook als de lijst leeg is.
-
-| Verzoek | Antwoord |
-|---------|----------|
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/rij/1</code> | de tickets met Id 1 en 2, in die volgorde |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/rij/3</code> | enkel het ticket met Id 3; ticket 4 is geannuleerd |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/rij/9</code> | `[]` |
-
-> [!TIP]
-> In je databaserepository laat je het filteren en het sorteren door de database doen. Kijk in het terminalvenster van je API naar de SQL bij dit verzoek: staan beide voorwaarden en het sorteren erin?
+Een lege rij geeft `[]` en `{ "count": 0 }`, met <code style="color:#37b24d;font-weight:600">200 OK</code>. `descending` komt uit de querystring; ontbreekt hij, of is hij `false`, dan sorteer je oplopend. Log elk verzoek op niveau Information.
 
 ---
 
@@ -112,27 +124,34 @@ Dit endpoint geeft de geldige tickets van die rij terug, gesorteerd op stoel. He
 
 Je hebt nu twee repositories die hetzelfde asynchrone contract volgen, maar elk op een totaal andere manier werken. In dit laatste punt doorloop je dezelfde reeks met allebei. Elk antwoord moet bij de twee hetzelfde zijn, tot op de Id's.
 
-Begin met de databaserepository en een database die exact de startgegevens bevat. Bedragen vergelijk je als getal: `0`, `0.0` en `0.00` zijn hetzelfde antwoord.
+#### Testscenario
 
-1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/opbrengst</code> geeft `175.00`.
-2. Verkoop dit ticket. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en het nieuwe ticket heeft Id 7 en is niet geannuleerd.
+Begin met de databaserepository en een database die exact de startgegevens bevat. Bedragen vergelijk je als getal.
+
+1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/opbrengst</code> geeft `{ "opbrengst": 175 }`, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/prijs/gemiddelde</code> geeft `{ "gemiddelde": 35 }`.
+2. Verkoop dit ticket:
 
    ```json
-   { "naam": "Jonas Wouters", "rij": 3, "stoel": 13, "prijs": 35.00 }
+   { "naam": "Jonas Wouters", "rij": 3, "stoel": 13, "prijs": 35 }
    ```
 
+   Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en het nieuwe ticket heeft Id 7 en is niet geannuleerd.
 3. Annuleer ticket 5. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>.
-4. De opbrengst is `185.00`, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ticket/rij/3</code> geeft de tickets met Id 3 en 7, in die volgorde.
-5. Stop je API en start hem opnieuw. De opbrengst is nog altijd `185.00`.
+4. De opbrengst is `185`. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/rij/3</code> geeft de tickets 3 en 7, in die volgorde, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/tellen/rij/7</code> geeft `{ "count": 1 }`.
+5. Stop je API en start hem opnieuw. De opbrengst is nog altijd `185`.
 6. Herstel ticket 4. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Rij 3 stoel 13 is intussen aan iemand anders verkocht.</code>
-7. Herstel ticket 5. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>, en de opbrengst is `210.00`.
+7. Herstel ticket 5. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>, en de opbrengst is `210`.
 8. Verhuis ticket 7 naar rij 7, stoel 3. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Rij 7 stoel 3 is al verkocht.</code>
-9. Verhuis ticket 7 naar rij 9, stoel 1. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. De opbrengst is nog altijd `210.00`, en rij 3 bevat enkel nog ticket 3.
+9. Verhuis ticket 7 naar rij 9, stoel 1. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. De opbrengst is nog altijd `210`, rij 3 bevat enkel nog ticket 3, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/tellen/rij/4</code> geeft `{ "count": 0 }`.
+10. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/sorteren/prijs?descending=true</code> geeft de tickets 1, 2, 3, 7, 5 en 6, in die volgorde. Zonder parameter krijg je 5, 6, 3, 7, 1 en 2.
+11. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> tickets/prijs/gemiddelde</code> geeft `{ "gemiddelde": 35 }`.
+12. Wijzig ticket 3 met dezelfde gegevens, maar een prijs van 40. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>: het ticket blijft op zijn eigen plaats, en die telt niet als bezet.
+13. Annuleer ticket 99. Je krijgt <code style="color:#f08c00;font-weight:600">404</code>, en in je terminal staat een `Error`.
 
-Wissel daarna in Program.cs naar je `BestandTicketRepository`, verwijder `tickets.json`, start je API, en doorloop stap 1 tot en met 9 opnieuw. Elk antwoord moet hetzelfde zijn.
+Wissel daarna in Program.cs naar de bestandsrepository, verwijder `tickets.json`, start je API opnieuw en doorloop dezelfde dertien stappen. Elk antwoord moet precies hetzelfde zijn als bij de database, ook de Id 7 in stap 2.
 
 > [!WARNING]
-> Krijgt het nieuwe ticket in stap 2 bij een van de twee een ander Id dan 7, dan klopt de teller van een van de twee niet. Bij de database is dat de teller van PostgreSQL; bij het bestand bepaal jij het volgende Id.
+> Geeft stap 12 een <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Rij 3 stoel 12 is al verkocht.</code>? Dan telt je plaatscontrole het ticket zelf mee. Kijk welke `behalveId` je controller meegeeft.
 
 > [!NOTE]
-> Merk op dat de controller in deze hele reeks niet één keer veranderde, ook niet de plaatscontrole. Twee repositories die niets van elkaar weten, een bestand en een database, geven dezelfde antwoorden omdat ze hetzelfde contract volgen.
+> Wil je de reeks met de database herhalen, verwijder dan je database en werk ze opnieuw bij met je migratie.

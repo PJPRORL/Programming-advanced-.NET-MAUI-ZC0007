@@ -109,7 +109,7 @@ Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop 
 1. Werk ventilator 2 bij. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator/2</code> toont de nieuwe gegevens. De historiek bevat één regel: `bijgewerkt`, met ventilatorId 2.
 
    ```json
-   { "merk": "be quiet!", "afmetingInMm": 140, "verlichting": "ARGB", "prijs": 26.90 }
+   { "merk": "be quiet!", "afmetingInMm": 140, "verlichting": "ARGB", "prijs": 26.9 }
    ```
 
 2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator</code> geeft de ventilatoren 1, 2, 3 en 4, in die volgorde.

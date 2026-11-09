@@ -1,152 +1,142 @@
 # 05_05
 
-<b>Hoofdstuk 05</b> &nbsp;·&nbsp; CRUD op de database, asynchroon &nbsp;·&nbsp; Fietsverhuur &nbsp;·&nbsp; niveau <span style="color:#f08c00">●●○</span> &nbsp;·&nbsp; ±90 min
+<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Twee asynchrone repositories en de cijfers, in schoolstijl &nbsp;·&nbsp; Fietsverhuur &nbsp;·&nbsp; niveau <span style="color:#f08c00">●●○</span> &nbsp;·&nbsp; ±2,5 uur
 
 ## Leerdoel
 
-Na deze oefening kan je toevoegen, wijzigen en verwijderen via een repository die met de database praat, en weet je wanneer die wijzigingen echt in de database terechtkomen.
+Na deze oefening kan je twee asynchrone repositories op één DbContext laten werken, elk achter een interface die je letterlijk volgt, met CRUD-methodes en query-methodes.
 
-Je leert twee repositories op dezelfde DbContext laten werken, en de hele keten asynchroon maken, van de database tot in de controller.
+Je leert een Id in de repository berekenen, ook in een lege tabel, en de database laten filteren, sorteren, tellen en rekenen met de asynchrone methodes van Entity Framework Core.
 
-Daarnaast kan je botsen op twee fouten die je pas nu tegenkomt: een teller die niet weet welke Id's al bestaan, en een antwoord dat mislukt nadat de gegevens al bewaard zijn.
+Daarnaast maak je de tabel volledig leeg, en zie je of elke methode daar tegen kan.
 
 ## 
 
 ## Opdracht
 
-In 04_05 zette je naast je fietsen-API een database op met twee tabellen, en zorgde je dat je API en je database hetzelfde verhaal vertelden. Nu neemt de database het over, voor de fietsen én voor de verhuringen.
+In 04_05 bewaarde je fietsen-API alles in de database, met een controller die zelf met de context werkte. Trapdoor wil die code achter repositories, en wil aan de balie meteen kunnen zien hoeveel fietsen er klaarstaan, welke types er zijn, en wat een dag huren kost.
 
-Jouw taak is om twee repositories te schrijven die met de database werken, de hele keten asynchroon te maken, en je API te laten overstappen zonder dat de balie iets merkt, behalve dat er niets meer verdwijnt bij een herstart.
+Jouw taak is om twee asynchrone repositories op één context te schrijven, je controller erop te laten overstappen, en de nieuwe query's als endpoints beschikbaar te maken.
 
-Via de API moet de balie, net als in 04_05:
+Via de API moet de balie, net als in 04_05, fietsen beheren, verhuren, terugbrengen en de verhuringen nalezen. Daarnaast moet ze:
 
-1. alle fietsen en één fiets kunnen opvragen;
-2. een fiets kunnen toevoegen, bijwerken, verwijderen en vervangen;
-3. een fiets kunnen verhuren en terugbrengen;
-4. de verhuringen kunnen nalezen;
-
-en daarnaast:
-
-5. erop kunnen rekenen dat dit alles een herstart overleeft.
+1. enkel de beschikbare fietsen kunnen opvragen, en ze kunnen tellen;
+2. de lijst van alle types kunnen opvragen;
+3. de fietsen kunnen sorteren op prijs per dag, oplopend of aflopend;
+4. de gemiddelde, de laagste en de hoogste prijs per dag kunnen opvragen;
+5. kunnen tellen hoe vaak één fiets in de verhuringen voorkomt.
 
 Implementeer onderstaande functionaliteiten.
 
 ### 1. Je vertrekpunt
 
-Vertrek van je eigen oplossing van 04_05. Je database `FietsverhuurDb` bevat de vier fietsen uit 04_05, en de tabel `Verhuringen` is leeg.
-
-| Id | Type         | Framemaat | PrijsPerDag | IsBeschikbaar |
-|----|--------------|-----------|-------------|---------------|
-| 1  | stadsfiets   | 54        | 12.50       | ja            |
-| 2  | mountainbike | 48        | 18.00       | ja            |
-| 3  | e-bike       | 56        | 25.00       | nee           |
-| 4  | bakfiets     | 52        | 30.00       | ja            |
-
-Alle endpoints uit 04_05 moeten na deze oefening nog precies hetzelfde antwoorden, met dezelfde controles en dezelfde berichten.
-
-> [!TIP]
-> Je zal in deze oefening vaak terug willen naar de startgegevens. Maak de twee tabellen dan leeg, zet hun tellers terug, en voer het SQL-script uit 04_05 opnieuw uit. Wat je in les 04 leerde over de structuur van de database, blijft gelden: die pas je nooit met de hand aan, enkel de gegevens.
+Vertrek van je eigen oplossing van 04_05. Je model en je database veranderen in deze oefening niet. Alle endpoints uit 04_05 moeten nog precies hetzelfde antwoorden.
 
 ---
 
-### 2. De contracten asynchroon
+### 2. De interfaces
 
-Pas `IFietsRepository` en `IVerhuringRepository` aan, zodat elke methode een `Task` teruggeeft en het achtervoegsel `Async` draagt.
+Vervang je oude interfaces uit les 03 door deze twee, in de map Repositories.
 
-Je twee in-memory repositories volgen deze contracten niet meer. Zoals in de les mogen ze weg.
+`IFietsRepository`:
+
+| Methode | Parameters | Geeft terug |
+|---------|------------|-------------|
+| `CreateAsync` | `Fiets fiets` | `Task<Fiets>` |
+| `DeleteAsync` | `int id` | `Task` |
+| `GetAllAsync` | geen | `Task<List<Fiets>>` |
+| `GetByIdAsync` | `int id` | `Task<Fiets?>` |
+| `UpdateAsync` | `int id, Fiets fiets` | `Task` |
+| `SetBeschikbaarAsync` | `int id, bool isBeschikbaar` | `Task` |
+| `GetBeschikbaarAsync` | geen | `Task<List<Fiets>>` |
+| `GetTypesAsync` | geen | `Task<List<string>>` |
+| `GetSortedByPrijsAsync` | `bool descending` | `Task<List<Fiets>>` |
+| `CountBeschikbaarAsync` | geen | `Task<int>` |
+| `GetGemiddeldePrijsAsync` | geen | `Task<double>` |
+| `GetLaagstePrijsAsync` | geen | `Task<double>` |
+| `GetHoogstePrijsAsync` | geen | `Task<double>` |
+
+`IVerhuringRepository`:
+
+| Methode | Parameters | Geeft terug |
+|---------|------------|-------------|
+| `CreateAsync` | `Verhuring verhuring` | `Task<Verhuring>` |
+| `GetAllAsync` | geen | `Task<List<Verhuring>>` |
+| `CountByFietsAsync` | `int fietsId` | `Task<int>` |
+
+> [!IMPORTANT]
+> Neem de namen, de parameters en de types letterlijk over. Op het examen krijg je de interfaces zo.
 
 ---
 
 ### 3. Twee repositories op één context
 
-Maak een klasse `FietsRepository` die `IFietsRepository` implementeert, en een klasse `VerhuringRepository` die `IVerhuringRepository` implementeert.
+Maak de klassen `FietsRepository` en `VerhuringRepository`. Beide krijgen je `FietsverhuurContext` via hun constructor, bewaren die in een `readonly` veld, en gebruiken overal de asynchrone methodes van Entity Framework Core. Registreer ze met `AddScoped`.
 
-Beide krijgen je `FietsverhuurContext` binnen via hun constructor. De ene werkt met de tabel `Fietsen`, de andere met `Verhuringen`. Gebruik overal de asynchrone methodes van Entity Framework Core.
+Wat de methodes doen:
 
-> [!NOTE]
-> Lijsten blijven gesorteerd zoals vroeger: de fietsen op Id, de verhuringen van oud naar nieuw. Een database belooft geen volgorde, tenzij je erom vraagt.
+- `CreateAsync` negeert de Id uit de body, berekent ze zelf zoals in 04_05, de hoogste Id plus één of 1 in een lege tabel, en geeft het bewaarde item terug. Een nieuwe fiets is altijd beschikbaar.
+- `UpdateAsync` overschrijft het type, de framemaat en de prijs per dag. De beschikbaarheid verandert enkel via `SetBeschikbaarAsync`, bij verhuren en terugbrengen.
+- `UpdateAsync`, `DeleteAsync` en `SetBeschikbaarAsync` doen niets als de fiets niet bestaat.
+- De lijsten van fietsen zijn op Id gesorteerd, de verhuringen de oudste eerst.
+- `GetTypesAsync` geeft elk type één keer, alfabetisch gesorteerd. Gebruik `Select` en `Distinct`.
+- `GetSortedByPrijsAsync` sorteert op prijs per dag: aflopend als `descending` `true` is, anders oplopend. Bij een gelijke prijs komt het kleinste Id eerst.
+- De gemiddelde, de laagste en de hoogste prijs berekent de database, met `AverageAsync`, `MinAsync` en `MaxAsync`. Tellen doe je met `CountAsync`.
+
+Elke methode die een getal berekent, geeft `0` als er niets te berekenen valt.
+
+> [!WARNING]
+> `AverageAsync`, `MinAsync` en `MaxAsync` geven geen `0` als ze niets vinden. In het testscenario maak je je tabel helemaal leeg. Zorg dat je methodes dan `0` teruggeven, en geen <code style="color:#f03e3e;font-weight:600">500</code> veroorzaken.
 
 ---
 
-### 4. De controller asynchroon en de overstap
+### 4. De controller op de repositories
 
-Pas de FietsController aan, zodat elk endpoint asynchroon werkt en op zijn repositories wacht. Laat ASP.NET Core daarna je twee nieuwe repositories aanleveren.
+Pas je `FietsController` aan: hij krijgt via zijn constructor een `IFietsRepository` en een `IVerhuringRepository` binnen in plaats van de context, naast zijn logger, en elk endpoint werkt asynchroon. De controles, de berichten en de logging blijven zoals in 04_05. De controller kijkt zelf of een fiets bestaat, en kiest de statuscode.
 
 > [!WARNING]
-> Geeft je API bij het opstarten een fout over een *scoped service* die gebruikt wordt vanuit een *singleton*? Kijk dan met welke levensduur je je repositories registreert. Een DbContext leeft één verzoek lang, en wat hem gebruikt, mag niet langer leven.
-
-> [!IMPORTANT]
-> Async geldt van de database tot in de controller. Gebruik nergens `.Result` of `.Wait()`, en nergens `async void`.
+> Krijg je bij een POST of een vervanging een <code style="color:#f03e3e;font-weight:600">500</code> met *No route matches the supplied values*, terwijl de fiets wel in je database staat? Lees in je leerboek, hoofdstuk 38, wat ASP.NET Core met het achtervoegsel `Async` in de naam van een controlleractie doet.
 
 ---
 
-### 5. Wijzigingen die blijven
+### 5. De nieuwe endpoints
 
-Voeg een fiets toe, werk een andere bij, verhuur een derde en verwijder een vierde die beschikbaar is. Herstart je API en vraag de lijst opnieuw op: alles moet er nog zijn zoals je het achterliet. Kijk ook in je database.
+| Endpoint | Antwoord |
+|----------|----------|
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/beschikbaar</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met de beschikbare fietsen |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/types</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met de lijst van alle types |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/sorteren/prijs?descending=true</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met alle fietsen op prijs per dag, aflopend |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/tellen/beschikbaar</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `count`, een `int` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/prijs/gemiddelde</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `gemiddelde`, een `double` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/prijs/grenzen</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met de properties `laagste` en `hoogste`, twee `double`'s |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/<span style="color:#e64980"><b>{id}</b></span>/verhuringen/tellen</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `count`, een `int` |
 
-> [!WARNING]
-> Is een wijziging na de herstart toch weg, terwijl je API <code style="color:#37b24d;font-weight:600">201</code> of <code style="color:#37b24d;font-weight:600">204</code> gaf? Dan heeft Entity Framework Core ze wel bijgehouden, maar nooit naar de database gestuurd. Lees nog eens wanneer dat precies gebeurt.
-
-> [!WARNING]
-> Geeft je allereerste POST een <code style="color:#f03e3e;font-weight:600">500</code> met een melding over een dubbele sleutel? Dan zie je het gevolg van de waarschuwing uit 04_05, punt 5. Los het op in de gegevens, niet in je code.
-
-> [!WARNING]
-> Geeft een POST een <code style="color:#f03e3e;font-weight:600">500</code>, terwijl de nieuwe fiets wél in je database staat? Lees dan de foutmelding in het terminalvenster van je API. Ze gaat niet over de database, maar over het adres dat je API probeert te maken voor het antwoord.
+`descending` is een parameter uit de querystring. Ontbreekt hij, of is hij `false`, dan sorteer je oplopend. Elk endpoint antwoordt met <code style="color:#37b24d;font-weight:600">200 OK</code>, ook als het niets vindt, ook voor een fiets die niet bestaat. Log elk verzoek op niveau Information.
 
 ---
 
-### 6. Alles samen: verhuringen die blijven
+### 6. Alles samen: van startgegevens tot lege tabel
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-In 03_05 verdwenen de verhuringen bij elke herstart, en wist niemand nog welke fiets er buiten stond. Nu staan beide in de database. In dit laatste punt bewijs je dat de fietsen en de verhuringen na een reeks acties en een herstart hetzelfde verhaal vertellen.
+De repositories, de controller en de nieuwe endpoints komen samen in één reeks. Ze begint bij de startgegevens, verhuurt en brengt terug, en eindigt met een lege tabel. Juist daar blijkt of elke methode haar `0` teruggeeft.
 
-Begin met een database die exact de startgegevens bevat, met een lege lijst verhuringen, en doorloop deze reeks:
+#### Testscenario
 
-1. Vraag de verhuringen op. De lijst is leeg: `[]`.
-2. Voeg deze fiets toe:
+Begin met een database die exact de startgegevens bevat: verwijder ze, en werk ze opnieuw bij met je migraties. Bedragen vergelijk je als getal.
 
-   ```json
-   {
-     "id": 2,
-     "type": "racefiets",
-     "framemaat": 58,
-     "prijsPerDag": 22.50,
-     "isBeschikbaar": false
-   }
-   ```
-
-   Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met als antwoord:
-
-   ```json
-   {
-     "id": 5,
-     "type": "racefiets",
-     "framemaat": 58,
-     "prijsPerDag": 22.50,
-     "isBeschikbaar": true
-   }
-   ```
-
-   Het meegestuurde Id werd dus overschreven, en de fiets is beschikbaar. De header `Location` eindigt op `/api/fiets/5`; hoofdletters tellen daarbij niet.
-3. Verhuur fiets 5. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>.
-4. Verhuur fiets 1. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>.
-5. Breng fiets 5 terug. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>.
-6. Verwijder fiets 1. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Een verhuurde fiets kan je niet uit de vloot halen.</code>
-7. Verhuur fiets 3. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Deze fiets is al verhuurd.</code>
-8. Stop je API en start hem opnieuw.
-9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/verhuringen</code> geeft als resultaat:
-
-   ```json
-   [
-     { "id": 1, "actie": "verhuurd", "fietsId": 5 },
-     { "id": 2, "actie": "verhuurd", "fietsId": 1 },
-     { "id": 3, "actie": "teruggebracht", "fietsId": 5 }
-   ]
-   ```
-
-10. Vraag fiets 1 en fiets 5 op. Fiets 1 is niet beschikbaar, fiets 5 wel.
-11. De tabellen `Fietsen` en `Verhuringen` in je database bevatten precies hetzelfde als je API.
+1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/beschikbaar</code> geeft de fietsen 1, 2 en 4, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/tellen/beschikbaar</code> geeft `{ "count": 3 }`.
+2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/types</code> geeft `["bakfiets", "e-bike", "mountainbike", "stadsfiets"]`.
+3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/prijs/gemiddelde</code> geeft `{ "gemiddelde": 21.375 }`, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/prijs/grenzen</code> geeft `{ "laagste": 12.5, "hoogste": 30 }`.
+4. Voeg een fiets toe van het type `stadsfiets`, framemaat 50, voor 12.5 per dag. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met Id 5.
+5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/types</code> geeft nog altijd vier types. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/sorteren/prijs</code> geeft de fietsen 1, 5, 2, 3 en 4, en met `?descending=true` krijg je 4, 3, 2, 1 en 5.
+6. Verhuur fiets 5, breng ze terug, en verhuur ze opnieuw. Je krijgt telkens <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/5/verhuringen/tellen</code> geeft `{ "count": 3 }`, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/99/verhuringen/tellen</code> geeft `{ "count": 0 }`.
+7. Breng fiets 3 terug. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/tellen/beschikbaar</code> geeft `{ "count": 4 }`: alle fietsen behalve fiets 5.
+8. Werk fiets 99 bij, en verwijder fiets 99. Je krijgt telkens <code style="color:#f08c00;font-weight:600">404</code>. In je terminal staan een `Warning` en een `Error`.
+9. Breng fiets 5 terug, en verwijder daarna de fietsen 1 tot en met 5, één voor één. Je krijgt telkens <code style="color:#37b24d;font-weight:600">204</code>.
+10. Met een lege tabel geeft <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen</code> `[]`, het gemiddelde `0`, de grenzen `0` en `0`, de types `[]`, en de telling van de beschikbare fietsen `0`. Geen enkel endpoint geeft een <code style="color:#f03e3e;font-weight:600">500</code>.
+11. Voeg de fiets uit stap 4 opnieuw toe. Ze krijgt Id 1.
+12. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/verhuringen</code> geeft vijf verhuringen, met Id 1 tot en met 5: `verhuurd`, `teruggebracht` en `verhuurd` voor fiets 5, dan `teruggebracht` voor fiets 3, en als laatste `teruggebracht` voor fiets 5.
 
 > [!NOTE]
-> Bij een verhuring gebeuren er twee dingen: de fiets verandert, en er komt een verhuring bij. Vraag je af hoeveel keer je API daarvoor iets naar de database stuurt, en wat er zou gebeuren als het halverwege misloopt. Les 07 komt daarop terug.
+> De nieuwe fiets uit stap 11 krijgt Id 1, het nummer van een fiets die je net verwijderde. Had die oude fiets verhuringen gehad, dan zou <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/1/verhuringen/tellen</code> ze nu bij de nieuwe fiets tellen. Dat is een gevolg van "de hoogste Id plus één", en van een tabel zonder relatie. Les 06 lost het tweede op.

@@ -61,7 +61,7 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
   "id": 2,
   "omschrijving": "DDR5 32 GB kit",
   "aantal": 2,
-  "stukPrijs": 109.90,
+  "stukPrijs": 109.9,
   "isActief": true,
   "bestellingId": 1,
   "bestelling": {
@@ -93,7 +93,7 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
   "referentie": "BB-2026-002",
   "klantnaam": "Pieter De Wilde",
   "bestellijnen": [
-    { "id": 5, "omschrijving": "Voeding 750 W", "aantal": 1, "stukPrijs": 119.00, "isActief": true, "bestellingId": 2, "bestelling": null },
+    { "id": 5, "omschrijving": "Voeding 750 W", "aantal": 1, "stukPrijs": 119, "isActief": true, "bestellingId": 2, "bestelling": null },
     { "id": 6, "omschrijving": "Casefan 120 mm", "aantal": 3, "stukPrijs": 14.99, "isActief": true, "bestellingId": 2, "bestelling": null }
   ]
 }
@@ -143,7 +143,7 @@ Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop 
    {
      "referentie": "BB-2026-005",
      "klantnaam": "An Vermeulen",
-     "bestellijnen": [ { "omschrijving": "Voeding 850 W", "aantal": 1, "stukPrijs": 139.00 } ]
+     "bestellijnen": [ { "omschrijving": "Voeding 850 W", "aantal": 1, "stukPrijs": 139 } ]
    }
    ```
 

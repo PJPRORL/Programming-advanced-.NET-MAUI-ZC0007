@@ -1,0 +1,6 @@
+@ProgrammingAdvancedOefeningen_HostAddress = http://localhost:5145
+
+GET {{ProgrammingAdvancedOefeningen_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

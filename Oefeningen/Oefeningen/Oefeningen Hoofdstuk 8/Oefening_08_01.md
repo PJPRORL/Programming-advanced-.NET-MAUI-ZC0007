@@ -66,7 +66,7 @@ Het ophalen gebeurt in een specifieke repository, niet in de generieke: wat je m
   "naam": "Ryzen 7 7800X3D",
   "merk": "AMD",
   "soort": "processor",
-  "prijs": 389.00,
+  "prijs": 389,
   "aantalOpVoorraad": 0,
   "garantiejaren": 3,
   "leverancierId": 3,
@@ -74,6 +74,7 @@ Het ophalen gebeurt in een specifieke repository, niet in de generieke: wat je m
     "id": 3,
     "naam": "ChipCentraal",
     "land": "Duitsland",
+    "partnerSinds": "2018-09-01T00:00:00Z",
     "artikelen": [null]
   }
 }
@@ -98,9 +99,10 @@ Het ophalen gebeurt in een specifieke repository, niet in de generieke: wat je m
   "id": 3,
   "naam": "ChipCentraal",
   "land": "Duitsland",
+  "partnerSinds": "2018-09-01T00:00:00Z",
   "artikelen": [
-    { "id": 3, "naam": "Ryzen 5 7600X", "merk": "AMD", "soort": "processor", "prijs": 229.50, "aantalOpVoorraad": 3, "garantiejaren": 3, "leverancierId": 3, "leverancier": null },
-    { "id": 4, "naam": "Ryzen 7 7800X3D", "merk": "AMD", "soort": "processor", "prijs": 389.00, "aantalOpVoorraad": 0, "garantiejaren": 3, "leverancierId": 3, "leverancier": null }
+    { "id": 3, "naam": "Ryzen 5 7600X", "merk": "AMD", "soort": "processor", "prijs": 229.5, "aantalOpVoorraad": 3, "garantiejaren": 3, "leverancierId": 3, "leverancier": null },
+    { "id": 4, "naam": "Ryzen 7 7800X3D", "merk": "AMD", "soort": "processor", "prijs": 389, "aantalOpVoorraad": 0, "garantiejaren": 3, "leverancierId": 3, "leverancier": null }
   ]
 }
 ```

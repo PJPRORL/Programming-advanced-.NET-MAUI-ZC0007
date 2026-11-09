@@ -1,160 +1,145 @@
 # 05_02
 
-<b>Hoofdstuk 05</b> &nbsp;·&nbsp; CRUD op de database, asynchroon &nbsp;·&nbsp; PC-onderdelen &nbsp;·&nbsp; niveau <span style="color:#f08c00">●●○</span> &nbsp;·&nbsp; ±90 min
+<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Twee asynchrone repositories en de cijfers &nbsp;·&nbsp; PC-onderdelen &nbsp;·&nbsp; niveau <span style="color:#f08c00">●●○</span> &nbsp;·&nbsp; ±2 uur
 
 ## Leerdoel
 
-Na deze oefening kan je toevoegen, wijzigen en verwijderen via een repository die met de database praat, en weet je wanneer die wijzigingen echt in de database terechtkomen.
+Na deze oefening kan je twee asynchrone repositories op één DbContext laten werken, elk achter een interface die je letterlijk volgt.
 
-Je leert twee repositories op dezelfde DbContext laten werken, en de hele keten asynchroon maken, van de database tot in de controller.
+Je leert gemiddelden, minima, maxima en tellingen door de database laten berekenen met `AverageAsync`, `MinAsync`, `MaxAsync` en `CountAsync`, en wat elk van die methodes doet als er niets te berekenen valt.
 
-Daarnaast kan je botsen op twee fouten die je pas nu tegenkomt: een teller die niet weet welke Id's al bestaan, en een antwoord dat mislukt nadat de gegevens al bewaard zijn.
+Daarnaast merk je wat ASP.NET Core doet met het achtervoegsel `Async` in de naam van een controlleractie.
 
 ## 
 
 ## Opdracht
 
-In 04_02 zette je naast je ventilator-API een database op met twee tabellen, en zorgde je dat je API en je database hetzelfde verhaal vertelden. Nu neemt de database het over, voor de ventilatoren én voor de historiek.
+In 04_02 bewaarde je ventilator-API alles in de database, met een controller die zelf met de context werkte. De inkoopafdeling wil die code achter repositories, en wil daarnaast de prijzen van het assortiment kunnen volgen: wat kost een ventilator gemiddeld, wat is de goedkoopste en de duurste, en hoe vaak gebeurde welke wijziging.
 
-Jouw taak is om twee repositories te schrijven die met de database werken, de hele keten asynchroon te maken, en je API te laten overstappen zonder dat de client iets merkt, behalve dat er niets meer verdwijnt bij een herstart.
+Jouw taak is om twee asynchrone repositories op één context te schrijven, je controller erop te laten overstappen, en de cijfers als endpoints beschikbaar te maken.
 
-Via de API moet de inkoopafdeling, net als in 04_02:
+Via de API moet de inkoopafdeling, net als in 04_02, ventilatoren beheren en de historiek nalezen. Daarnaast moet ze:
 
-1. alle ventilatoren kunnen opvragen;
-2. één ventilator kunnen opvragen;
-3. een nieuwe ventilator kunnen toevoegen;
-4. een bestaande ventilator kunnen bijwerken;
-5. een ventilator kunnen verwijderen;
-6. een ventilator kunnen vervangen;
-7. de historiek kunnen nalezen;
-
-en daarnaast:
-
-8. erop kunnen rekenen dat dit alles een herstart overleeft.
+1. de gemiddelde, de laagste en de hoogste prijs kunnen opvragen;
+2. de gemiddelde prijs van één soort verlichting kunnen opvragen;
+3. kunnen tellen hoe vaak een actie in de historiek voorkomt.
 
 Implementeer onderstaande functionaliteiten.
 
 ### 1. Je vertrekpunt
 
-Vertrek van je eigen oplossing van 04_02. Je database `VentilatorDb` bevat de vier ventilatoren uit 04_02, en de tabel `Wijzigingen` is leeg.
-
-| Id | Merk      | AfmetingInMm | Verlichting | Prijs |
-|----|-----------|--------------|-------------|-------|
-| 1  | Noctua    | 120          | geen        | 29.90 |
-| 2  | be quiet! | 140          | geen        | 24.90 |
-| 3  | Corsair   | 120          | RGB         | 34.90 |
-| 4  | Arctic    | 140          | ARGB        | 19.99 |
-
-Alle endpoints uit 04_02 moeten na deze oefening nog precies hetzelfde antwoorden, met dezelfde controles en dezelfde berichten.
-
-> [!TIP]
-> Je zal in deze oefening vaak terug willen naar de startgegevens. Maak de twee tabellen dan leeg, zet hun tellers terug, en voer het SQL-script uit 04_02 opnieuw uit. Wat je in les 04 leerde over de structuur van de database, blijft gelden: die pas je nooit met de hand aan, enkel de gegevens.
+Vertrek van je eigen oplossing van 04_02. Je model en je database veranderen in deze oefening niet. Alle endpoints uit 04_02 moeten nog precies hetzelfde antwoorden.
 
 ---
 
-### 2. De contracten asynchroon
+### 2. De contracten
 
-Pas `IVentilatorRepository` en `IWijzigingRepository` aan, zodat elke methode een `Task` teruggeeft en het achtervoegsel `Async` draagt.
+Vervang je oude interfaces uit les 03 door asynchrone versies, in de map Repositories.
 
-Je twee in-memory repositories volgen deze contracten niet meer. Zoals in de les mogen ze weg.
+`IVentilatorRepository`:
+
+| Methode | Parameters | Geeft terug |
+|---------|------------|-------------|
+| `GetAllAsync` | geen | `Task<List<Ventilator>>` |
+| `GetByIdAsync` | `int id` | `Task<Ventilator?>` |
+| `CreateAsync` | `Ventilator ventilator` | `Task<Ventilator>` |
+| `UpdateAsync` | `int id, Ventilator ventilator` | `Task` |
+| `DeleteAsync` | `int id` | `Task` |
+| `GetGemiddeldePrijsAsync` | geen | `Task<double>` |
+| `GetLaagstePrijsAsync` | geen | `Task<double>` |
+| `GetHoogstePrijsAsync` | geen | `Task<double>` |
+| `GetGemiddeldePrijsByVerlichtingAsync` | `string verlichting` | `Task<double>` |
+
+`IWijzigingRepository`:
+
+| Methode | Parameters | Geeft terug |
+|---------|------------|-------------|
+| `CreateAsync` | `Wijziging wijziging` | `Task<Wijziging>` |
+| `GetAllAsync` | geen | `Task<List<Wijziging>>` |
+| `CountByActieAsync` | `string actie` | `Task<int>` |
+
+> [!IMPORTANT]
+> Neem de namen, de parameters en de types letterlijk over. Op het examen krijg je de interfaces zo.
 
 ---
 
 ### 3. Twee repositories op één context
 
-Maak een klasse `VentilatorRepository` die `IVentilatorRepository` implementeert, en een klasse `WijzigingRepository` die `IWijzigingRepository` implementeert.
+Maak de klassen `VentilatorRepository` en `WijzigingRepository`. Beide krijgen je `VentilatorContext` via hun constructor, en bewaren die in een `readonly` veld. Registreer ze met `AddScoped`.
 
-Beide krijgen je `VentilatorContext` binnen via hun constructor. De ene werkt met de tabel `Ventilatoren`, de andere met `Wijzigingen`. Gebruik overal de asynchrone methodes van Entity Framework Core.
+Wat de methodes doen:
+
+- `GetAllAsync` geeft de ventilatoren op Id gesorteerd, en de wijzigingen de oudste eerst.
+- `CreateAsync` bewaart het nieuwe item en geeft het terug, met de Id die de database gaf.
+- `UpdateAsync` overschrijft alle gegevens van de ventilator met die Id, behalve de Id. `DeleteAsync` verwijdert hem. Bestaat de ventilator niet, dan doen ze allebei niets.
+- De gemiddelde, de laagste en de hoogste prijs berekent de database, met `AverageAsync`, `MinAsync` en `MaxAsync`. Bij de verlichting negeer je hoofdletters.
+- `CountByActieAsync` telt de wijzigingen met die actie, met `CountAsync`, zonder op hoofdletters te letten.
+
+Elke methode die een getal berekent, geeft `0` als er niets te berekenen valt.
+
+> [!WARNING]
+> `AverageAsync`, `MinAsync` en `MaxAsync` geven geen `0` als ze niets vinden. Probeer het met een verlichting die niet bestaat, en lees wat er misloopt. Zorg dat je methode in dat geval `0` teruggeeft. `CountAsync` heeft dat probleem niet: waarom?
 
 > [!NOTE]
-> Lijsten blijven gesorteerd zoals vroeger: de ventilatoren op Id, de historiek van oud naar nieuw. Een database belooft geen volgorde, tenzij je erom vraagt.
+> Dat `UpdateAsync` en `DeleteAsync` niets doen als het item niet bestaat, is wat de schoolopgaven vragen. De repository beslist niets: de controller kijkt eerst of de ventilator bestaat, en kiest de statuscode.
 
 ---
 
-### 4. De controller asynchroon en de overstap
+### 4. De controller op de repositories
 
-Pas de VentilatorController aan, zodat elk endpoint asynchroon werkt en op zijn repositories wacht. Laat ASP.NET Core daarna je twee nieuwe repositories aanleveren.
+Pas je `VentilatorController` aan: hij krijgt via zijn constructor een `IVentilatorRepository` en een `IWijzigingRepository` binnen in plaats van de context, naast zijn logger, en elk endpoint werkt asynchroon.
+
+De controles, de berichten, de regels voor de historiek en de logging blijven precies zoals in 04_02.
 
 > [!WARNING]
-> Geeft je API bij het opstarten een fout over een *scoped service* die gebruikt wordt vanuit een *singleton*? Kijk dan met welke levensduur je je repositories registreert. Een DbContext leeft één verzoek lang, en wat hem gebruikt, mag niet langer leven.
-
-> [!IMPORTANT]
-> Async geldt van de database tot in de controller. Gebruik nergens `.Result` of `.Wait()`, en nergens `async void`.
+> Krijg je bij een POST of een vervanging een <code style="color:#f03e3e;font-weight:600">500</code> met *No route matches the supplied values*, terwijl de ventilator wel in je database staat? Lees in je leerboek, hoofdstuk 38, wat ASP.NET Core met het achtervoegsel `Async` in de naam van een controlleractie doet.
 
 ---
 
-### 5. Wijzigingen die blijven
+### 5. De cijfers
 
-Voeg een ventilator toe, werk een andere bij en verwijder een derde. Herstart je API en vraag de lijst opnieuw op: alle drie de wijzigingen moeten er nog zijn. Kijk ook in je database.
+| Endpoint | Antwoord |
+|----------|----------|
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ventilator/prijzen</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met de properties `gemiddelde`, `laagste` en `hoogste`, drie `double`'s |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ventilator/prijzen/verlichting/<span style="color:#e64980"><b>{verlichting}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `gemiddelde`, een `double` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/ventilator/historiek/tellen/<span style="color:#e64980"><b>{actie}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `count`, een `int` |
 
-> [!WARNING]
-> Is een wijziging na de herstart toch weg, terwijl je API <code style="color:#37b24d;font-weight:600">201</code> of <code style="color:#37b24d;font-weight:600">204</code> gaf? Dan heeft Entity Framework Core ze wel bijgehouden, maar nooit naar de database gestuurd. Lees nog eens wanneer dat precies gebeurt.
+Vinden ze niets, dan staat er `0` in het object, met <code style="color:#37b24d;font-weight:600">200 OK</code>. Log elk verzoek op niveau Information.
 
-> [!WARNING]
-> Geeft je allereerste POST een <code style="color:#f03e3e;font-weight:600">500</code> met een melding over een dubbele sleutel? Dan zie je het gevolg van de waarschuwing uit 04_02, punt 5. Los het op in de gegevens, niet in je code.
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator/prijzen</code> geeft met de startgegevens als resultaat een `gemiddelde` dat begint met `27.42`, en:
 
-> [!WARNING]
-> Geeft een POST een <code style="color:#f03e3e;font-weight:600">500</code>, terwijl de nieuwe ventilator wél in je database staat? Lees dan de foutmelding in het terminalvenster van je API. Ze gaat niet over de database, maar over het adres dat je API probeert te maken voor het antwoord.
+```json
+{
+  "gemiddelde": 27.4225,
+  "laagste": 19.99,
+  "hoogste": 34.9
+}
+```
+
+> [!NOTE]
+> Rond een gemiddelde niet af. De testen bij de schoolopgaven controleren een gemiddelde tussen twee grenzen, zoals 28,45 en 28,46. Een gemiddelde dat je zelf afrondt, kan daar net buiten vallen. Een `double` kan bij een gemiddelde wel een staartje ver achter de komma tonen. Vergelijk daarom enkel de eerste cijfers.
 
 ---
 
-### 6. Alles samen: een historiek die blijft
+### 6. Alles samen: cijfers die kloppen
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-In 03_02 verdween de historiek bij elke herstart. Nu staat ze in de database, samen met de ventilatoren. In dit laatste punt bewijs je dat beide tabellen na een reeks acties en een herstart hetzelfde verhaal vertellen.
+De repositories, de controller en de cijfers komen samen in één reeks. Elke actie verandert de cijfers, en een actie die mislukt verandert niets.
 
-Begin met een database die exact de startgegevens bevat, met een lege historiek, en doorloop deze reeks:
+#### Testscenario
 
-1. Vraag de historiek op. Ze is leeg: `[]`.
-2. Voeg deze ventilator toe:
+Begin met een database die exact de startgegevens bevat: verwijder ze, en werk ze opnieuw bij met je migraties. Bedragen vergelijk je als getal.
 
-   ```json
-   {
-     "id": 2,
-     "merk": "Fractal",
-     "afmetingInMm": 140,
-     "verlichting": "geen",
-     "prijs": 21.90
-   }
-   ```
+1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator/prijzen/verlichting/GEEN</code> geeft een `gemiddelde` dat begint met `27.4`. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator/prijzen/verlichting/neon</code> geeft `{ "gemiddelde": 0 }`, en geen <code style="color:#f03e3e;font-weight:600">500</code>.
+2. Voeg een ventilator toe van `Arctic`, 120 mm, zonder verlichting (`geen`), voor 14.9. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met Id 5.
+3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator/prijzen</code> geeft een `gemiddelde` dat begint met `24.91`, `laagste` `14.9` en `hoogste` `34.9`.
+4. Werk ventilator 99 bij. Je krijgt <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">Kan geen ventilator bijwerken met Id 99, omdat deze niet bestaat.</code>
+5. Vervang ventilator 3 door een ventilator van `Corsair`, 120 mm, met `RGB`, voor 39.9. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met Id 6, en een header `Location` die eindigt op `/api/ventilator/6`.
+6. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator/prijzen</code> geeft `hoogste` `39.9`.
+7. Voeg een ventilator van 92 mm toe, met verder geldige gegevens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">We verkopen enkel ventilatoren van 120 of 140 mm.</code>
+8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator/historiek/tellen/toegevoegd</code> geeft `{ "count": 2 }`, met `VERWIJDERD` krijg je `{ "count": 1 }`, en met `bijgewerkt` `{ "count": 0 }`.
+9. Stop je API en start hem opnieuw. De historiek bevat drie wijzigingen: `toegevoegd` 5, `verwijderd` 3 en `toegevoegd` 6, in die volgorde.
 
-   Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met als antwoord:
-
-   ```json
-   {
-     "id": 5,
-     "merk": "Fractal",
-     "afmetingInMm": 140,
-     "verlichting": "geen",
-     "prijs": 21.90
-   }
-   ```
-
-   Het meegestuurde Id werd dus overschreven. De header `Location` eindigt op `/api/ventilator/5`; hoofdletters tellen daarbij niet.
-3. Werk ventilator 5 bij met dezelfde gegevens, maar een prijs van `19.90`. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>.
-4. Vervang ventilator 2 door deze ventilator. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe ventilator krijgt Id 6.
-
-   ```json
-   { "merk": "Noctua", "afmetingInMm": 140, "verlichting": "geen", "prijs": 32.50 }
-   ```
-
-5. Verwijder ventilator 99. Je krijgt <code style="color:#f08c00;font-weight:600">404</code>.
-6. Voeg een ventilator van 92 mm toe, met verder geldige gegevens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code>.
-7. Stop je API en start hem opnieuw.
-8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator/historiek</code> geeft als resultaat:
-
-   ```json
-   [
-     { "id": 1, "actie": "toegevoegd", "ventilatorId": 5 },
-     { "id": 2, "actie": "bijgewerkt", "ventilatorId": 5 },
-     { "id": 3, "actie": "verwijderd", "ventilatorId": 2 },
-     { "id": 4, "actie": "toegevoegd", "ventilatorId": 6 }
-   ]
-   ```
-
-9. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/ventilator</code> geeft de ventilatoren met Id 1, 3, 4, 5 en 6, in die volgorde. Ventilator 5 kost `19.90`.
-10. De tabellen `Ventilatoren` en `Wijzigingen` in je database bevatten precies hetzelfde als je API.
-
-> [!NOTE]
-> Bij een vervanging gebeuren er vier dingen: een ventilator verdwijnt, een andere komt erbij, en de historiek krijgt twee regels. Vraag je af hoeveel keer je API daarvoor iets naar de database stuurt, en wat er zou gebeuren als het halverwege misloopt. Les 07 komt daarop terug.
+> [!WARNING]
+> Is je telling in stap 8 te hoog? Dan laat een mislukte actie toch een wijziging achter. Kijk na waar je controller de wijziging bewaart.

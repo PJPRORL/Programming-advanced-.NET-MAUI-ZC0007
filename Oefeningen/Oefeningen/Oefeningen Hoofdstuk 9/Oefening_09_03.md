@@ -52,7 +52,7 @@ Elk endpoint dat vroeger een model teruggaf, geeft nu een read-DTO terug. Die he
 <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/2</code> geeft nu als resultaat:
 
 ```json
-{ "id": 2, "omschrijving": "DDR5 32 GB kit", "aantal": 2, "stukPrijs": 109.90, "isActief": true, "bestellingId": 1 }
+{ "id": 2, "omschrijving": "DDR5 32 GB kit", "aantal": 2, "stukPrijs": 109.9, "isActief": true, "bestellingId": 1 }
 ```
 
 ---
@@ -87,7 +87,7 @@ Al de rest in de body negeert je API, gewoon omdat de DTO het niet kent. De cont
   "id": 2,
   "omschrijving": "DDR5 32 GB kit",
   "aantal": 2,
-  "stukPrijs": 109.90,
+  "stukPrijs": 109.9,
   "isActief": true,
   "bestellingId": 1,
   "referentie": "BB-2026-001",
@@ -104,7 +104,7 @@ Al de rest in de body negeert je API, gewoon omdat de DTO het niet kent. De cont
   "klantnaam": "Pieter De Wilde",
   "totaalActief": 163.97,
   "lijnen": [
-    { "id": 5, "omschrijving": "Voeding 750 W", "aantal": 1, "stukPrijs": 119.00, "isActief": true },
+    { "id": 5, "omschrijving": "Voeding 750 W", "aantal": 1, "stukPrijs": 119, "isActief": true },
     { "id": 6, "omschrijving": "Casefan 120 mm", "aantal": 3, "stukPrijs": 14.99, "isActief": true }
   ]
 }
@@ -130,7 +130,7 @@ De volgorde binnen een lijst met lijnen ligt niet vast. De berichten bij een <co
   "aantalBestellingen": 1,
   "totaalActief": 163.97,
   "lijnen": [
-    { "referentie": "BB-2026-002", "omschrijving": "Voeding 750 W", "aantal": 1, "stukPrijs": 119.00, "isActief": true },
+    { "referentie": "BB-2026-002", "omschrijving": "Voeding 750 W", "aantal": 1, "stukPrijs": 119, "isActief": true },
     { "referentie": "BB-2026-002", "omschrijving": "Casefan 120 mm", "aantal": 3, "stukPrijs": 14.99, "isActief": true }
   ]
 }
@@ -148,7 +148,7 @@ Een klantnaam komt overeen zoals in 08_03, en de <code style="color:#f08c00;font
 
 #### Testscenario
 
-Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks. Bedragen vergelijk je als getal: `0`, `0.0` en `0.00` zijn hetzelfde antwoord.
+Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks. Bedragen vergelijk je als getal: `0`, `0.0` en `0.00` zijn hetzelfde antwoord. Rond je sommen af zoals in 04_03.
 
 1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/2</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/2/details</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestelling/2/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestelling/klant/Pieter De Wilde</code> geven de JSON uit punt 3, 5 en 6. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestelling/1</code> geeft `{ "id": 1, "referentie": "BB-2026-001", "klantnaam": "An Vermeulen" }`.
 2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/fiche</code> geeft `totaalActief` `772.76`, en lijn 1 als duurste, zonder veld `bestelling`.
@@ -167,7 +167,7 @@ Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop 
    ```
 
 4. Werk lijn 7 bij met dezelfde gegevens, maar met aantal 2, `bestellingId` `1` en `isActief` `false`. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. Lijn 7 heeft aantal 2, is actief en hoort nog altijd bij bestelling 3.
-5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestelling/3/details</code> geeft `totaalActief` `219.90`, met enkel lijn 7.
+5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestelling/3/details</code> geeft `totaalActief` `219.9`, met enkel lijn 7.
 6. Plaats de volledige bestelling uit punt 4 van 07_03. Je krijgt <code style="color:#37b24d;font-weight:600">201</code> met bestelling 4 in de vorm van punt 5: `totaalActief` `404.98`, en twee actieve lijnen met de Id's 8 en 9.
 7. Plaats de volledige bestelling uit stap 6 van 08_03. Je krijgt <code style="color:#37b24d;font-weight:600">201</code> met bestelling 5, en daarin lijn 10.
 8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestelling/klant/an vermeulen</code> geeft `"klantnaam": "An Vermeulen"`, `aantalBestellingen` `2`, `totaalActief` `747.79` en vijf lijnen: vier met referentie `BB-2026-001`, waarvan één geschrapt, en één met `BB-2026-005`. In je terminal staat bij dit verzoek één query.

@@ -1,6 +1,6 @@
 # Extra oefeningen — hoofdstuk 03 tot en met 09
 
-<b>Programming Advanced</b> &nbsp;·&nbsp; zes oefeningen per hoofdstuk &nbsp;·&nbsp; opgesteld op basis van de lessen `03 - Repositories` tot en met `09 - DTO's`
+<b>Programming Advanced</b> &nbsp;·&nbsp; zes oefeningen per hoofdstuk, en in hoofdstuk 04 tot en met 06 een zevende in examenstijl &nbsp;·&nbsp; opgesteld op basis van de lessen `03 - Repositories` tot en met `09 - DTO's`
 
 Zelfde opmaak en zelfde opbouw als de oefeningen van hoofdstuk 01 en 02. Twee reeksen die elkaar spiegelen: dezelfde techniek, ander domein. Doe je ze allebei, dan oefen je elk concept twee keer zonder twee keer hetzelfde te lezen.
 
@@ -8,6 +8,10 @@ Elk bestand sluit af met een <span style="background:#7048e8;color:#fff;padding:
 
 > [!NOTE]
 > Dit overzicht groeit mee. Op dit moment staan hoofdstuk 03 tot en met 09 erin.
+>
+> Hoofdstuk 04 tot en met 06 zijn in november 2026 herschreven: elke oefening combineert nu de leerdoelen van de lessen met die van de schoolopgaven. De vorige versies staan in elke hoofdstukmap in de submap `Vorige versie`.
+>
+> Oefening 03_02 is in november 2026 verduidelijkt: vervangen staat stap voor stap in punt 4, en de historiek in punt 6 is opgedeeld in vijf delen. Wat je API moet antwoorden, bleef hetzelfde. De vorige versie staat in `Oefeningen Hoofdstuk 3/Vorige versie`.
 
 ---
 
@@ -59,10 +63,15 @@ Elke oefening bouwt verder op de oefening met hetzelfde nummer uit het hoofdstuk
 | _04 | <span style="color:#37b24d">●○○</span> | Dierenasiel | 02_04 |
 | _05 | <span style="color:#f08c00">●●○</span> | Fietsverhuur | 02_05 |
 | _06 | <span style="color:#f03e3e">●●●</span> | Concertzaal | 02_06 |
+| _07 | <span style="color:#f08c00">●●○</span> | Herstelplaats, in examenstijl | een nieuw project, in 04_07 |
 
 Elke oefening begint met een punt **Je vertrekpunt**: wat er uit de vorige oefening moet blijven werken. Heb je die oefening niet meer, maak ze dan eerst opnieuw vanuit haar eigen opgave. Het vertrekpunt is een geheugensteun, geen volledige opgave.
 
+**De reeks _07** volgt de schoolopgaven van hoofdstuk 4 tot en met 6, tot in de namen: een project `WebApi`, routes zonder `api/`, een <code style="color:#f08c00;font-weight:600">404</code> zonder body, een lege lijst `[]` met <code style="color:#37b24d;font-weight:600">200</code> als een filter niets vindt, een Id die je API zelf berekent, en een interface die je letterlijk overneemt. Ze begint in 04_07 met een leeg project en loopt door tot 06_07. Waar de andere reeksen tussenstappen nemen, gaat de reeks _07 meteen naar de vorm van het examen: één opgave per hoofdstuk, volledig in de stijl van de schoolopgaven.
+
 Vanaf hoofdstuk 04 krijgt elke oefening ook **vaste startgegevens** en een model met **C#-types**, zoals in de oefeningen van school. Daardoor kan elk voorbeeld het volledige antwoord tonen, en weet je precies wat je API moet teruggeven. In de JSON-voorbeelden mag de volgorde van de velden verschillen; de waarden niet. Bedragen vergelijk je als getal.
+
+Een bedrag is een `double`, zoals in de schoolopgaven. Een `double` onthoudt geen nullen achter de komma: `389.00` in je startgegevens is `389` in je JSON. Enkel waar een opgave uitdrukkelijk een `decimal` vraagt, zoals bij de accessoires in 06_05 en de onderdelen in 06_07, gebruik je een `decimal`.
 
 ---
 
@@ -92,49 +101,51 @@ Les 03 is een les in refactoren: de binnenkant van je API verandert grondig, de 
 
 ---
 
-## Hoofdstuk 04 — Docker, DbContext, Fluent API, migraties
+## Hoofdstuk 04 — Docker, DbContext, Fluent API, migraties, HasData
 
 | Oefening | Niveau | Domein | Wat je oefent | Samengestelde oefening |
 |----------|--------|--------|----------------|------------------------|
-| 04_01 | <span style="color:#37b24d">●○○</span> | PC-onderdelen | Database in Docker, DbContext, Fluent API, eerste migratie, startgegevens met SQL | Een kolom erbij |
-| 04_02 | <span style="color:#f08c00">●●○</span> | PC-onderdelen | Twee tabellen in één context, twee migraties, dezelfde regels in API en database | Twee bronnen, één verhaal |
-| 04_03 | <span style="color:#f03e3e">●●●</span> | PC-onderdelen | Dezelfde startgegevens in database, geheugen en bestand, `Up` en `Down`, een toegepaste migratie terugdraaien | Een migratie terugdraaien |
-| 04_04 | <span style="color:#37b24d">●○○</span> | Dierenasiel | Zelfde niveau als 04_01 | Een kolom erbij |
-| 04_05 | <span style="color:#f08c00">●●○</span> | Fietsverhuur | Zelfde niveau als 04_02 | Twee bronnen, één verhaal |
-| 04_06 | <span style="color:#f03e3e">●●●</span> | Concertzaal | Zelfde niveau als 04_03 | Een migratie terugdraaien |
+| 04_01 | <span style="color:#37b24d">●○○</span> | PC-onderdelen | Database in Docker, DbContext, Fluent API, `HasData`, migratie `InitialCreate`, de controller rechtstreeks op de DbContext | Een kolom erbij |
+| 04_02 | <span style="color:#f08c00">●●○</span> | PC-onderdelen | CRUD via de DbContext, twee tabellen en twee migraties, de teller na `HasData`, dezelfde regels in API en database, `Error` bij een DELETE die niets vindt | Niets verdwijnt nog |
+| 04_03 | <span style="color:#f03e3e">●●●</span> | PC-onderdelen | Tien endpoints op de database, tellen en optellen in SQL, sommen afronden, `Up` en `Down`, een toegepaste migratie terugdraaien | Een migratie terugdraaien |
+| 04_04 | <span style="color:#37b24d">●○○</span> | Dierenasiel | Zelfde niveau als 04_01, en de overstap naar de stijl van de schoolopgaven | Een kolom erbij |
+| 04_05 | <span style="color:#f08c00">●●○</span> | Fietsverhuur | Zelfde niveau als 04_02, met de Id als hoogste plus één, ook in een lege tabel | Niets verdwijnt nog |
+| 04_06 | <span style="color:#f03e3e">●●●</span> | Concertzaal | Zelfde niveau als 04_03, met de opbrengst als klein JSON-object | Een migratie terugdraaien |
+| 04_07 | <span style="color:#f08c00">●●○</span> | Herstelplaats | Examenstijl: een nieuw project, `HasData`, één migratie `InitialCreate`, een controller rechtstreeks op de DbContext, routes zonder `api/`, een Id die je API zelf berekent | Logging in elk endpoint |
 
-Les 04 maakt een database, maar gebruikt ze nog in geen enkel endpoint: dat gebeurt pas in les 05. Daarom blijft je API in dit hoofdstuk werken met de repositories uit hoofdstuk 03, en bouw je de database ernaast op. Aan het einde van elke oefening moeten je API en je database precies dezelfde gegevens tonen, zodat de overstap in les 05 voor de client niets verandert.
+In hoofdstuk 04 stapt elke API over naar de database. De controller krijgt de DbContext rechtstreeks binnen, zoals in de schoolopgaven van hoofdstuk 4; in hoofdstuk 05 komt er weer een repository tussen. De startgegevens komen met `HasData` mee in je migraties. Elke oefening krijgt een eigen database in dezelfde PostgreSQL-container.
 
-Elke oefening krijgt een eigen database in dezelfde PostgreSQL-container. Je mag de container uit les 04 dus voor alle zes gebruiken.
+**Twee stijlen.** De reeks _01 tot en met _03 houdt de stijl van de les: routes met `api/`, een <code style="color:#f08c00;font-weight:600">404</code> met bericht, en de database kiest de Id. De reeks _04 tot en met _06 schakelt in 04_04 over naar de stijl van de schoolopgaven: routes zonder `api/`, in het meervoud, een <code style="color:#f08c00;font-weight:600">404</code> zonder body, een lege lijst `[]` als een filter niets vindt, en een Id die je API zelf berekent. Een <code style="color:#f08c00;font-weight:600">400</code> houdt in beide reeksen zijn reden. Zo oefen je beide, en leer je de opgave letterlijk te lezen.
 
-**De samengestelde oefeningen** laten je de cyclus van les 04 opnieuw doorlopen, telkens met iets meer op het spel:
+**De samengestelde oefeningen:**
 
-- **Een kolom erbij**, in 04_01 en 04_04: het model groeit, en model, database, startgegevens en API moeten daarna weer gelijklopen.
-- **Twee bronnen, één verhaal**, in 04_02 en 04_05: het geheugen van je API en je database moeten dezelfde gegevens tonen en dezelfde regels volgen.
+- **Een kolom erbij**, in 04_01 en 04_04: het model groeit, en je migratie voegt de kolom toe én vult de startgegevens aan.
+- **Niets verdwijnt nog**, in 04_02 en 04_05: een tweede tabel, en na een herstart vertellen je API en je database nog hetzelfde verhaal.
 - **Een migratie terugdraaien**, in 04_03 en 04_06: een migratie die de database al kent, moet weg zonder een spoor na te laten.
 
-**Buiten bereik.** Je hebt nog geen repository nodig die met de database praat, geen async, geen relaties tussen tabellen, geen `HasData` en geen DTO's. Drie elementen komen voor die de les niet voordoet:
+**Buiten bereik.** Je hebt nog geen repository op de database, geen async, geen relaties en geen DTO's nodig. Drie elementen komen voor die de les niet voordoet:
 
-- het commando om de database terug te brengen naar een eerdere migratie, in 04_03 en 04_06. De les zegt dat het moet, maar niet hoe. Ook het commando om een migratie te verwijderen toont de les enkel voor Visual Studio; je leerboek geeft de vorm voor de terminal;
-- de tabel waarin de database bijhoudt welke migraties ze al uitvoerde. De les noemt ze niet, maar je ziet ze in pgAdmin staan, naast je eigen tabellen;
-- de teller van een tabel bijstellen met SQL. Dat zie je pas in het SQL-script van les 06.
+- `HasData`: les 06 toont het, de schoolopgaven van hoofdstuk 4 gebruiken het al. Je leerboek legt het uit in hoofdstuk 39;
+- de teller van PostgreSQL na startgegevens met een vaste Id, in 04_02 en 04_03. Je leerboek legt het uit in hoofdstuk 31 en 39;
+- het commando om de database terug te brengen naar een eerdere migratie, in 04_03 en 04_06. De les zegt dat het moet, maar niet hoe.
 
 ---
 
-## Hoofdstuk 05 — EF-repository, async en await
+## Hoofdstuk 05 — asynchrone repository, LINQ in de database
 
 | Oefening | Niveau | Domein | Wat je oefent | Samengestelde oefening |
 |----------|--------|--------|----------------|------------------------|
-| 05_01 | <span style="color:#37b24d">●○○</span> | PC-onderdelen | Een repository op de database, het contract en de controller asynchroon, wisselen in Program.cs, sorteren en Distinct in SQL | Dezelfde antwoorden, nu uit de database |
-| 05_02 | <span style="color:#f08c00">●●○</span> | PC-onderdelen | Twee repositories op één context, wijzigingen die echt bewaard worden, de teller en het adres van een nieuw item | Een historiek die blijft |
-| 05_03 | <span style="color:#f03e3e">●●●</span> | PC-onderdelen | Een bestandsrepository én een databaserepository achter één asynchroon contract, filteren en sorteren in SQL | Twee repositories, één antwoord |
-| 05_04 | <span style="color:#37b24d">●○○</span> | Dierenasiel | Zelfde niveau als 05_01 | Dezelfde antwoorden, nu uit de database |
-| 05_05 | <span style="color:#f08c00">●●○</span> | Fietsverhuur | Zelfde niveau als 05_02 | Verhuringen die blijven |
-| 05_06 | <span style="color:#f03e3e">●●●</span> | Concertzaal | Zelfde niveau als 05_03, met een plaatscontrole op de database | Twee repositories, één antwoord |
+| 05_01 | <span style="color:#37b24d">●○○</span> | PC-onderdelen | Een asynchrone repository met een gegeven interface, `readonly` en `AddScoped`, `Select` met `Distinct`, `?descending=` uit de querystring, `CountAsync` en `AnyAsync` | Dezelfde antwoorden, en meer |
+| 05_02 | <span style="color:#f08c00">●●○</span> | PC-onderdelen | Twee asynchrone repositories op één context, `AverageAsync`, `MinAsync` en `MaxAsync` met `0` als er niets is, het achtervoegsel `Async` en `CreatedAtAction` | Cijfers die kloppen |
+| 05_03 | <span style="color:#f03e3e">●●●</span> | PC-onderdelen | Een bestands- en een databaserepository achter één contract, `SumAsync`, `AverageAsync` en `AnyAsync`, een drempel in SQL | Twee repositories, één antwoord |
+| 05_04 | <span style="color:#37b24d">●○○</span> | Dierenasiel | Zelfde niveau als 05_01, met de gemiddelde, de jongste en de oudste leeftijd | Dezelfde antwoorden, en de cijfers |
+| 05_05 | <span style="color:#f08c00">●●○</span> | Fietsverhuur | Zelfde niveau als 05_02, met CRUD in de repository en een tabel die helemaal leeg raakt | Van startgegevens tot lege tabel |
+| 05_06 | <span style="color:#f03e3e">●●●</span> | Concertzaal | Zelfde niveau als 05_03, met een plaatscontrole via `AnyAsync` | Twee repositories, één antwoord |
+| 05_07 | <span style="color:#f08c00">●●○</span> | Herstelplaats | Examenstijl: een gegeven interface letterlijk volgen, `AnyAsync`, `CountAsync`, `SumAsync`, `AverageAsync`, `MinAsync` en `MaxAsync`, `Select` met `Distinct`, een parameter uit de querystring | Van startgegevens tot lege tabel |
 
-In les 05 neemt de database het over. De samengestelde oefeningen tonen telkens met volledige antwoorden wat je API moet teruggeven, zodat je kan nagaan dat de client niets van de overstap merkt.
+In les 05 komt er weer een repository tussen je controller en de database, nu asynchroon. De interfaces staan in de opgave zoals op het examen: neem de namen, de parameters en de types letterlijk over. Elke methode die rekent, geeft `0` als er niets te berekenen valt.
 
-**Buiten bereik.** Je hebt geen relaties, geen navigation properties, geen `HasData`, geen generieke repository, geen Unit of Work, geen `Include`, geen DTO's en geen Mapster nodig. Twee elementen komen voor die de les niet voordoet: de asynchrone methodes om een bestand te lezen en te schrijven, in 05_03 en 05_06, en opnieuw de teller van een tabel bijstellen met SQL, wanneer je naar je startgegevens terug wil.
+**Buiten bereik.** Je hebt geen relaties, geen navigation properties, geen generieke repository, geen Unit of Work, geen `Include` en geen DTO's nodig. Twee elementen komen voor die de les niet voordoet: de asynchrone methodes om een bestand te lezen en te schrijven, in 05_03 en 05_06, en een parameter uit de querystring, die de schoolopgaven wel vragen.
 
 ---
 
@@ -142,16 +153,17 @@ In les 05 neemt de database het over. De samengestelde oefeningen tonen telkens 
 
 | Oefening | Niveau | Domein | Wat je oefent | Samengestelde oefening |
 |----------|--------|--------|----------------|------------------------|
-| 06_01 | <span style="color:#37b24d">●○○</span> | PC-onderdelen | Eén op veel: leveranciers en artikelen, vreemde sleutel, wat er gebeurt bij verwijderen, startgegevens via de Fluent API | Een leverancier verwijderen |
-| 06_02 | <span style="color:#f08c00">●●○</span> | PC-onderdelen | Veel op veel met een tussentabel: welke ventilator past in welke behuizing, en hoeveel keer | Een ventilator vervangen in alle behuizingen |
-| 06_03 | <span style="color:#f03e3e">●●●</span> | PC-onderdelen | Bestellijnen onder een bestelling brengen, `OnModelCreating` opsplitsen, berekeningen per bestelling | De fiche per bestelling |
+| 06_01 | <span style="color:#37b24d">●○○</span> | PC-onderdelen | Eén op veel: leveranciers en artikelen, de relatie van `HasOne` tot `IsRequired`, `Restrict`, `HasData` met een datum in UTC | Een leverancier verwijderen |
+| 06_02 | <span style="color:#f08c00">●●○</span> | PC-onderdelen | Veel op veel met een tussentabel, een som via een navigation property | Een ventilator vervangen in alle behuizingen |
+| 06_03 | <span style="color:#f03e3e">●●●</span> | PC-onderdelen | Bestellijnen onder een bestelling, `OnModelCreating` opsplitsen, berekeningen per bestelling, filteren via een navigation property | De fiche per bestelling |
 | 06_04 | <span style="color:#37b24d">●○○</span> | Dierenasiel | Zelfde niveau als 06_01, met verblijven | Een verblijf verwijderen |
-| 06_05 | <span style="color:#f08c00">●●○</span> | Fietsverhuur | Zelfde niveau als 06_02, met accessoires per fiets | Een fiets vervangen met haar uitrusting |
-| 06_06 | <span style="color:#f03e3e">●●●</span> | Concertzaal | Zelfde niveau als 06_03, met een plaatscontrole per concert | Een plaats per concert |
+| 06_05 | <span style="color:#f08c00">●●○</span> | Fietsverhuur | Zelfde niveau als 06_02, met een `decimal` maal een `double` | Een fiets vervangen met haar uitrusting |
+| 06_06 | <span style="color:#f03e3e">●●●</span> | Concertzaal | Zelfde niveau als 06_03, met een `DateTime` en een plaatscontrole per concert | Een plaats per concert |
+| 06_07 | <span style="color:#f03e3e">●●●</span> | Herstelplaats | Examenstijl: één op veel en veel op veel met een tussentabel, `HasData` voor vier tabellen met een datum, rekenen via een navigation property, een `decimal` maal een `double` | Een technieker kiezen en een herstelling verwijderen |
 
-In les 06 bouw je je database telkens opnieuw op, en komen alle startgegevens via de Fluent API. Je database verwijderen hoort niet bij de leerstof: dat mag in pgAdmin, of met `dotnet ef database drop`. Navigation properties horen in dit hoofdstuk leeg te blijven in je JSON: gerelateerde gegevens ophalen is voor les 08. Krijg je toch een *object cycle*, lees dan de waarschuwing in de oefening.
+In les 06 bouw je je database telkens opnieuw op, en komen alle startgegevens via de Fluent API. Je database verwijderen hoort niet bij de leerstof: dat mag in pgAdmin, of met `dotnet ef database drop`. Navigation properties blijven leeg in je JSON: gerelateerde gegevens ophalen zie je in les 08.
 
-**Buiten bereik.** Je hebt geen generieke repository, geen Unit of Work, geen `Include`, geen `IgnoreCycles`, geen DTO's en geen Mapster nodig. Eén element gaat verder dan de les: de teller van PostgreSQL in orde brengen na startgegevens met `HasData`. Je leerboek waarschuwt ervoor bij de startgegevens.
+**Buiten bereik.** Je hebt geen generieke repository, geen Unit of Work, geen `Include`, geen `IgnoreCycles`, geen DTO's en geen Mapster nodig.
 
 ---
 
@@ -211,6 +223,8 @@ In les 09 veranderen je modellen en je database niet, maar de JSON van elk endpo
 Werk per hoofdstuk van laag naar hoog: eerst _01, dan _02, dan _03. Doe de samengestelde oefening pas als de punten ervoor werken — ze bouwt er letterlijk op verder.
 
 De spiegelreeks, _04 tot en met _06, kan je nadien gebruiken als herhaling, of meteen als je merkt dat een concept nog niet zit.
+
+De reeks _07 doe je na de _03 van hetzelfde hoofdstuk, of als laatste herhaling voor je examen. Ze staat los van de andere reeksen: 04_07 begint met een leeg project.
 
 > [!IMPORTANT]
 > Begin niet aan een nieuw hoofdstuk voor de _03 van het vorige volledig lukt zonder terug te bladeren.

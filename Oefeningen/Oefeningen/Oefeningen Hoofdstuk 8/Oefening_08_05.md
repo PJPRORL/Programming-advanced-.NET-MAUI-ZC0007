@@ -49,20 +49,20 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
 
 ### 3. Een koppeling met haar twee kanten
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/fietsaccessoire/<span style="color:#e64980"><b>{id}</b></span>/details</code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsaccessoires/<span style="color:#e64980"><b>{id}</b></span>/details</code>
 
-- De koppeling bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen koppeling met Id <span style="color:#e64980"><b>{id}</b></span>.</code>
+- De koppeling bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 - Anders: <code style="color:#37b24d;font-weight:600">200 OK</code> met de koppeling, en daarin haar fiets en haar accessoire.
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fietsaccessoire/5/details</code> geeft als resultaat:
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsaccessoires/5/details</code> geeft als resultaat:
 
 ```json
 {
   "id": 5,
   "fietsId": 4,
-  "fiets": { "id": 4, "type": "bakfiets", "framemaat": 52, "prijsPerDag": 30.00, "isBeschikbaar": true, "fietsAccessoires": [null] },
+  "fiets": { "id": 4, "type": "bakfiets", "framemaat": 52, "prijsPerDag": 30, "isBeschikbaar": true, "fietsAccessoires": [null] },
   "accessoireId": 3,
-  "accessoire": { "id": 3, "naam": "kinderzitje", "fietsAccessoires": [null] },
+  "accessoire": { "id": 3, "naam": "kinderzitje", "prijsPerDag": 4.5, "fietsAccessoires": [null] },
   "aantal": 2
 }
 ```
@@ -74,29 +74,30 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
 
 ### 4. Een accessoire met zijn fietsen
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/accessoire/<span style="color:#e64980"><b>{id}</b></span>/details</code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">accessoires/<span style="color:#e64980"><b>{id}</b></span>/details</code>
 
-- Het accessoire bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen accessoire met Id <span style="color:#e64980"><b>{id}</b></span>.</code>
+- Het accessoire bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 - Anders: <code style="color:#37b24d;font-weight:600">200 OK</code> met het accessoire, en daarin al zijn koppelingen, elk met haar fiets. Een accessoire dat bij geen enkele fiets hoort, heeft een lege lijst.
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/accessoire/1/details</code> geeft als resultaat:
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> accessoires/1/details</code> geeft als resultaat:
 
 ```json
 {
   "id": 1,
   "naam": "fietsslot",
+  "prijsPerDag": 1.5,
   "fietsAccessoires": [
     {
       "id": 1, "fietsId": 1, "accessoireId": 1, "accessoire": null, "aantal": 1,
-      "fiets": { "id": 1, "type": "stadsfiets", "framemaat": 54, "prijsPerDag": 12.50, "isBeschikbaar": true, "fietsAccessoires": [null] }
+      "fiets": { "id": 1, "type": "stadsfiets", "framemaat": 54, "prijsPerDag": 12.5, "isBeschikbaar": true, "fietsAccessoires": [null] }
     },
     {
       "id": 3, "fietsId": 2, "accessoireId": 1, "accessoire": null, "aantal": 1,
-      "fiets": { "id": 2, "type": "mountainbike", "framemaat": 48, "prijsPerDag": 18.00, "isBeschikbaar": true, "fietsAccessoires": [null] }
+      "fiets": { "id": 2, "type": "mountainbike", "framemaat": 48, "prijsPerDag": 18, "isBeschikbaar": true, "fietsAccessoires": [null] }
     },
     {
       "id": 6, "fietsId": 4, "accessoireId": 1, "accessoire": null, "aantal": 1,
-      "fiets": { "id": 4, "type": "bakfiets", "framemaat": 52, "prijsPerDag": 30.00, "isBeschikbaar": true, "fietsAccessoires": [null] }
+      "fiets": { "id": 4, "type": "bakfiets", "framemaat": 52, "prijsPerDag": 30, "isBeschikbaar": true, "fietsAccessoires": [null] }
     }
   ]
 }
@@ -110,9 +111,9 @@ De volgorde van de koppelingen binnen een accessoire ligt niet vast.
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/fiets/<span style="color:#e64980"><b>{id}</b></span>/details</code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">fietsen/<span style="color:#e64980"><b>{id}</b></span>/details</code>
 
-- De fiets bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen fiets met Id <span style="color:#e64980"><b>{id}</b></span>.</code>
+- De fiets bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 - Anders: <code style="color:#37b24d;font-weight:600">200 OK</code> met de fiets, en daarin al haar koppelingen, elk met haar accessoire, zoals in punt 4 maar van de andere kant bekeken. Een fiets zonder accessoires heeft een lege lijst.
 
 > [!IMPORTANT]
@@ -122,12 +123,12 @@ De volgorde van de koppelingen binnen een accessoire ligt niet vast.
 
 Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks:
 
-1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fietsaccessoire/5/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/accessoire/1/details</code> geven de JSON uit punt 3 en 4.
-2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/1/details</code> geeft fiets 1 met de koppelingen 1 en 2. Daarin zit accessoire 1 (`fietsslot`) met aantal 1, en accessoire 4 (`fietstas`) met aantal 2. Elk accessoire heeft `"fietsAccessoires": [null]`, en elke koppeling `"fiets": null`. In je terminal staat bij dit verzoek één query. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/3/details</code> geeft `"fietsAccessoires": []`.
-3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fietsaccessoire/99/details</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/accessoire/99/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/99/details</code> geven <code style="color:#f08c00;font-weight:600">404</code>, met het bericht uit punt 3, 4 en 5.
-4. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/1</code> geeft nog altijd `"fietsAccessoires": null`, net als in 07_05.
-5. Vervang fiets 1 door de fiets uit stap 6 van 06_05. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe fiets heeft Id 5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/5/details</code> toont de koppelingen 1 en 2.
-6. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/accessoire/1/details</code> geeft de koppelingen 1, 3 en 6, met de fietsen 5, 2 en 4.
-7. Haal koppeling 6 weg, met het endpoint uit 07_05. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fietsaccessoire/6/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code>, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/4/details</code> geeft enkel koppeling 5, met accessoire 3.
-8. Haal accessoire 2 uit het assortiment, met het endpoint uit 07_05. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/accessoire/2/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code>, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/fiets/2/details</code> geeft nu enkel koppeling 3.
+1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsaccessoires/5/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> accessoires/1/details</code> geven de JSON uit punt 3 en 4.
+2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/1/details</code> geeft fiets 1 met de koppelingen 1 en 2. Daarin zit accessoire 1 (`fietsslot`) met aantal 1, en accessoire 4 (`fietstas`) met aantal 2. Elk accessoire heeft `"fietsAccessoires": [null]`, en elke koppeling `"fiets": null`. In je terminal staat bij dit verzoek één query. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/3/details</code> geeft `"fietsAccessoires": []`.
+3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsaccessoires/99/details</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> accessoires/99/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/99/details</code> geven <code style="color:#f08c00;font-weight:600">404</code>.
+4. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/1</code> geeft nog altijd `"fietsAccessoires": null`, net als in 07_05.
+5. Vervang fiets 1 door de fiets uit stap 7 van 06_05. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe fiets heeft Id 5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/5/details</code> toont de koppelingen 1 en 2.
+6. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> accessoires/1/details</code> geeft de koppelingen 1, 3 en 6, met de fietsen 5, 2 en 4.
+7. Haal koppeling 6 weg, met het endpoint uit 07_05. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsaccessoires/6/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code>, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/4/details</code> geeft enkel koppeling 5, met accessoire 3.
+8. Haal accessoire 2 uit het assortiment, met het endpoint uit 07_05. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> accessoires/2/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code>, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> fietsen/2/details</code> geeft nu enkel koppeling 3.
 9. Open je `ERD.md`. Staat elke relatie erin, met aan beide kanten de juiste cardinaliteit, en het model dat los staat?

@@ -62,7 +62,7 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
   "behuizingId": 2,
   "behuizing": { "id": 2, "naam": "Airflow Mini", "formaat": "mini tower", "compatibiliteiten": [null] },
   "ventilatorId": 3,
-  "ventilator": { "id": 3, "merk": "Corsair", "afmetingInMm": 120, "verlichting": "RGB", "prijs": 34.90, "compatibiliteiten": [null] },
+  "ventilator": { "id": 3, "merk": "Corsair", "afmetingInMm": 120, "verlichting": "RGB", "prijs": 34.9, "compatibiliteiten": [null] },
   "aantalPlaatsen": 2
 }
 ```
@@ -87,7 +87,7 @@ Het ophalen met `Include` gebeurt in specifieke repositories, niet in de generie
   "merk": "be quiet!",
   "afmetingInMm": 140,
   "verlichting": "geen",
-  "prijs": 24.90,
+  "prijs": 24.9,
   "compatibiliteiten": [
     {
       "id": 2, "behuizingId": 1, "ventilatorId": 2, "ventilator": null, "aantalPlaatsen": 2,

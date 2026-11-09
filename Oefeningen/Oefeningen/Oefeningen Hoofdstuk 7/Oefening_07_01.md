@@ -116,7 +116,7 @@ Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop 
 1. Werk leverancier 2 bij. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier/2</code> toont de nieuwe naam.
 
    ```json
-   { "naam": "Componentenhuis NL", "land": "Nederland" }
+   { "naam": "Componentenhuis NL", "land": "Nederland", "partnerSinds": "2019-06-15T00:00:00Z" }
    ```
 
 2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier</code> geeft de leveranciers 1, 2, 3 en 4, in die volgorde.
@@ -128,4 +128,4 @@ Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop 
 8. Breng artikel 4 onder bij leverancier 99. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">We vonden geen leverancier met Id 99.</code> Breng artikel 99 onder bij leverancier 1. Je krijgt <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen artikel met Id 99.</code>
 9. Verwijder leverancier 4. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Deze leverancier levert nog artikelen.</code>
 10. Breng artikel 4 terug onder bij leverancier 3, en verwijder leverancier 4. Je krijgt telkens <code style="color:#37b24d;font-weight:600">204</code>.
-11. Voeg een leverancier toe met de naam `Kabelkoning` en als land `België`. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe leverancier heeft Id 5.
+11. Voeg een leverancier toe met de naam `Kabelkoning`, als land `België` en partner sinds `2026-11-07T00:00:00Z`. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe leverancier heeft Id 5.

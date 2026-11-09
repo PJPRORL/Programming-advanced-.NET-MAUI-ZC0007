@@ -57,20 +57,20 @@ Elk endpoint dat vroeger een model teruggaf, geeft nu een read-DTO terug. Die he
   "naam": "Ryzen 7 7800X3D",
   "merk": "AMD",
   "soort": "processor",
-  "prijs": 389.00,
+  "prijs": 389,
   "aantalOpVoorraad": 0,
   "garantiejaren": 3,
   "leverancierId": 3
 }
 ```
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier/3</code> geeft `{ "id": 3, "naam": "ChipCentraal", "land": "Duitsland" }`.
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier/3</code> geeft `{ "id": 3, "naam": "ChipCentraal", "land": "Duitsland", "partnerSinds": "2018-09-01T00:00:00Z" }`.
 
 ---
 
 ### 4. De write-DTO
 
-<span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/leverancier</code> en <span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/leverancier/<span style="color:#e64980"><b>{id}</b></span></code> ontvangen voortaan een write-DTO met enkel `naam` en `land`. Een Id of een lijst artikelen in de body negeert je API, gewoon omdat de DTO ze niet kent.
+<span style="background:#2f9e44;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>POST</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/leverancier</code> en <span style="background:#d9822b;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>PUT</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/leverancier/<span style="color:#e64980"><b>{id}</b></span></code> ontvangen voortaan een write-DTO met enkel `naam`, `land` en `partnerSinds`. Een Id of een lijst artikelen in de body negeert je API, gewoon omdat de DTO ze niet kent.
 
 De controles en de berichten blijven dezelfde.
 
@@ -89,7 +89,7 @@ De controles en de berichten blijven dezelfde.
   "naam": "Ryzen 7 7800X3D",
   "merk": "AMD",
   "soort": "processor",
-  "prijs": 389.00,
+  "prijs": 389,
   "aantalOpVoorraad": 0,
   "garantiejaren": 3,
   "leverancierId": 3,
@@ -108,8 +108,8 @@ De controles en de berichten blijven dezelfde.
   "aantalArtikelen": 2,
   "totaleVoorraad": 3,
   "assortiment": [
-    { "id": 3, "naam": "Ryzen 5 7600X", "soort": "processor", "prijs": 229.50 },
-    { "id": 4, "naam": "Ryzen 7 7800X3D", "soort": "processor", "prijs": 389.00 }
+    { "id": 3, "naam": "Ryzen 5 7600X", "soort": "processor", "prijs": 229.5 },
+    { "id": 4, "naam": "Ryzen 7 7800X3D", "soort": "processor", "prijs": 389 }
   ]
 }
 ```
@@ -139,18 +139,19 @@ Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop 
 1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/4</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier/3</code>, <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/4/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier/3/details</code> geven de JSON uit punt 3 en 5. Nergens staat nog een veld `leverancier` of `artikelen` met `null`.
 2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/fiche/6</code> geeft dezelfde fiche als in 05_01, met `"leverancierId": 2` in het artikel, en zonder `"leverancier"`.
 3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier/details</code> geeft de leveranciers 1, 2, 3 en 4, in die volgorde. Leverancier 1 heeft `aantalArtikelen` `2` en `totaleVoorraad` `14`, leverancier 2 `2` en `5`, leverancier 3 `2` en `3`, en leverancier 4 `0` en `0`, met `"assortiment": []`. In je terminal staat bij dit verzoek één query.
-4. Voeg deze leverancier toe. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met `{ "id": 5, "naam": "Kabelkoning", "land": "België" }`. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier/5/details</code> geeft `"aantalArtikelen": 0` en `"assortiment": []`.
+4. Voeg deze leverancier toe. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, met `{ "id": 5, "naam": "Kabelkoning", "land": "België", "partnerSinds": "2026-11-07T00:00:00Z" }`. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/leverancier/5/details</code> geeft `"aantalArtikelen": 0` en `"assortiment": []`.
 
    ```json
    {
      "id": 99,
      "naam": "Kabelkoning",
      "land": "België",
+     "partnerSinds": "2026-11-07T00:00:00Z",
      "artikelen": [ { "naam": "HDMI-kabel", "merk": "Kabelkoning", "soort": "kabel", "prijs": 9.99 } ]
    }
    ```
 
 5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel</code> geeft nog altijd zes artikelen.
-6. Werk leverancier 2 bij met de naam `Componentenhuis NL` en als land `Nederland`. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. Werk leverancier 1 bij met een lege naam, en verder geldige gegevens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Een leverancier moet een naam hebben.</code>
+6. Werk leverancier 2 bij met de naam `Componentenhuis NL`, als land `Nederland` en partner sinds `2019-06-15T00:00:00Z`. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. Werk leverancier 1 bij met een lege naam, en verder geldige gegevens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Een leverancier moet een naam hebben.</code>
 7. Breng artikel 1 onder bij leverancier 4. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/1/details</code> geeft `"leverancierId": 4` en `"leverancierNaam": "Koelwerk"`. In het overzicht heeft leverancier 1 nu `aantalArtikelen` `1` en `totaleVoorraad` `2`, en leverancier 4 `1` en `12`.
 8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/artikel/99/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen artikel met Id 99.</code>

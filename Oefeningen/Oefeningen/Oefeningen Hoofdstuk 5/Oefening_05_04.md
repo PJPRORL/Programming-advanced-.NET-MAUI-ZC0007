@@ -1,169 +1,172 @@
 # 05_04
 
-<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Een repository op de database, asynchroon &nbsp;·&nbsp; Dierenasiel &nbsp;·&nbsp; niveau <span style="color:#37b24d">●○○</span> &nbsp;·&nbsp; ±75 min
+<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Een asynchrone repository met query's, in schoolstijl &nbsp;·&nbsp; Dierenasiel &nbsp;·&nbsp; niveau <span style="color:#37b24d">●○○</span> &nbsp;·&nbsp; ±2 uur
 
 ## Leerdoel
 
-Na deze oefening kan je een repository schrijven die via Entity Framework Core met een echte database praat, en je API daarop laten overstappen met één regel in Program.cs.
+Na deze oefening kan je een asynchrone repository schrijven die een gegeven interface letterlijk volgt, en je controller er weer op laten steunen.
 
-Je leert de hele keten asynchroon maken: je interface, je repository en je controller.
+Je leert filteren, sorteren, tellen en rekenen met de asynchrone methodes van Entity Framework Core, een lijst zonder dubbels maken met `Select` en `Distinct`, en een parameter uit de querystring lezen.
 
-Daarnaast merk je dat een database geen volgorde belooft, tenzij je erom vraagt, en dat je dezelfde LINQ die je op een lijst gebruikte, nu op een tabel loslaat.
+Daarnaast merk je wat `AverageAsync`, `MinAsync` en `MaxAsync` doen als ze niets vinden.
 
 ## 
 
 ## Opdracht
 
-In 04_04 zette je naast je dieren-API een database op met precies dezelfde gegevens als je in-memory repository. Nu neemt de database het over.
+In 04_04 stapte je dieren-API over naar de database, in de stijl van de schoolopgaven, met een controller die rechtstreeks met de context werkte. Knuffelhof wil die code achter een repository, en wil daarnaast een paar cijfers over de dieren op de website tonen.
 
-Jouw taak is om een repository te schrijven die met de database werkt, de hele keten asynchroon te maken, en je API te laten overstappen zonder dat de website iets merkt.
+Jouw taak is om een asynchrone repository te schrijven die een gegeven interface volgt, je controller erop te laten overstappen, en de nieuwe query's als endpoints beschikbaar te maken.
 
-Via de API moet de website, net als in 04_04:
+Via de API moet de website, net als in 04_04, de dieren opvragen, filteren, zoeken en de fiche tonen. Daarnaast moet ze:
 
-1. alle dieren kunnen opvragen;
-2. één dier kunnen opvragen op basis van zijn Id;
-3. alle dieren van één soort kunnen opvragen;
-4. enkel de jonge dieren kunnen opvragen;
-5. dieren kunnen zoeken op een stukje van hun naam;
-6. de dierfiche kunnen opvragen;
-
-en daarnaast:
-
-7. de lijst van alle soorten kunnen opvragen.
+1. de lijst van alle soorten kunnen opvragen;
+2. de dieren kunnen sorteren op leeftijd, oplopend of aflopend;
+3. per soort kunnen tellen en nagaan of ze voorkomt;
+4. de gemiddelde leeftijd kunnen opvragen, in het hele asiel en per soort;
+5. de leeftijd van het jongste en het oudste dier kunnen opvragen.
 
 Implementeer onderstaande functionaliteiten.
 
 ### 1. Je vertrekpunt
 
-Vertrek van je eigen oplossing van 04_04. Je database `AsielDb` bevat de zes dieren uit 04_04, met hun chip.
+Vertrek van je eigen oplossing van 04_04. Je database `AsielDb` bevat de zes dieren, met hun chip. Je model en je database veranderen in deze oefening niet.
 
-| Id | Naam    | Soort   | LeeftijdInJaren | Verblijfsnummer | IsGechipt |
-|----|---------|---------|-----------------|-----------------|-----------|
-| 1  | Mimi    | kat     | 3               | 2               | ja        |
-| 2  | Tommie  | kat     | 1               | 2               | nee       |
-| 3  | Rex     | hond    | 7               | 5               | ja        |
-| 4  | Bella   | hond    | 1               | 5               | ja        |
-| 5  | Flappie | konijn  | 2               | 8               | nee       |
-| 6  | Kiki    | parkiet | 4               | 9               | nee       |
-
-Alle endpoints uit 04_04 moeten na deze oefening nog precies hetzelfde antwoorden: dezelfde routes, dezelfde statuscodes, dezelfde berichten en dezelfde JSON.
+Alle endpoints uit 04_04 moeten na deze oefening nog precies hetzelfde antwoorden.
 
 ---
 
-### 2. Het contract asynchroon
+### 2. De interface
 
-Pas `IDierRepository` aan, zodat elke methode een `Task` teruggeeft. Geef elke methode het achtervoegsel `Async`, zoals de les het als conventie vraagt.
+Vervang je oude `IDierRepository` uit les 03 door deze interface, in de map Repositories:
 
-> [!NOTE]
-> Je `InMemoryDierRepository` volgt dit contract niet meer. Zoals in de les mag hij weg.
+| Methode | Parameters | Geeft terug |
+|---------|------------|-------------|
+| `GetAllAsync` | geen | `Task<List<Dier>>` |
+| `GetByIdAsync` | `int id` | `Task<Dier?>` |
+| `GetBySoortAsync` | `string soort` | `Task<List<Dier>>` |
+| `GetJongAsync` | geen | `Task<List<Dier>>` |
+| `ZoekAsync` | `string tekst` | `Task<List<Dier>>` |
+| `GetSoortenAsync` | geen | `Task<List<string>>` |
+| `GetSortedByLeeftijdAsync` | `bool descending` | `Task<List<Dier>>` |
+| `CountBySoortAsync` | `string soort` | `Task<int>` |
+| `HasAnyWithSoortAsync` | `string soort` | `Task<bool>` |
+| `GetGemiddeldeLeeftijdAsync` | geen | `Task<double>` |
+| `GetGemiddeldeLeeftijdBySoortAsync` | `string soort` | `Task<double>` |
+| `GetJongsteLeeftijdAsync` | geen | `Task<int>` |
+| `GetOudsteLeeftijdAsync` | geen | `Task<int>` |
+
+> [!IMPORTANT]
+> Neem de namen, de parameters en de types letterlijk over. Op het examen krijg je de interface zo, en de testen roepen de methodes van je repository rechtstreeks aan.
 
 ---
 
-### 3. De repository op de database
+### 3. De repository
 
 Maak in de map Repositories een klasse `DierRepository` die `IDierRepository` implementeert.
 
-De repository krijgt je `AsielContext` binnen via zijn constructor, en haalt al zijn gegevens uit de tabel `Dieren`. Gebruik overal de asynchrone methodes van Entity Framework Core.
+De repository:
+
+- krijgt je `AsielContext` via zijn constructor, en bewaart die in een `readonly` veld;
+- gebruikt overal de asynchrone methodes van Entity Framework Core;
+- vergelijkt de soort en de zoektekst zonder op hoofdletters te letten.
+
+| Methode | Wat ze teruggeeft |
+|---------|-------------------|
+| `GetAllAsync` | alle dieren, op Id gesorteerd |
+| `GetByIdAsync` | het dier met die Id, of `null` |
+| `GetBySoortAsync` | de dieren van die soort, op Id gesorteerd; een lege lijst als er geen zijn |
+| `GetJongAsync` | de dieren jonger dan twee jaar, op Id gesorteerd |
+| `ZoekAsync` | de dieren waarvan de naam de tekst bevat, op Id gesorteerd |
+| `GetSoortenAsync` | elke soort één keer, alfabetisch gesorteerd; gebruik `Select` en `Distinct` |
+| `GetSortedByLeeftijdAsync` | alle dieren op leeftijd: aflopend als `descending` `true` is, anders oplopend; bij een gelijke leeftijd het kleinste Id eerst |
+| `CountBySoortAsync` | het aantal dieren van die soort, met `CountAsync` |
+| `HasAnyWithSoortAsync` | `true` als er minstens één dier van die soort is, anders `false`, met `AnyAsync` |
+| `GetGemiddeldeLeeftijdAsync` | de gemiddelde leeftijd van alle dieren, met `AverageAsync` |
+| `GetGemiddeldeLeeftijdBySoortAsync` | de gemiddelde leeftijd van de dieren van die soort, met `AverageAsync` |
+| `GetJongsteLeeftijdAsync` | de laagste leeftijd, met `MinAsync` |
+| `GetOudsteLeeftijdAsync` | de hoogste leeftijd, met `MaxAsync` |
+
+Elke methode die een getal berekent, geeft `0` als er niets te berekenen valt.
+
+Registreer je repository in Program.cs met `AddScoped`.
 
 > [!WARNING]
-> Een database belooft geen volgorde, tenzij je erom vraagt. Vandaag komen je dieren misschien netjes op Id terug, morgen na een wijziging niet meer. Elke lijst die je API teruggeeft, is gesorteerd op Id, zoals ze dat in je in-memory versie altijd was, behalve waar deze opgave een andere volgorde vraagt.
+> `AverageAsync`, `MinAsync` en `MaxAsync` geven geen `0` als ze niets vinden. Probeer `GetGemiddeldeLeeftijdBySoortAsync` met een soort die niet bestaat, en lees wat er misloopt. Zorg dat je methode dan `0` teruggeeft.
 
 > [!WARNING]
-> Niet elke C#-methode kan Entity Framework Core naar SQL vertalen. Krijg je een <code style="color:#f03e3e;font-weight:600">500</code> met een melding dat een expressie *could not be translated*, kijk dan welke methode je in je vergelijking gebruikt, en zoek een vorm die de database begrijpt.
-
----
-
-### 4. De controller asynchroon
-
-Pas de DierController aan, zodat elk endpoint asynchroon werkt en op de repository wacht.
-
-> [!IMPORTANT]
-> Async geldt van de database tot in de controller. Gebruik nergens `.Result` of `.Wait()` om een asynchrone methode toch synchroon te maken, en nergens `async void`.
-
----
-
-### 5. Wisselen naar de database
-
-Laat ASP.NET Core voortaan je `DierRepository` aanleveren wanneer de controller om een `IDierRepository` vraagt. Dat is één regel in Program.cs.
-
-Herstart je API en doe alle verzoeken uit 04_04 opnieuw. Ze moeten dezelfde antwoorden geven als vroeger.
-
----
-
-### 6. De lijst van alle soorten
-
-Voorzie een GET-endpoint op:
-
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/dier/soorten</code>
-
-Dit endpoint geeft alle soorten uit de tabel terug, elke soort één keer, alfabetisch gesorteerd, met statuscode <code style="color:#37b24d;font-weight:600">200 OK</code>.
-
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/soorten</code> geeft als resultaat:
-
-```json
-["hond", "kat", "konijn", "parkiet"]
-```
+> Een database belooft geen volgorde bij twee dieren met dezelfde leeftijd. Zonder tweede sorteersleutel kan Tommie vandaag voor Bella staan, en morgen erna.
 
 > [!TIP]
-> Kijk naar de LINQ-methodes in les 05, ook naar de voorbeelden in de tabel. Laat al het werk door de database doen, niet door je API.
+> Let op de volgorde waarin je dubbels weghaalt en sorteert. Komen je soorten niet alfabetisch terug, kijk dan in de SQL in je terminal of er nog een `ORDER BY` in staat, en waar.
 
 ---
 
-### 7. Alles samen: dezelfde antwoorden, nu uit de database
+### 4. De controller op de repository
+
+Pas je `DierController` aan: hij krijgt een `IDierRepository` binnen in plaats van de context, naast zijn logger, en elk endpoint werkt asynchroon.
+
+> [!IMPORTANT]
+> Async geldt van de database tot in de controller. Gebruik nergens `.Result` of `.Wait()`, en nergens `async void`.
+
+---
+
+### 5. De nieuwe endpoints
+
+| Endpoint | Antwoord |
+|----------|----------|
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/soorten</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met de lijst van alle soorten |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/sorteren/leeftijd?descending=true</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met alle dieren op leeftijd, aflopend |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/tellen/soort/<span style="color:#e64980"><b>{soort}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `count`, een `int` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/exists/soort/<span style="color:#e64980"><b>{soort}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `exists`, een `bool` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/leeftijd/gemiddelde</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `gemiddelde`, een `double` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/leeftijd/gemiddelde/soort/<span style="color:#e64980"><b>{soort}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `gemiddelde`, een `double` |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/leeftijd/grenzen</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met de properties `jongste` en `oudste`, twee `int`'s |
+
+`descending` is een parameter uit de querystring. Ontbreekt hij, of is hij `false`, dan sorteer je oplopend. Elk endpoint antwoordt met <code style="color:#37b24d;font-weight:600">200 OK</code>, ook als het niets vindt: dan staat er `0` of `false` in het object. Log elk verzoek op niveau Information.
+
+> [!TIP]
+> Een routeparameter komt uit de route. `descending` staat achter het vraagteken. Zoek op met welk attribuut je ASP.NET Core zegt waar een parameter vandaan komt, en wat je parameter krijgt als de client hem weglaat.
+
+> [!NOTE]
+> Neem de namen van de properties letterlijk over. In de schoolopgaven zijn ze soms Engels, zoals `count` en `exists`. De test zoekt de naam die in de opgave staat.
+
+---
+
+### 6. Alles samen: dezelfde antwoorden, en de cijfers
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-De zes vorige punten vervangen de hele binnenkant van je API: een andere repository, een ander contract, een asynchrone controller. Voor de website mag daarvan niets te merken zijn.
+De vorige punten vervangen de binnenkant van je API en voegen zeven endpoints toe. Voor de website mag er aan de oude endpoints niets veranderen.
+
+#### Testscenario
 
 Doe de volgende verzoeken. Elk antwoord moet letter voor letter kloppen.
 
 | Verzoek | Statuscode | Antwoord |
 |---------|------------|----------|
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier</code> | <code style="color:#37b24d;font-weight:600">200</code> | de zes dieren uit de tabel van punt 1, op Id gesorteerd |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/99</code> | <code style="color:#f08c00;font-weight:600">404</code> | <code style="color:#845ef7">We vonden geen dier met Id 99.</code> |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/soort/hond</code> | <code style="color:#37b24d;font-weight:600">200</code> | de dieren met Id 3 en 4 |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/soort/cavia</code> | <code style="color:#f08c00;font-weight:600">404</code> | <code style="color:#845ef7">We hebben op dit moment geen cavia in het asiel.</code> |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/jong</code> | <code style="color:#37b24d;font-weight:600">200</code> | de dieren met Id 2 en 4 |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/zoek/MI</code> | <code style="color:#37b24d;font-weight:600">200</code> | de dieren met Id 1 en 2 |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/zoek/xyz</code> | <code style="color:#f08c00;font-weight:600">404</code> | <code style="color:#845ef7">We vonden geen dier waarvan de naam xyz bevat.</code> |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren</code> | <code style="color:#37b24d;font-weight:600">200</code> | de zes dieren, op Id gesorteerd |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/99</code> | <code style="color:#f08c00;font-weight:600">404</code> | geen bericht van jou |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/soort/kat</code> | <code style="color:#37b24d;font-weight:600">200</code> | de dieren met Id 1 en 2 |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/zoek/xyz</code> | <code style="color:#37b24d;font-weight:600">200</code> | `[]` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/soorten</code> | <code style="color:#37b24d;font-weight:600">200</code> | `["hond", "kat", "konijn", "parkiet"]` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/sorteren/leeftijd</code> | <code style="color:#37b24d;font-weight:600">200</code> | de dieren 2, 4, 5, 1, 6 en 3, in die volgorde |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/sorteren/leeftijd?descending=true</code> | <code style="color:#37b24d;font-weight:600">200</code> | de dieren 3, 6, 1, 5, 2 en 4, in die volgorde |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/tellen/soort/HOND</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "count": 2 }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/tellen/soort/cavia</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "count": 0 }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/exists/soort/konijn</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "exists": true }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/exists/soort/cavia</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "exists": false }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/leeftijd/gemiddelde</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "gemiddelde": 3 }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/leeftijd/gemiddelde/soort/hond</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "gemiddelde": 4 }` |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/leeftijd/gemiddelde/soort/cavia</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "gemiddelde": 0 }`, en geen <code style="color:#f03e3e;font-weight:600">500</code> |
+| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/leeftijd/grenzen</code> | <code style="color:#37b24d;font-weight:600">200</code> | `{ "jongste": 1, "oudste": 7 }` |
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/4</code> geeft als resultaat:
-
-```json
-{
-  "id": 4,
-  "naam": "Bella",
-  "soort": "hond",
-  "leeftijdInJaren": 1,
-  "verblijfsnummer": 5,
-  "isGechipt": true
-}
-```
-
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/fiche/3</code> geeft als resultaat:
-
-```json
-{
-  "dier": {
-    "id": 3,
-    "naam": "Rex",
-    "soort": "hond",
-    "leeftijdInJaren": 7,
-    "verblijfsnummer": 5,
-    "isGechipt": true
-  },
-  "isJong": false,
-  "aantalVanDezelfdeSoort": 1,
-  "isOudsteVanDeSoort": true
-}
-```
-
-En voor de fiche van dier 2: `isJong` is `true`, `aantalVanDezelfdeSoort` is `1` en `isOudsteVanDeSoort` is `false`.
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/fiche/2</code> geeft `isJong` `true`, `aantalVanDezelfdeSoort` `1` en `isOudsteVanDeSoort` `false`.
 
 Controleer tot slot in het terminalvenster van je API:
 
-- of je logberichten er nog staan, met hetzelfde niveau als in 03_04;
-- of je bij elk verzoek de SQL ziet die Entity Framework Core naar de database stuurt. Kijk bij het zoeken op naam of het vergelijken zonder hoofdletters in die SQL staat.
+- of je bij het tellen een `COUNT` in de SQL ziet, bij `exists` een `EXISTS`, en bij het gemiddelde een `AVG`, in plaats van een query die alle dieren ophaalt;
+- of je logberichten er nog staan, met dezelfde niveaus als in 04_04.
 
 > [!NOTE]
-> Vergelijk het met les 05: de controller veranderde enkel omdat het contract asynchroon werd. Dat hij nu met een database praat in plaats van met een lijst, weet hij niet.
+> Het gemiddelde van gehele getallen is een `double`. Een gemiddelde van 3 schrijft je API als `3`, niet als `3.0`: een `double` toont geen nullen achter de komma.

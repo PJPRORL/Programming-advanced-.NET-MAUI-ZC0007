@@ -1,107 +1,117 @@
 # 05_03
 
-<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Bestand of database, asynchroon &nbsp;·&nbsp; PC-onderdelen &nbsp;·&nbsp; niveau <span style="color:#f03e3e">●●●</span> &nbsp;·&nbsp; ±2 uur
+<b>Hoofdstuk 05</b> &nbsp;·&nbsp; Bestand of database, asynchroon &nbsp;·&nbsp; PC-onderdelen &nbsp;·&nbsp; niveau <span style="color:#f03e3e">●●●</span> &nbsp;·&nbsp; ±2,5 uur
 
 ## Leerdoel
 
 Na deze oefening kan je één asynchroon contract laten volgen door twee repositories die op een totaal andere manier werken: één met een bestand en één met een database.
 
-Je leert dat async niet enkel bij databases hoort: ook een bestand lezen of schrijven kan asynchroon, en ook daar mag je je threads niet laten wachten.
+Je leert de database laten optellen, tellen en zoeken met `SumAsync`, `CountAsync`, `AnyAsync` en `AverageAsync`, en een filter met een drempel naar SQL laten vertalen.
 
-Daarnaast laat je de database het zware werk doen: filteren en sorteren gebeurt in SQL, niet in het geheugen van je API.
+Daarnaast bewijs je dat twee repositories tot op de cent hetzelfde antwoorden, ook als er niets meer te berekenen valt.
 
 ## 
 
 ## Opdracht
 
-De bestellijnen-API van Bit & Byte uit 04_03 kan wisselen tussen een repository in het geheugen en een repository in een JSON-bestand, en heeft ernaast een database klaarstaan. Nu krijgt die database haar eigen repository, de derde. De versie in het geheugen verdwijnt, de bestandsversie blijft als reserve.
+In 04_03 werkte je bestellijnen-API rechtstreeks met de database, en bleef je bestandsrepository ongebruikt staan. De boekhouding wil de databasecode achter een repository, maar wil de bestandsversie houden als reserve, voor als de database ooit niet bereikbaar is. Dan moet ze wel precies hetzelfde antwoorden.
 
-Jouw taak is om het contract asynchroon te maken, een repository te schrijven die met de database werkt, je bestandsrepository mee asynchroon te maken, en te bewijzen dat beide precies hetzelfde antwoorden.
+Jouw taak is om één asynchroon contract op te stellen, een repository te schrijven die met de database werkt, je bestandsrepository mee asynchroon te maken, en te bewijzen dat beide hetzelfde antwoorden.
 
 Via de API moet een medewerker, net als in 04_03:
 
-1. alle actieve en alle bestellijnen kunnen opvragen, en één bestellijn;
+1. de actieve en alle bestellijnen kunnen opvragen, en één bestellijn;
 2. een bestellijn kunnen toevoegen, bijwerken, schrappen en herstellen;
 3. de totale waarde en de bestelfiche kunnen opvragen;
 4. de hele bestelling in één keer kunnen schrappen;
 
 en daarnaast:
 
-5. de actieve bestellijnen boven een bepaald bedrag kunnen opvragen.
+5. de actieve bestellijnen boven een bepaald bedrag kunnen opvragen;
+6. de gemiddelde waarde van een actieve lijn kunnen opvragen.
 
 Implementeer onderstaande functionaliteiten.
 
 ### 1. Je vertrekpunt
 
-Vertrek van je eigen oplossing van 04_03. Je database `BestellijnDb` bevat de zes bestellijnen uit 04_03, en heeft geen kolom `Korting` meer.
-
-| Id | Omschrijving         | Aantal | StukPrijs | IsActief |
-|----|----------------------|--------|-----------|----------|
-| 1  | Moederbord ASUS B650 | 1      | 249.99    | ja       |
-| 2  | DDR5 32 GB kit       | 2      | 109.90    | ja       |
-| 3  | NVMe SSD 2 TB        | 1      | 139.00    | ja       |
-| 4  | Behuizing midi tower | 1      | 89.95     | nee      |
-| 5  | Voeding 750 W        | 1      | 119.00    | ja       |
-| 6  | Casefan 120 mm       | 3      | 14.99     | ja       |
-
-Alle endpoints uit 04_03 moeten na deze oefening nog precies hetzelfde antwoorden, met dezelfde controles en dezelfde berichten.
-
-> [!TIP]
-> Je zal in deze oefening vaak terug willen naar de startgegevens. Maak de tabel dan leeg, zet haar teller terug, en voer het SQL-script uit 04_03 opnieuw uit. De structuur van de database pas je nooit met de hand aan, enkel de gegevens.
+Vertrek van je eigen oplossing van 04_03. Je model en je database veranderen in deze oefening niet. Alle tien endpoints uit 04_03 moeten nog precies hetzelfde antwoorden.
 
 ---
 
-### 2. Het contract asynchroon
+### 2. Het contract
 
-Pas `IBestellijnRepository` aan, zodat elke methode een `Task` teruggeeft en het achtervoegsel `Async` draagt.
+Stel in de map Repositories een asynchroon contract `IBestellijnRepository` op, met precies deze methodes:
 
-Je `InMemoryBestellijnRepository` mag weg, zoals in de les.
+| Methode | Parameters | Geeft terug |
+|---------|------------|-------------|
+| `GetActieveAsync` | geen | `Task<List<Bestellijn>>` |
+| `GetAllesAsync` | geen | `Task<List<Bestellijn>>` |
+| `GetByIdAsync` | `int id` | `Task<Bestellijn?>` |
+| `CreateAsync` | `Bestellijn bestellijn` | `Task<Bestellijn>` |
+| `UpdateAsync` | `int id, Bestellijn bestellijn` | `Task` |
+| `SchrapAsync` | `int id` | `Task` |
+| `HerstelAsync` | `int id` | `Task` |
+| `SchrapAllesAsync` | geen | `Task` |
+| `GetTotaalActiefAsync` | geen | `Task<double>` |
+| `GetFicheAsync` | geen | `Task<BestelFiche>` |
+| `GetBovenAsync` | `double bedrag` | `Task<List<Bestellijn>>` |
+| `GetGemiddeldeLijnwaardeAsync` | geen | `Task<double>` |
+| `HasAnyActiefAsync` | geen | `Task<bool>` |
+
+Wat elke methode doet:
+
+- `GetByIdAsync` geeft de lijn met die Id, ook als ze geschrapt is, of `null`. Of een geschrapte lijn een <code style="color:#f08c00;font-weight:600">404</code> geeft, beslist de controller.
+- `UpdateAsync`, `SchrapAsync` en `HerstelAsync` doen niets als de lijn niet bestaat.
+- De waarde van een lijn is haar aantal maal haar stukprijs. `GetTotaalActiefAsync` telt de waarde van de actieve lijnen op, `GetFicheAsync` geeft de fiche zoals in 04_03.
+- `GetBovenAsync` geeft de actieve lijnen met een waarde die strikt hoger ligt dan het bedrag, op Id gesorteerd.
+- `GetGemiddeldeLijnwaardeAsync` geeft het gemiddelde van de waarden van de actieve lijnen, of `0` als er geen actieve lijnen zijn.
+- `HasAnyActiefAsync` geeft `true` als er minstens één actieve lijn is.
+
+> [!IMPORTANT]
+> Neem de namen, de parameters en de types letterlijk over. Pas je bestaande repositories en je controller daaraan aan.
+
+> [!NOTE]
+> Je `InMemoryBestellijnRepository` volgt dit contract niet meer. Zoals in de les mag hij weg.
 
 ---
 
 ### 3. De bestandsrepository asynchroon
 
-Pas je `BestandBestellijnRepository` aan het nieuwe contract aan. Hij leest en schrijft `bestellijnen.json` voortaan asynchroon.
-
-Een constructor kan niet wachten. Lees het bestand dus niet meer in je constructor, maar telkens wanneer een methode de gegevens nodig heeft. Bestaat het bestand dan nog niet, dan geldt nog altijd de startlijst.
+Maak je `BestandBestellijnRepository` uit 03_03 asynchroon, zodat hij het nieuwe contract volgt. Hij leest en schrijft `bestellijnen.json` voortaan met de asynchrone methodes van .NET, en begint, als het bestand nog niet bestaat, met dezelfde zes lijnen als je startgegevens in de database.
 
 > [!NOTE]
-> Bestanden lezen en schrijven kost net als een database tijd waarin je thread niets anders doet. Daarom bestaan er ook voor bestanden asynchrone methodes. Zoek ze op: hun namen volgen dezelfde afspraak als die van Entity Framework Core.
-
-> [!WARNING]
-> Een methode die met `async` gemarkeerd is maar nergens wacht, compileert met een waarschuwing en werkt verder gewoon synchroon. Lees de waarschuwingen in je build: elke `async`-methode in je project hoort minstens één keer te wachten.
+> Les 05 toont de asynchrone methodes om een bestand te lezen en te schrijven niet. Ze hebben dezelfde naam als de synchrone, met `Async` erachter. Zoek ze op in de documentatie van .NET.
 
 ---
 
 ### 4. De databaserepository
 
-Maak een klasse `BestellijnRepository` die `IBestellijnRepository` implementeert. Ze krijgt je `BestellijnContext` binnen via haar constructor en werkt met de tabel `Bestellijnen`, met de asynchrone methodes van Entity Framework Core.
-
-Pas de BestellijnController aan, zodat elk endpoint asynchroon werkt, en laat ASP.NET Core voortaan je `BestellijnRepository` aanleveren.
+Maak een klasse `BestellijnRepository` die het contract volgt. Ze krijgt je `BestellijnContext` via haar constructor, bewaart die in een `readonly` veld, en gebruikt overal de asynchrone methodes van Entity Framework Core.
 
 > [!IMPORTANT]
-> Async geldt van de database en het bestand tot in de controller. Gebruik nergens `.Result` of `.Wait()`, en nergens `async void`.
+> Laat de database het rekenwerk doen. Het totaal en het gemiddelde berekent ze met `SumAsync` en `AverageAsync`, de tellingen in de fiche met `CountAsync`, en `HasAnyActiefAsync` met `AnyAsync`. Ook het filter van `GetBovenAsync` moet in de SQL staan, niet in je API.
 
-> [!NOTE]
-> Lijsten blijven op Id gesorteerd, met welke repository ook, behalve waar deze opgave een andere volgorde vraagt. Een database belooft geen volgorde, tenzij je erom vraagt.
+> [!WARNING]
+> `AverageAsync` geeft geen `0` als er niets te berekenen valt. Probeer het nadat je alle lijnen geschrapt hebt, en lees wat er misloopt. `SumAsync` heeft dat probleem niet.
+
+> [!WARNING]
+> Een som van `double`'s kan een staartje ver achter de komma krijgen, zoals in 04_03. Rond elke som van bedragen af op twee cijfers na de komma, in je beide repositories. Een gemiddelde rond je niet af.
+
+Registreer met `AddScoped` welke repository je controller krijgt. Begin met de databaserepository.
 
 ---
 
-### 5. Boven een bedrag
+### 5. De nieuwe endpoints
 
-Voorzie een GET-endpoint op:
+| Endpoint | Antwoord |
+|----------|----------|
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/bestellijn/boven/<span style="color:#e64980"><b>{bedrag}</b></span></code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met de actieve lijnen met een waarde boven dat bedrag, op Id gesorteerd |
+| <span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/bestellijn/gemiddelde</code> | <code style="color:#37b24d;font-weight:600">200 OK</code> met een object met een property `gemiddelde`, een `double` |
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/bestellijn/boven/<span style="color:#e64980"><b>{bedrag}</b></span></code>
-
-Dit endpoint geeft de actieve bestellijnen terug waarvan de waarde, het aantal maal de stukprijs, groter is dan <code style="color:#e64980;font-weight:600">{bedrag}</code>. De duurste lijn staat eerst. Het antwoord is altijd <code style="color:#37b24d;font-weight:600">200 OK</code>, ook als de lijst leeg is.
-
-| Verzoek | Antwoord |
-|---------|----------|
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/boven/150</code> | de bestellijnen met Id 1 en 2, in die volgorde |
-| <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/boven/1000</code> | `[]` |
+Vindt het eerste endpoint niets, dan geeft het `[]`. Zijn er geen actieve lijnen, dan geeft het tweede `{ "gemiddelde": 0 }`. Log elk verzoek op niveau Information.
 
 > [!TIP]
-> In je databaserepository laat je het filteren en het sorteren door de database doen. Kijk in het terminalvenster van je API naar de SQL bij dit verzoek: staan de vermenigvuldiging, de vergelijking en het sorteren erin?
+> `{bedrag}` is een kommagetal. Probeer <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/boven/219.8</code>: komt lijn 2 erin, of net niet? Kijk naar het woord "strikt" in punt 2.
 
 ---
 
@@ -109,17 +119,14 @@ Dit endpoint geeft de actieve bestellijnen terug waarvan de waarde, het aantal m
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-Je hebt nu twee repositories die hetzelfde asynchrone contract volgen, maar elk op een totaal andere manier werken. In dit laatste punt doorloop je dezelfde reeks met allebei. Elk antwoord moet bij de twee hetzelfde zijn, tot op de Id's.
+Je hebt nu twee repositories die hetzelfde asynchrone contract volgen, maar elk op een totaal andere manier werken. In dit laatste punt doorloop je dezelfde reeks met allebei. Elk antwoord moet bij de twee hetzelfde zijn, tot op de Id's en tot op de cent.
+
+#### Testscenario
 
 Begin met de databaserepository en een database die exact de startgegevens bevat. Bedragen vergelijk je als getal: `0`, `0.0` en `0.00` zijn hetzelfde antwoord.
 
 1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/fiche</code> geeft de fiche uit 04_03: 5 actieve en 1 geschrapte lijn, `totaalActief` `772.76`, `totaalGeschrapt` `89.95`, en lijn 1 als duurste.
-2. Voeg deze lijn toe. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe lijn heeft Id 7 en is actief.
-
-   ```json
-   { "omschrijving": "Koeler Noctua NH-D15", "aantal": 1, "stukPrijs": 109.95 }
-   ```
-
+2. Voeg een lijn toe met omschrijving `CPU-koeler`, aantal 1 en stukprijs 109.95. Je krijgt <code style="color:#37b24d;font-weight:600">201</code>, en de nieuwe lijn heeft Id 7 en is actief.
 3. Schrap lijn 3. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>.
 4. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/fiche</code> geeft als resultaat:
 
@@ -140,15 +147,16 @@ Begin met de databaserepository en een database die exact de startgegevens bevat
    }
    ```
 
-5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/boven/150</code> geeft de lijnen 1 en 2, in die volgorde.
+5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/boven/150</code> geeft de lijnen 1 en 2, in die volgorde. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/gemiddelde</code> geeft een `gemiddelde` dat begint met `148.74`.
 6. Stop je API en start hem opnieuw. De fiche is exact dezelfde als in stap 4.
 7. Herstel lijn 3. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. Schrap daarna de hele bestelling in één keer. Je krijgt <code style="color:#37b24d;font-weight:600">200</code>, met een fiche waarin `aantalActieveLijnen` `0` is, `aantalGeschrapteLijnen` `7`, `totaalActief` `0`, `totaalGeschrapt` `972.66`, `duursteActieveLijn` `null` en `isLeeg` `true`.
-8. Schrap de hele bestelling nog eens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Er zijn geen actieve bestellijnen om te schrappen.</code>
+8. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/gemiddelde</code> geeft `{ "gemiddelde": 0 }`, en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/bestellijn/boven/0</code> geeft `[]`. Geen enkel endpoint geeft een <code style="color:#f03e3e;font-weight:600">500</code>.
+9. Schrap de hele bestelling nog eens. Je krijgt <code style="color:#f08c00;font-weight:600">400</code> met <code style="color:#845ef7">Er zijn geen actieve bestellijnen om te schrappen.</code>
 
-Wissel daarna in Program.cs naar je `BestandBestellijnRepository`, verwijder `bestellijnen.json`, start je API, en doorloop stap 1 tot en met 8 opnieuw. Elk antwoord moet hetzelfde zijn.
+Wissel daarna in Program.cs naar de bestandsrepository, verwijder `bestellijnen.json`, start je API opnieuw en doorloop dezelfde negen stappen. Elk antwoord moet precies hetzelfde zijn als bij de database, ook de Id 7 in stap 2.
 
 > [!WARNING]
-> Krijgt de nieuwe lijn in stap 2 bij een van de twee een ander Id dan 7, dan klopt de teller van een van de twee niet. Bij de database is dat de teller van PostgreSQL; bij het bestand bepaal jij het volgende Id.
+> Verschilt een totaal tussen je twee repositories op de laatste cijfers? Dan rondt één van de twee niet af, of rondt ze af op een andere plaats. Kijk waar elke repository het totaal berekent.
 
 > [!NOTE]
-> Merk op dat de controller in deze hele reeks niet één keer veranderde. Twee repositories die niets van elkaar weten, een bestand en een database, geven dezelfde antwoorden omdat ze hetzelfde contract volgen.
+> Wil je de reeks met de database herhalen, verwijder dan je database en werk ze opnieuw bij met je migratie. Zorg dat de teller daarna nog klopt, zoals in 04_03.

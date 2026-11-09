@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = @Model?.Name;
+}
+
+@* Todo: Toon details van koffie *@
+    <div class="container mt-4">
+        <h1>Naam</h1>
+        <div class="row">
+            <div class="col-md-4">
+                <img src="~/images/unknown.jpg" class="img-fluid" style="object-fit: cover; height: 300px;">
+            </div>
+            <div class="col-md-8">
+                <h4>Description</h4>
+                <p>Unknown</p>
+                <p><strong>Price:</strong> Unknown</p>
+                <p><strong>Brewer:</strong> Unknown</p>
+                <p><strong>Country of Origin:</strong> Unknown</p>
+            </div>
+        </div>
+    </div>
+
+@* Todo: Implementeer 'terug' button *@
+<a href="#" class="btn btn-secondary mt-4">Terug naar overzicht</a>

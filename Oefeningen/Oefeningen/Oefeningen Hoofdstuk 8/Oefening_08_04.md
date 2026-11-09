@@ -51,14 +51,14 @@ Stel in Program.cs de JSON-serializer zo in dat hij circulaire referenties negee
 
 ### 4. Een dier met zijn verblijf
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/dier/<span style="color:#e64980"><b>{id}</b></span>/details</code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">dieren/<span style="color:#e64980"><b>{id}</b></span>/details</code>
 
-- Het dier bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen dier met Id <span style="color:#e64980"><b>{id}</b></span>.</code>
+- Het dier bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 - Anders: <code style="color:#37b24d;font-weight:600">200 OK</code> met het dier, en daarin zijn verblijf.
 
 Het ophalen gebeurt in een specifieke repository, niet in de generieke: wat je mee ophaalt, hangt af van het model. Laat je Unit of Work het specifieke type teruggeven.
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/4/details</code> geeft als resultaat:
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/4/details</code> geeft als resultaat:
 
 ```json
 {
@@ -72,6 +72,7 @@ Het ophalen gebeurt in een specifieke repository, niet in de generieke: wat je m
     "id": 2,
     "naam": "Hondenren",
     "capaciteit": 4,
+    "inGebruikSinds": "2012-04-01T00:00:00Z",
     "dieren": [null]
   }
 }
@@ -84,18 +85,19 @@ Het ophalen gebeurt in een specifieke repository, niet in de generieke: wat je m
 
 ### 5. Een verblijf met zijn dieren
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/verblijf/<span style="color:#e64980"><b>{id}</b></span>/details</code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">verblijven/<span style="color:#e64980"><b>{id}</b></span>/details</code>
 
-- Het verblijf bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> met <code style="color:#845ef7">We vonden geen verblijf met Id <span style="color:#e64980"><b>{id}</b></span>.</code>
+- Het verblijf bestaat niet: <code style="color:#f08c00;font-weight:600">404 Not Found</code> zonder body.
 - Anders: <code style="color:#37b24d;font-weight:600">200 OK</code> met het verblijf, en daarin al zijn dieren. Een leeg verblijf heeft een lege lijst.
 
-<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/2/details</code> geeft als resultaat:
+<code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/2/details</code> geeft als resultaat:
 
 ```json
 {
   "id": 2,
   "naam": "Hondenren",
   "capaciteit": 4,
+  "inGebruikSinds": "2012-04-01T00:00:00Z",
   "dieren": [
     { "id": 3, "naam": "Rex", "soort": "hond", "leeftijdInJaren": 7, "isGechipt": true, "verblijfId": 2, "verblijf": null },
     { "id": 4, "naam": "Bella", "soort": "hond", "leeftijdInJaren": 1, "isGechipt": true, "verblijfId": 2, "verblijf": null }
@@ -111,7 +113,7 @@ De volgorde van de dieren binnen een verblijf ligt niet vast.
 
 <span style="background:#7048e8;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>SAMENGESTELDE OEFENING</b></span>
 
-<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">api/verblijf/details</code>
+<span style="background:#1c7ed6;color:#fff;padding:1px 7px;border-radius:4px;font-size:90%"><b>GET</b></span> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap">verblijven/details</code>
 
 Dit endpoint geeft <code style="color:#37b24d;font-weight:600">200 OK</code> met alle verblijven, op Id gesorteerd, elk met al zijn dieren, zoals in punt 5.
 
@@ -122,11 +124,11 @@ Dit endpoint geeft <code style="color:#37b24d;font-weight:600">200 OK</code> met
 
 Bouw je database opnieuw op, zodat ze exact de startgegevens bevat, en doorloop deze reeks:
 
-1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/4/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/2/details</code> geven de JSON uit punt 4 en 5.
-2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/5/details</code> geeft verblijf 5 met `"dieren": []`.
-3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/99/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen dier met Id 99.</code> <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/99/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code> met <code style="color:#845ef7">We vonden geen verblijf met Id 99.</code>
-4. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/dier/4</code> geeft nog altijd `"verblijf": null`, net als in 07_04.
-5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/details</code> geeft de verblijven 1, 2, 3, 4 en 5, in die volgorde. In verblijf 1 wonen de dieren 1 en 2, in verblijf 2 de dieren 3 en 4, in verblijf 3 dier 5, in verblijf 4 dier 6, en verblijf 5 is leeg. In je terminal staat bij dit verzoek één query.
-6. Verhuis dier 4 naar verblijf 5, met het endpoint uit 07_04. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/details</code> toont nu enkel dier 3 in verblijf 2, en dier 4 in verblijf 5.
-7. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> api/verblijf/2/dieren</code> geeft nog altijd enkel dier 3, met `"verblijf": null`, net als in 07_04.
+1. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/4/details</code> en <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/2/details</code> geven de JSON uit punt 4 en 5.
+2. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/5/details</code> geeft verblijf 5 met `"dieren": []`.
+3. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/99/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/99/details</code> geeft <code style="color:#f08c00;font-weight:600">404</code>.
+4. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> dieren/4</code> geeft nog altijd `"verblijf": null`, net als in 07_04.
+5. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/details</code> geeft de verblijven 1, 2, 3, 4 en 5, in die volgorde. In verblijf 1 wonen de dieren 1 en 2, in verblijf 2 de dieren 3 en 4, in verblijf 3 dier 5, in verblijf 4 dier 6, en verblijf 5 is leeg. In je terminal staat bij dit verzoek één query.
+6. Verhuis dier 4 naar verblijf 5, met het endpoint uit 07_04. Je krijgt <code style="color:#37b24d;font-weight:600">204</code>. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/details</code> toont nu enkel dier 3 in verblijf 2, en dier 4 in verblijf 5.
+7. <code style="color:#0c8599;background:rgba(34,184,207,.18);white-space:nowrap"><b>GET</b> verblijven/2/dieren</code> geeft nog altijd enkel dier 3, met `"verblijf": null`, net als in 07_04.
 8. Open je `ERD.md`. Staat de relatie erin, met aan beide kanten de juiste cardinaliteit?

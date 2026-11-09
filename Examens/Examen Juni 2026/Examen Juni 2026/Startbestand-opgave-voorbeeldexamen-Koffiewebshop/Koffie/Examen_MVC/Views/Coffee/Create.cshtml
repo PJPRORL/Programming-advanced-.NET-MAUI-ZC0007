@@ -1,0 +1,35 @@
+﻿@model AddCoffeeVM
+
+@{
+    ViewData["Title"] = "Nieuwe Koffie Toevoegen";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @* Todo: Voeg labels, input velden en validaties toe *@
+    <div class="mb-3">
+        Name
+    </div>
+
+    <div class="mb-3">
+        Description
+    </div>
+
+    <div class="mb-3">
+        Brewer 
+    </div>
+
+    <div class="mb-3">
+        Price
+    </div>
+
+    <button type="submit" class="btn btn-primary">Toevoegen</button>
+</form>
+
+@* Todo: Implementeer 'terug' button *@
+<a href="#" class="btn btn-secondary mt-3">Terug naar de lijst</a>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
