@@ -1,0 +1,111 @@
+﻿namespace ExamenNovember.Data
+{
+    public class ExamenNovemberContext : DbContext
+    {
+        public ExamenNovemberContext(DbContextOptions<ExamenNovemberContext> options)
+            : base(options) { }
+
+        // Aanmaken van de tabellen
+        public DbSet<Student> Studenten { get; set; }
+        public DbSet<Docent> Docenten { get; set; }
+        public DbSet<Klas> Klassen { get; set; }
+        public DbSet<DocentKlas> DocentKlassen { get; set; }
+
+        // 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Altijd eerst de basis-methode aanroepen
+            base.OnModelCreating(modelBuilder);
+            GenerateTables(modelBuilder);
+            SeedData(modelBuilder);
+        }
+
+        private void GenerateTables(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Docent>(entity =>
+            {
+                entity.ToTable("Docenten");
+                entity.Property(docent => docent.Naam).IsRequired().HasMaxLength(50);
+                entity.Property(docent => docent.Voornaam).IsRequired().HasMaxLength(50);
+                entity.Property(docent => docent.Email).IsRequired().HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Student>(entity =>
+            {
+                entity.ToTable("Studenten");
+                entity.Property(student => student.Naam).IsRequired().HasMaxLength(50);
+                entity.Property(student => student.Voornaam).IsRequired().HasMaxLength(50);
+                entity.Property(student => student.Email).IsRequired().HasMaxLength(50);
+                entity.Property(student => student.Geboortedatum).IsRequired();
+            });
+
+            modelBuilder.Entity<Klas>(entity =>
+            {
+                entity.ToTable("Klassen");
+                entity.Property(klas => klas.Naam).IsRequired().HasMaxLength(50);
+                entity.Property(klas => klas.Schooljaar).IsRequired().HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<DocentKlas>(entity =>
+            {
+                entity.ToTable("DocentKlassen");
+                entity.Property(docentKlas => docentKlas.DocentId).IsRequired();
+                entity.Property(docentKlas => docentKlas.KlasId).IsRequired();
+            });
+        }
+
+        private void SeedData(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Klas>().HasData(
+                new Klas { Id = 1, Naam = "G1", Schooljaar = "2026" },
+                new Klas { Id = 2, Naam = "G2", Schooljaar = "2026" },
+                new Klas { Id = 3, Naam = "G3", Schooljaar = "2026" },
+                new Klas { Id = 4, Naam = "G4", Schooljaar = "2026" },
+                new Klas { Id = 5, Naam = "G5", Schooljaar = "2026" }
+            );
+
+            modelBuilder.Entity<Student>().HasData(
+                new Student { Id = 1, Naam = "Brent", Voornaam = "Bloemen", Email = "Brent.bloemen@mail.com", Geboortedatum = new DateTime(1995, 5, 10, 0, 0, 0, DateTimeKind.Utc), KlasId = 1 },
+                new Student { Id = 2, Naam = "Peeters", Voornaam = "Emma", Email = "emma.peeters@mail.com", Geboortedatum = new DateTime(2001, 3, 14, 0, 0, 0, DateTimeKind.Utc), KlasId = 1 },
+                new Student { Id = 3, Naam = "Janssens", Voornaam = "Lars", Email = "lars.janssens@mail.com", Geboortedatum = new DateTime(2002, 7, 22, 0, 0, 0, DateTimeKind.Utc), KlasId = 2 },
+                new Student { Id = 4, Naam = "Dubois", Voornaam = "Noor", Email = "noor.dubois@mail.com", Geboortedatum = new DateTime(2000, 11, 5, 0, 0, 0, DateTimeKind.Utc), KlasId = 2 },
+                new Student { Id = 5, Naam = "Maes", Voornaam = "Thomas", Email = "thomas.maes@mail.com", Geboortedatum = new DateTime(2003, 1, 18, 0, 0, 0, DateTimeKind.Utc), KlasId = 3 },
+                new Student { Id = 6, Naam = "Peeters", Voornaam = "Julie", Email = "julie.willems@mail.com", Geboortedatum = new DateTime(1999, 8, 30, 0, 0, 0, DateTimeKind.Utc), KlasId = 3 },
+                new Student { Id = 7, Naam = "Claes", Voornaam = "Milan", Email = "milan.claes@mail.com", Geboortedatum = new DateTime(2001, 12, 9, 0, 0, 0, DateTimeKind.Utc), KlasId = 4 },
+                new Student { Id = 8, Naam = "Peeters", Voornaam = "Lotte", Email = "lotte.vermeulen@mail.com", Geboortedatum = new DateTime(2002, 4, 25, 0, 0, 0, DateTimeKind.Utc), KlasId = 4 },
+                new Student { Id = 9, Naam = "Goossens", Voornaam = "Arthur", Email = "arthur.goossens@mail.com", Geboortedatum = new DateTime(2000, 6, 12, 0, 0, 0, DateTimeKind.Utc), KlasId = 5 },
+                new Student { Id = 10, Naam = "Wouters", Voornaam = "Lina", Email = "lina.wouters@mail.com", Geboortedatum = new DateTime(2003, 9, 3, 0, 0, 0, DateTimeKind.Utc), KlasId = 5 },
+                new Student { Id = 11, Naam = "Martens", Voornaam = "Finn", Email = "finn.martens@mail.com", Geboortedatum = new DateTime(1998, 2, 17, 0, 0, 0, DateTimeKind.Utc), KlasId = 5 }
+            );
+
+            modelBuilder.Entity<Docent>().HasData(
+                new Docent { Id = 1, Naam = "Van Der Neffe", Voornaam = "Leon", Email = "Leon@mail.com" },
+                new Docent { Id = 2, Naam = "Van De Kasseinen", Voornaam = "Firmin", Email = "Firmin@mail.com" },
+                new Docent { Id = 3, Naam = "Kiekeboe", Voornaam = "Marcel", Email = "Marcel@mail.com" },
+                new Docent { Id = 4, Naam = "Peeters", Voornaam = "An", Email = "an.peeters@mail.com" },
+                new Docent { Id = 5, Naam = "Janssens", Voornaam = "Peter", Email = "peter.janssens@mail.com" },
+                new Docent { Id = 6, Naam = "Maes", Voornaam = "Sofie", Email = "sofie.maes@mail.com" },
+                new Docent { Id = 7, Naam = "Vermeulen", Voornaam = "Tom", Email = "tom.vermeulen@mail.com" }
+            );
+
+            modelBuilder.Entity<DocentKlas>().HasData(
+                new DocentKlas { Id = 1, KlasId = 1, DocentId = 1 },
+                new DocentKlas { Id = 2, KlasId = 1, DocentId = 2 },
+                new DocentKlas { Id = 3, KlasId = 2, DocentId = 3 },
+                new DocentKlas { Id = 4, KlasId = 2, DocentId = 1 },
+                new DocentKlas { Id = 5, KlasId = 1, DocentId = 3 },
+                new DocentKlas { Id = 6, KlasId = 2, DocentId = 4 },
+                new DocentKlas { Id = 7, KlasId = 3, DocentId = 5 },
+                new DocentKlas { Id = 8, KlasId = 4, DocentId = 6 },
+                new DocentKlas { Id = 9, KlasId = 5, DocentId = 7 },
+                new DocentKlas { Id = 10, KlasId = 1, DocentId = 4 },
+                new DocentKlas { Id = 11, KlasId = 2, DocentId = 5 },
+                new DocentKlas { Id = 12, KlasId = 3, DocentId = 6 },
+                new DocentKlas { Id = 13, KlasId = 4, DocentId = 7 },
+                new DocentKlas { Id = 14, KlasId = 5, DocentId = 3 },
+                new DocentKlas { Id = 15, KlasId = 1, DocentId = 5 }
+            );
+        }
+    }
+
+}
