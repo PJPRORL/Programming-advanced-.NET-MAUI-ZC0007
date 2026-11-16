@@ -7,5 +7,6 @@
         public string Voornaam { get; set; } = "";
         public string Email { get; set; } = "";
         public DateTime Geboortedatum { get; set; }
+        public int KlasId { get; set; }
     }
 }

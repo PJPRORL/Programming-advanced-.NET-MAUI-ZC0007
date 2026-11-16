@@ -1,0 +1,38 @@
+            // 1. Lesgever Seeden
+            modelBuilder.Entity<Lesgever>().HasData(
+                new Lesgever { Id = 1, Naam = "Van Beethoven", Voornaam = "Ludwig", Email = "ludwig@muziekschool.be" },
+                new Lesgever { Id = 2, Naam = "Peeters", Voornaam = "Clara", Email = "clara.peeters@muziekschool.be" },
+                new Lesgever { Id = 3, Naam = "Janssens", Voornaam = "David", Email = "david.janssens@muziekschool.be" },
+                new Lesgever { Id = 4, Naam = "Maes", Voornaam = "Hanne", Email = "hanne.maes@muziekschool.be" },
+                new Lesgever { Id = 5, Naam = "Vermeulen", Voornaam = "Bram", Email = "bram.vermeulen@muziekschool.be" }
+            );
+
+            // 2. Leerling Seeden
+            modelBuilder.Entity<Leerling>().HasData(
+                new Leerling { Id = 1, Naam = "Jacobs", Voornaam = "Mila", Email = "mila.jacobs@mail.com", Inschrijfdatum = new DateTime(2025, 9, 1, 0, 0, 0, DateTimeKind.Utc), InstrumentId = 1 },
+                new Leerling { Id = 2, Naam = "Peeters", Voornaam = "Noah", Email = "noah.peeters@mail.com", Inschrijfdatum = new DateTime(2025, 9, 3, 0, 0, 0, DateTimeKind.Utc), InstrumentId = 1 },
+                new Leerling { Id = 3, Naam = "Willems", Voornaam = "Camille", Email = "camille.willems@mail.com", Inschrijfdatum = new DateTime(2025, 9, 5, 0, 0, 0, DateTimeKind.Utc), InstrumentId = 2 },
+                new Leerling { Id = 4, Naam = "Claes", Voornaam = "Vince", Email = "vince.claes@mail.com", Inschrijfdatum = new DateTime(2025, 9, 10, 0, 0, 0, DateTimeKind.Utc), InstrumentId = 2 },
+                new Leerling { Id = 5, Naam = "Peeters", Voornaam = "Marie", Email = "marie.peeters@mail.com", Inschrijfdatum = new DateTime(2025, 9, 12, 0, 0, 0, DateTimeKind.Utc), InstrumentId = 3 },
+                new Leerling { Id = 6, Naam = "Dubois", Voornaam = "Lucas", Email = "lucas.dubois@mail.com", Inschrijfdatum = new DateTime(2025, 9, 15, 0, 0, 0, DateTimeKind.Utc), InstrumentId = 4 }
+            );
+
+            // 3. Instrument Seeden
+            modelBuilder.Entity<Instrument>().HasData(
+                new Instrument { Id = 1, Naam = "Piano", Categorie = "Toetsinstrumenten" },
+                new Instrument { Id = 2, Naam = "Gitaar", Categorie = "Snaarinstrumenten" },
+                new Instrument { Id = 3, Naam = "Viool", Categorie = "Strijkinstrumenten" },
+                new Instrument { Id = 4, Naam = "Drums", Categorie = "Slagwerk" },
+                new Instrument { Id = 5, Naam = "Dwarsfluit", Categorie = "Blaasinstrumenten" }
+            );
+
+            // 4. LesgeverInstrument Seeden
+            modelBuilder.Entity<LesgeverInstrument>().HasData(
+                new LesgeverInstrument { Id = 1, InstrumentId = 1, LesgeverId = 1 },
+                new LesgeverInstrument { Id = 2, InstrumentId = 1, LesgeverId = 2 },
+                new LesgeverInstrument { Id = 3, InstrumentId = 2, LesgeverId = 3 },
+                new LesgeverInstrument { Id = 4, InstrumentId = 2, LesgeverId = 1 },
+                new LesgeverInstrument { Id = 5, InstrumentId = 3, LesgeverId = 4 },
+                new LesgeverInstrument { Id = 6, InstrumentId = 4, LesgeverId = 5 },
+                new LesgeverInstrument { Id = 7, InstrumentId = 3, LesgeverId = 2 }
+            );

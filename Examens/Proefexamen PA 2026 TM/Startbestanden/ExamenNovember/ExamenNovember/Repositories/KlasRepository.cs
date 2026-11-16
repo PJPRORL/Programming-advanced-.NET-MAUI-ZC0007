@@ -29,7 +29,7 @@
 
         public async Task<List<Klas>> GetAllKlassenAsync()
         {
-            return _context.Klassen.OrderBy(docent => docent.Naam).ToList();
+            return _context.Klassen.OrderBy(klas => klas.Naam).ToList();
         }
 
         public async Task<Klas> GetKlasByIdAsync(int id)

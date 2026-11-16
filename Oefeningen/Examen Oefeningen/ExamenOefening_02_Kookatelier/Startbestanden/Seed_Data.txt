@@ -1,0 +1,35 @@
+            // 1. Chef Seeden
+            modelBuilder.Entity<Chef>().HasData(
+                new Chef { Id = 1, Naam = "Dewulf", Voornaam = "Hilde", Email = "hilde.dewulf@kookatelier.be" },
+                new Chef { Id = 2, Naam = "Lambrecht", Voornaam = "Jonas", Email = "jonas.lambrecht@kookatelier.be" },
+                new Chef { Id = 3, Naam = "Aerts", Voornaam = "Mira", Email = "mira.aerts@kookatelier.be" },
+                new Chef { Id = 4, Naam = "Van Damme", Voornaam = "Pieter", Email = "pieter.vandamme@kookatelier.be" }
+            );
+
+            // 2. Deelnemer Seeden
+            modelBuilder.Entity<Deelnemer>().HasData(
+                new Deelnemer { Id = 1, Naam = "Peeters", Voornaam = "Lore", Email = "lore.peeters@mail.com", Inschrijfdatum = new DateTime(2026, 9, 2, 0, 0, 0, DateTimeKind.Utc), Inschrijfgeld = 65.00m, WorkshopId = 1 },
+                new Deelnemer { Id = 2, Naam = "Claes", Voornaam = "Robin", Email = "robin.claes@mail.com", Inschrijfdatum = new DateTime(2026, 9, 4, 0, 0, 0, DateTimeKind.Utc), Inschrijfgeld = 65.00m, WorkshopId = 1 },
+                new Deelnemer { Id = 3, Naam = "Peeters", Voornaam = "Tibo", Email = "tibo.peeters@mail.com", Inschrijfdatum = new DateTime(2026, 9, 7, 0, 0, 0, DateTimeKind.Utc), Inschrijfgeld = 79.50m, WorkshopId = 2 },
+                new Deelnemer { Id = 4, Naam = "Wouters", Voornaam = "Anke", Email = "anke.wouters@mail.com", Inschrijfdatum = new DateTime(2026, 9, 9, 0, 0, 0, DateTimeKind.Utc), Inschrijfgeld = 79.50m, WorkshopId = 2 },
+                new Deelnemer { Id = 5, Naam = "Hermans", Voornaam = "Sam", Email = "sam.hermans@mail.com", Inschrijfdatum = new DateTime(2026, 9, 15, 0, 0, 0, DateTimeKind.Utc), Inschrijfgeld = 54.90m, WorkshopId = 3 },
+                new Deelnemer { Id = 6, Naam = "Dubois", Voornaam = "Elise", Email = "elise.dubois@mail.com", Inschrijfdatum = new DateTime(2026, 9, 18, 0, 0, 0, DateTimeKind.Utc), Inschrijfgeld = 54.90m, WorkshopId = 3 }
+            );
+
+            // 3. Workshop Seeden
+            modelBuilder.Entity<Workshop>().HasData(
+                new Workshop { Id = 1, Naam = "Verse pasta", Lokaal = "Keuken A" },
+                new Workshop { Id = 2, Naam = "Zuurdesembrood", Lokaal = "Keuken B" },
+                new Workshop { Id = 3, Naam = "Vegetarisch koken", Lokaal = "Keuken A" },
+                new Workshop { Id = 4, Naam = "Desserts", Lokaal = "Keuken C" }
+            );
+
+            // 4. ChefWorkshop Seeden
+            modelBuilder.Entity<ChefWorkshop>().HasData(
+                new ChefWorkshop { Id = 1, WorkshopId = 1, ChefId = 1 },
+                new ChefWorkshop { Id = 2, WorkshopId = 1, ChefId = 2 },
+                new ChefWorkshop { Id = 3, WorkshopId = 2, ChefId = 2 },
+                new ChefWorkshop { Id = 4, WorkshopId = 2, ChefId = 3 },
+                new ChefWorkshop { Id = 5, WorkshopId = 3, ChefId = 4 },
+                new ChefWorkshop { Id = 6, WorkshopId = 3, ChefId = 1 }
+            );

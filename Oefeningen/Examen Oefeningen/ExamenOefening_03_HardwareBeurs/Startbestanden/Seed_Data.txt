@@ -1,0 +1,34 @@
+            // 1. Spreker Seeden
+            modelBuilder.Entity<Spreker>().HasData(
+                new Spreker { Id = 1, Naam = "Verhoeven", Voornaam = "Sander", Email = "sander.verhoeven@techbeurs.be" },
+                new Spreker { Id = 2, Naam = "De Ridder", Voornaam = "Laura", Email = "laura.deridder@techbeurs.be" },
+                new Spreker { Id = 3, Naam = "Bogaert", Voornaam = "Niels", Email = "niels.bogaert@techbeurs.be" },
+                new Spreker { Id = 4, Naam = "Smets", Voornaam = "Katrien", Email = "katrien.smets@techbeurs.be" }
+            );
+
+            // 2. Bezoeker Seeden
+            modelBuilder.Entity<Bezoeker>().HasData(
+                new Bezoeker { Id = 1, Naam = "Peeters", Voornaam = "Jeroen", Email = "jeroen.peeters@mail.com", Registratiedatum = new DateTime(2026, 10, 12, 0, 0, 0, DateTimeKind.Utc), SessieId = 1 },
+                new Bezoeker { Id = 2, Naam = "Willems", Voornaam = "Sofie", Email = "sofie.willems@mail.com", Registratiedatum = new DateTime(2026, 10, 14, 0, 0, 0, DateTimeKind.Utc), SessieId = 1 },
+                new Bezoeker { Id = 3, Naam = "Janssens", Voornaam = "Ruben", Email = "ruben.janssens@mail.com", Registratiedatum = new DateTime(2026, 10, 15, 0, 0, 0, DateTimeKind.Utc), SessieId = 2 },
+                new Bezoeker { Id = 4, Naam = "Peeters", Voornaam = "Eline", Email = "eline.peeters@mail.com", Registratiedatum = new DateTime(2026, 10, 18, 0, 0, 0, DateTimeKind.Utc), SessieId = 2 },
+                new Bezoeker { Id = 5, Naam = "Maes", Voornaam = "Gilles", Email = "gilles.maes@mail.com", Registratiedatum = new DateTime(2026, 10, 20, 0, 0, 0, DateTimeKind.Utc), SessieId = 3 }
+            );
+
+            // 3. Sessie Seeden
+            modelBuilder.Entity<Sessie>().HasData(
+                new Sessie { Id = 1, Naam = "Airflow en Casefans", Zaal = "Hal A" },
+                new Sessie { Id = 2, Naam = "DDR5 en Moederborden", Zaal = "Hal B" },
+                new Sessie { Id = 3, Naam = "Waterkoeling op Maat", Zaal = "Hal C" },
+                new Sessie { Id = 4, Naam = "Voedingen en Kabelbeheer", Zaal = "Hal D" }
+            );
+
+            // 4. SprekerSessie Seeden
+            modelBuilder.Entity<SprekerSessie>().HasData(
+                new SprekerSessie { Id = 1, SessieId = 1, SprekerId = 1 },
+                new SprekerSessie { Id = 2, SessieId = 1, SprekerId = 2 },
+                new SprekerSessie { Id = 3, SessieId = 2, SprekerId = 2 },
+                new SprekerSessie { Id = 4, SessieId = 2, SprekerId = 3 },
+                new SprekerSessie { Id = 5, SessieId = 3, SprekerId = 4 },
+                new SprekerSessie { Id = 6, SessieId = 3, SprekerId = 1 }
+            );

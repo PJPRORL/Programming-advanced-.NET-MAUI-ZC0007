@@ -49,6 +49,6 @@
                 new DocentKlas { Id = 13, KlasId = 4, DocentId = 7 },
                 new DocentKlas { Id = 14, KlasId = 5, DocentId = 3 },
                 new DocentKlas { Id = 15, KlasId = 1, DocentId = 5 }
-            );	
+            );
 
 	
